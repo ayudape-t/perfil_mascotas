@@ -351,4 +351,58 @@
 
           const file = new File([blob], `SE_BUSCA_${petData.pet.toUpperCase()}.png`, { type: 'image/png' });
 
-          if (navigator.canShare && navigator.
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: `¡SE BUSCA A ${petData.pet.toUpperCase()}!`,
+                text: `¡Por favor ayúdanos a encontrar a ${petData.pet}! Si lo ves, comunícate al +${petData.phone}`
+              });
+            } catch (shareErr) {
+              console.log("Compartir cancelado:", shareErr);
+            }
+          } else {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `SE_BUSCA_${petData.pet.toUpperCase()}.png`;
+            a.click();
+            alert("¡Imagen descargada! Ya puedes compartirla en tus redes.");
+          }
+
+          btn.innerHTML = textOriginal;
+          btn.disabled = false;
+        }, 'image/png');
+
+      } catch (err) {
+        alert("Error al crear la imagen: " + err.message);
+        btn.innerHTML = textOriginal;
+        btn.disabled = false;
+      }
+    }
+
+    function abrirModalPIN() {
+      document.getElementById('pin-modal').classList.remove('hidden');
+      document.getElementById('modal-pin-input').value = '';
+      document.getElementById('modal-pin-input').focus();
+    }
+
+    function cerrarModalPIN() {
+      document.getElementById('pin-modal').classList.add('hidden');
+    }
+
+    function validarPINModal() {
+      const input = document.getElementById('modal-pin-input').value.trim();
+      if (!petData) return;
+
+      if (input === petData.pin) {
+        sessionStorage.setItem(`auth_${tagId}`, 'true');
+        window.location.href = `registro.html?id=${tagId}`;
+      } else {
+        alert("❌ PIN Incorrecto.");
+      }
+    }
+
+    cargarPerfil();
+  </script>
+</body>
+</html>
