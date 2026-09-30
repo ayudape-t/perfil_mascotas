@@ -164,7 +164,7 @@
     </div>
   </div>
 
-  <!-- MODAL AFICHE "¡SE BUSCA!" ESTILO IMAGEN DE REFERENCIA -->
+  <!-- MODAL AFICHE "¡SE BUSCA!" CON SVG NATIVO (OPTIMIZADO PARA HTML2CANVAS) -->
   <div id="afiche-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4 overflow-y-auto">
     <div class="no-print mb-4 flex flex-wrap gap-2 justify-center">
       <button id="btn-share-img" onclick="compartirAficheImagen()" class="py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-lg flex items-center gap-2 text-sm transition-all">
@@ -180,22 +180,22 @@
       </button>
     </div>
 
-    <!-- CARTEL VISUAL ESTILO IMAGEN -->
+    <!-- CARTEL CAPTURABLE -->
     <div id="printable-poster" class="poster-paws-bg text-slate-900 p-6 rounded-3xl max-w-sm w-full border-4 border-red-600 shadow-2xl text-center space-y-4 relative font-sans overflow-hidden">
       
-      <!-- Título de Impacto "¡SE BUSCA!" -->
+      <!-- Título Impactante -->
       <div class="relative z-10 pt-1">
         <h1 class="text-4xl sm:text-5xl font-black uppercase tracking-wider text-amber-400 drop-shadow-[0_4px_0_rgba(185,28,28,1)]" style="font-family: 'Arial Black', Impact, sans-serif; -webkit-text-stroke: 2px #dc2626;">
           ¡SE BUSCA!
         </h1>
       </div>
 
-      <!-- Foto de la Mascota con Marco Rojo -->
+      <!-- Foto Mascota -->
       <div class="relative z-10 w-52 h-64 mx-auto rounded-3xl overflow-hidden border-4 border-red-600 shadow-xl bg-slate-100">
         <img id="poster-photo" crossorigin="anonymous" src="" class="w-full h-full object-cover">
       </div>
 
-      <!-- Párrafo Descriptivo Amigable -->
+      <!-- Texto Descriptivo -->
       <div class="relative z-10 space-y-1.5 text-slate-800 text-sm font-semibold px-2 leading-relaxed">
         <p>
           Nuestro amigo <span id="poster-pet-name" class="font-black text-slate-900 text-base">---</span> 
@@ -211,15 +211,17 @@
         <p class="text-xs font-bold text-slate-600 pt-2">Llama o escribe a:</p>
       </div>
 
-      <!-- Botón Ovalado Amarillo con Teléfono -->
+      <!-- Botón de Teléfono con SVG puro (evita que el número desaparezca) -->
       <div class="relative z-10 pt-1">
-        <a id="poster-phone-btn" href="#" class="inline-flex items-center justify-center gap-3 w-full bg-amber-400 border-4 border-red-600 py-3 px-4 rounded-full shadow-lg text-red-700 font-black text-2xl font-mono tracking-wide hover:bg-amber-300 transition">
-          <i class="fa-solid fa-phone text-red-600 text-xl"></i>
-          <span id="poster-phone-num">---</span>
+        <a id="poster-phone-btn" href="#" class="flex items-center justify-center w-full bg-amber-400 border-4 border-red-600 py-3 px-4 rounded-full shadow-lg transition">
+          <svg class="w-7 h-7 text-red-700 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+          </svg>
+          <span id="poster-phone-num" class="text-red-700 font-black text-2xl font-mono tracking-wide">---</span>
         </a>
       </div>
 
-      <!-- Pie con Ficha Física Básica -->
+      <!-- Especificaciones Rápidas -->
       <div class="relative z-10 grid grid-cols-3 gap-1 bg-white/90 backdrop-blur-sm p-2 rounded-xl border border-red-200 text-[11px] font-bold text-slate-700 shadow-sm mt-2">
         <div><span class="text-red-500 block text-[9px] uppercase font-bold">Raza</span><span id="poster-breed">--</span></div>
         <div><span class="text-red-500 block text-[9px] uppercase font-bold">Color</span><span id="poster-color">--</span></div>
@@ -306,7 +308,6 @@
       document.getElementById('poster-pet-name').innerText = petData.pet || 'Nuestra mascota';
       if (petData.photo) document.getElementById('poster-photo').src = petData.photo;
 
-      // Construcción del texto dinámico de ubicación y fecha/hora
       const lugar = petData.lost_location ? `cerca a ${petData.lost_location}` : 'en la zona';
       let fechaHora = '';
       if (petData.lost_date && petData.lost_time) {
@@ -350,17 +351,43 @@
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generando...`;
       btn.disabled = true;
       try {
-        const canvas = await html2canvas(document.getElementById('printable-poster'), { useCORS: true, scale: 2, backgroundColor: null });
+        const canvas = await html2canvas(document.getElementById('printable-poster'), { 
+          useCORS: true, 
+          scale: 2, 
+          backgroundColor: '#ffffff' 
+        });
+        
         canvas.toBlob(async (blob) => {
-          const file = new File([blob], `SE_BUSCA_${petData.pet.toUpperCase()}.png`, { type: 'image/png' });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: `¡SE BUSCA A ${petData.pet.toUpperCase()}!`, text: `Por favor ayúdanos a encontrar a ${petData.pet}` });
-          } else {
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+          if (!blob) {
+            alert("No se pudo generar la imagen.");
+            btn.innerHTML = textOriginal;
+            btn.disabled = false;
+            return;
           }
-          btn.innerHTML = textOriginal; btn.disabled = false;
+
+          const file = new File([blob], `SE_BUSCA_${petData.pet.toUpperCase()}.png`, { type: 'image/png' });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ 
+              files: [file], 
+              title: `¡SE BUSCA A ${petData.pet.toUpperCase()}!`, 
+              text: `Por favor ayúdanos a encontrar a ${petData.pet}. Si lo ves, comunícate al ${petData.phone}` 
+            });
+          } else {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = file.name;
+            a.click();
+            alert("¡Imagen descargada exitosamente!");
+          }
+          btn.innerHTML = textOriginal; 
+          btn.disabled = false;
         }, 'image/png');
-      } catch (err) { alert("Error: " + err.message); btn.innerHTML = textOriginal; btn.disabled = false; }
+      } catch (err) { 
+        alert("Error al generar la imagen: " + err.message); 
+        btn.innerHTML = textOriginal; 
+        btn.disabled = false; 
+      }
     }
 
     function abrirModalPIN() { document.getElementById('pin-modal').classList.remove('hidden'); document.getElementById('modal-pin-input').value = ''; document.getElementById('modal-pin-input').focus(); }
