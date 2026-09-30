@@ -29,13 +29,44 @@
 
     <form id="pet-form" class="p-6 space-y-4" onsubmit="return false;">
       
-      <!-- Interruptor Estado Perdida -->
-      <div id="lost-toggle-box" class="hidden bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200 text-center space-y-2 shadow-sm">
+      <!-- INTERRUPTOR ESTADO PÉRDIDA -->
+      <div id="lost-toggle-box" class="hidden bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200 text-center space-y-3 shadow-sm">
         <label class="block text-xs font-bold text-slate-600 uppercase">Estado de la Mascota</label>
+        
         <button id="btn-toggle-lost" type="button" onclick="toggleMascotaPerdida()" class="w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-emerald-100 text-emerald-800 border border-emerald-300">
           <i class="fa-solid fa-house-chimney text-base"></i>
           <span>Segura en Casa</span>
         </button>
+
+        <!-- SECCIÓN DE DETALLES DE PÉRDIDA (Se despliega solo cuando está activa la alarma) -->
+        <div id="lost-details-box" class="hidden text-left bg-red-50 p-3.5 rounded-xl border border-red-200 space-y-3 mt-2">
+          <h3 class="text-xs font-extrabold text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-location-dot"></i> Datos para el Afiche de Pérdida
+          </h3>
+
+          <div>
+            <label for="input-lost-location" class="block text-[11px] font-bold text-slate-700 uppercase mb-1">¿Dónde se perdió? (Lugar / Referencia)</label>
+            <input type="text" id="input-lost-location" placeholder="Ej. Parque Amarilis / Av. Central" class="w-full px-3 py-2 bg-white rounded-xl border border-red-200 focus:ring-2 focus:ring-red-400 outline-none text-xs text-slate-800">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="input-lost-date" class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Fecha de pérdida</label>
+              <input type="text" id="input-lost-date" placeholder="Ej. 8 de noviembre" class="w-full px-3 py-2 bg-white rounded-xl border border-red-200 focus:ring-2 focus:ring-red-400 outline-none text-xs text-slate-800">
+            </div>
+            <div>
+              <label for="input-lost-time" class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Hora aprox.</label>
+              <input type="text" id="input-lost-time" placeholder="Ej. 4:30 PM" class="w-full px-3 py-2 bg-white rounded-xl border border-red-200 focus:ring-2 focus:ring-red-400 outline-none text-xs text-slate-800">
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <input type="checkbox" id="input-reward" class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+            <label for="input-reward" class="text-xs font-extrabold text-red-800 cursor-pointer">
+              🎁 Ofrecer recompensa en el afiche
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- SECCIÓN: DATOS BÁSICOS -->
@@ -54,7 +85,6 @@
           <input type="text" id="input-pet" placeholder="Ej. Princesa" required class="w-full px-4 py-3 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm text-slate-800">
         </div>
 
-        <!-- NUEVOS CAMPOS FÍSICOS (Raza, Color, Peso, Edad) -->
         <div class="grid grid-cols-2 gap-2 mb-3">
           <div>
             <label for="input-breed" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Raza</label>
@@ -190,6 +220,11 @@
         savedPin = data.pin;
         isLostState = data.is_lost || false;
 
+        document.getElementById('input-lost-location').value = data.lost_location || '';
+        document.getElementById('input-lost-date').value = data.lost_date || '';
+        document.getElementById('input-lost-time').value = data.lost_time || '';
+        document.getElementById('input-reward').checked = data.reward || false;
+
         document.getElementById('input-allergies').value = data.allergies || '';
         document.getElementById('input-medical').value = data.medical_notes || '';
         document.getElementById('input-diet').value = data.diet || '';
@@ -208,16 +243,23 @@
       }
     }
 
-    function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
+    function toggleMascotaPerdida() { 
+      isLostState = !isLostState; 
+      actualizarBotonAlarmaUI(); 
+    }
 
     function actualizarBotonAlarmaUI() {
       const btn = document.getElementById('btn-toggle-lost');
+      const detailsBox = document.getElementById('lost-details-box');
+
       if (isLostState) {
         btn.className = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-red-600 text-white shadow-lg shadow-red-600/30 animate-pulse";
         btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i> <span>¡ALARMA ACTIVADA: MASCOTA PERDIDA!</span>`;
+        if (detailsBox) detailsBox.classList.remove('hidden');
       } else {
         btn.className = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-emerald-100 text-emerald-800 border border-emerald-300";
         btn.innerHTML = `<i class="fa-solid fa-house-chimney text-base"></i> <span>Estado: Segura en Casa</span>`;
+        if (detailsBox) detailsBox.classList.add('hidden');
       }
     }
 
@@ -283,6 +325,10 @@
           phone: phone,
           pin: finalPin,
           is_lost: isLostState,
+          lost_location: document.getElementById('input-lost-location').value.trim(),
+          lost_date: document.getElementById('input-lost-date').value.trim(),
+          lost_time: document.getElementById('input-lost-time').value.trim(),
+          reward: document.getElementById('input-reward').checked,
           photo: photoPublicUrl,
           allergies: document.getElementById('input-allergies').value.trim(),
           medical_notes: document.getElementById('input-medical').value.trim(),
