@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PetGuard - Perfil de Mascota</title>
+  <title>Helpet - Perfil de Mascota</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -19,9 +19,9 @@
       theme: {
         extend: {
           colors: {
-            navy: '#1B3252',
-            burgundy: '#7A263A',
-            cream: '#F5F2EA',
+            brandDark: '#0f172a',
+            brandRed: '#dc2626',
+            brandAmber: '#f59e0b',
           }
         }
       }
@@ -29,60 +29,60 @@
   </script>
   
   <style>
-    body { background-color: #F5F2EA; }
+    body { background-color: #0f172a; color: #f8fafc; }
   </style>
 </head>
-<body class="text-slate-800 font-sans min-h-screen pb-10">
+<body class="min-h-screen pb-10 font-sans">
 
   <!-- CONTENEDOR PRINCIPAL -->
   <main class="max-w-md mx-auto p-4 space-y-4">
 
-    <!-- 1. PLACA NO REGISTRADA (Se muestra si no hay ID) -->
-    <div id="unregistered-card" class="hidden bg-white rounded-3xl shadow-xl p-8 text-center space-y-4 border border-slate-200">
-      <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-sm">
+    <!-- 1. TARJETA DE PLACA NO REGISTRADA (Si el ID no existe en Supabase) -->
+    <div id="unregistered-card" class="hidden bg-slate-800 rounded-3xl shadow-2xl p-8 text-center space-y-4 border border-slate-700">
+      <div class="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-amber-500/30">
         <i class="fa-solid fa-qrcode"></i>
       </div>
-      <h2 class="text-2xl font-black text-slate-900">Placa No Registrada</h2>
-      <p class="text-xs text-slate-500">Esta placa aún no tiene asignada información de ninguna mascota.</p>
-      <a id="link-register" href="#" class="block w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-2xl shadow-lg hover:from-amber-600 hover:to-amber-700 transition">
+      <h2 class="text-2xl font-black text-white tracking-tight">Placa Helpet No Registrada</h2>
+      <p class="text-xs text-slate-400">Esta placa aún no ha sido vinculada a ninguna mascota en nuestro sistema.</p>
+      <a id="link-register" href="#" class="block w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black rounded-2xl shadow-lg hover:from-amber-400 hover:to-amber-500 transition">
         <i class="fa-solid fa-plus-circle mr-1.5"></i> Registrar esta Placa Ahora
       </a>
     </div>
 
-    <!-- 2. BANNER DE ALERTA ROJA (Se activa al estar perdida) -->
-    <div id="lost-alert-banner" class="hidden w-full bg-red-600 text-white font-extrabold text-center py-3 px-4 rounded-2xl shadow-lg flex items-center justify-between gap-2 animate-pulse">
+    <!-- 2. BANNER DE ALERTA ROJA (Se activa si esta_perdido === true) -->
+    <div id="lost-alert-banner" class="hidden w-full bg-red-600 text-white font-extrabold text-center py-3 px-4 rounded-2xl shadow-xl flex items-center justify-between gap-2 animate-pulse border border-red-500">
       <div class="flex items-center gap-2">
-        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-        <span class="text-xs sm:text-sm tracking-wide uppercase">¡MASCOTA BUSCADA!</span>
+        <i class="fa-solid fa-triangle-exclamation text-xl text-yellow-300"></i>
+        <span class="text-xs sm:text-sm tracking-wide uppercase font-black">¡AYUDA A PET!</span>
       </div>
-      <button onclick="abrirAficheModal()" id="btn-afiche" class="bg-yellow-400 text-red-950 text-xs px-3 py-1.5 rounded-xl font-black hover:bg-yellow-300 transition shadow">
+      <button onclick="abrirAficheModal()" id="btn-afiche" class="bg-yellow-400 text-red-950 text-xs px-3.5 py-1.5 rounded-xl font-black hover:bg-yellow-300 transition shadow-lg">
         📄 VER AFICHE
       </button>
     </div>
 
     <!-- 3. TARJETA PRINCIPAL DEL PERFIL -->
-    <div id="app-container" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+    <div id="app-container" class="bg-slate-800 rounded-3xl shadow-2xl overflow-hidden border border-slate-700">
       
-      <!-- Cabecera Ilustrada con Foto -->
-      <div id="header-bg" class="relative h-60 w-full overflow-hidden flex items-start justify-center pt-3 border-b border-slate-100 bg-navy">
+      <!-- Cabecera con Foto -->
+      <div id="header-bg" class="relative h-64 w-full overflow-hidden flex items-start justify-center pt-3 bg-slate-950">
         
         <!-- Insignia de Estado -->
-        <div id="insignia-estado-encabezado" class="relative z-10 inline-block bg-emerald-600/90 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold text-white shadow">
-          <i class="fa-solid fa-shield-cat mr-1.5"></i> PROTEGIDO POR PETGUARD
+        <div id="insignia-estado-encabezado" class="relative z-10 inline-block bg-slate-900/90 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold text-amber-400 border border-amber-500/30 shadow">
+          <i class="fa-solid fa-shield-cat mr-1.5"></i> PROTEGIDO POR HELPET
         </div>
         
         <!-- Foto Principal -->
         <img id="pet-photo" src="https://via.placeholder.com/400" alt="Mascota" class="absolute inset-0 w-full h-full object-cover">
         
         <!-- Degradado Inferior -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-black/30"></div>
 
-        <!-- Indicador de Estado (Esquina inferior) -->
-        <div id="indicador-estado" class="absolute bottom-3 right-4 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md"></div>
+        <!-- Indicador de Estado -->
+        <div id="indicador-estado" class="absolute bottom-3 right-4 bg-emerald-500 w-5 h-5 rounded-full border-2 border-slate-800 shadow-md"></div>
 
         <div class="absolute bottom-3 left-4 text-white">
-          <h1 id="pet-name" class="text-3xl font-black tracking-tight drop-shadow">--</h1>
-          <p id="sub-estado" class="text-xs font-bold text-slate-200 uppercase tracking-widest">Mascota Registrada</p>
+          <h1 id="pet-name" class="text-3xl font-black tracking-tight drop-shadow-md">--</h1>
+          <p id="sub-estado" class="text-xs font-bold text-amber-400 uppercase tracking-widest">Mascota Registrada</p>
         </div>
       </div>
 
@@ -90,45 +90,45 @@
       <div class="p-6 space-y-6">
 
         <!-- Ficha Técnica -->
-        <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+        <div class="grid grid-cols-3 gap-2 bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700/60 text-center">
           <div>
             <span class="block text-[10px] uppercase font-bold text-slate-400">Raza</span>
-            <span id="pet-breed" class="font-bold text-slate-700 text-xs sm:text-sm">--</span>
+            <span id="pet-breed" class="font-bold text-slate-200 text-xs sm:text-sm">--</span>
           </div>
-          <div class="border-x border-slate-200">
+          <div class="border-x border-slate-700/60">
             <span class="block text-[10px] uppercase font-bold text-slate-400">Color</span>
-            <span id="pet-color" class="font-bold text-slate-700 text-xs sm:text-sm">--</span>
+            <span id="pet-color" class="font-bold text-slate-200 text-xs sm:text-sm">--</span>
           </div>
           <div>
             <span class="block text-[10px] uppercase font-bold text-slate-400">Edad</span>
-            <span id="pet-age" class="font-bold text-slate-700 text-xs sm:text-sm">--</span>
+            <span id="pet-age" class="font-bold text-slate-200 text-xs sm:text-sm">--</span>
           </div>
         </div>
 
         <!-- Botones de Contacto Directo -->
         <div class="space-y-3">
           <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-phone text-navy"></i> Contacto de Emergencia
+            <i class="fa-solid fa-phone text-amber-400"></i> Contacto de Emergencia
           </h3>
-          <a id="btn-call" href="tel:" class="flex items-center justify-center gap-2 w-full py-3.5 bg-navy hover:bg-slate-800 text-white font-extrabold rounded-2xl shadow-md transition">
+          <a id="btn-call" href="tel:" class="flex items-center justify-center gap-2 w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl shadow-lg transition active:scale-95">
             <i class="fa-solid fa-phone-flip"></i> Llamar al Propietario
           </a>
-          <a id="btn-whatsapp" href="https://wa.me/" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-md transition">
+          <a id="btn-whatsapp" href="https://wa.me/" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl shadow-lg transition active:scale-95">
             <i class="fa-brands fa-whatsapp text-lg"></i> Enviar WhatsApp
           </a>
         </div>
 
         <!-- Tarjeta Médica -->
-        <div id="tarjeta-medica" class="hidden space-y-2 p-4 bg-amber-50/60 rounded-2xl border border-amber-200/60">
-          <h3 class="text-xs font-black uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
-            <i class="fa-solid fa-notes-medical"></i> Información Médica
+        <div id="tarjeta-medica" class="hidden space-y-2 p-4 bg-slate-900/90 rounded-2xl border border-amber-500/30">
+          <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-notes-medical"></i> Información Médica / Relevante
           </h3>
-          <p id="pet-medical-notes" class="text-xs text-slate-600 leading-relaxed">--</p>
+          <p id="pet-medical-notes" class="text-xs text-slate-300 leading-relaxed">--</p>
         </div>
 
         <!-- Acceso Propietario -->
-        <div class="pt-2 border-t border-slate-100 flex justify-center">
-          <button onclick="abrirModalEdicion()" class="text-xs font-bold text-slate-400 hover:text-navy flex items-center gap-1.5 transition">
+        <div class="pt-2 border-t border-slate-700/60 flex justify-center">
+          <button onclick="abrirModalEdicion()" class="text-xs font-bold text-slate-400 hover:text-amber-400 flex items-center gap-1.5 transition">
             <i class="fa-solid fa-gear"></i> Panel del Dueño / Reportar Pérdida
           </button>
         </div>
@@ -139,16 +139,17 @@
   </main>
 
   <!-- ========================================== -->
-  <!-- MODAL CARTEL: ¡SE BUSCA!                  -->
+  <!-- MODAL AFICHE: ¡SE BUSCA! / AYUDA A PET     -->
   <!-- ========================================== -->
   <div id="modal-afiche" class="hidden fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="relative bg-slate-900 rounded-3xl max-w-md w-full p-4 border border-slate-800 shadow-2xl">
       
       <button onclick="cerrarAficheModal()" class="absolute top-3 right-3 z-10 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full font-bold flex items-center justify-center shadow-lg">✕</button>
 
-      <!-- Afiche visual -->
+      <!-- Cartel impreso visual -->
       <div id="cartel-se-busca" class="relative overflow-hidden bg-white text-slate-900 rounded-3xl p-6 shadow-2xl border-4 border-red-600 text-center font-sans">
 
+        <!-- Encabezado con estilo "Ayuda a Pet" -->
         <div class="inline-block bg-red-600 text-yellow-300 font-black text-3xl sm:text-4xl tracking-wider px-8 py-2 rounded-2xl shadow-md border-2 border-yellow-300 transform -rotate-1 mb-5">
           ¡SE BUSCA!
         </div>
@@ -179,6 +180,7 @@
           </div>
         </div>
 
+        <!-- Etiqueta Recompensa -->
         <div id="cartel-recompensa-tag" class="hidden mb-4 bg-amber-100 text-amber-900 border border-amber-300 rounded-xl py-1.5 px-3 font-extrabold text-xs tracking-wide">
           🎁 SE OFRECE RECOMPENSA
         </div>
@@ -190,41 +192,46 @@
           <span id="cartel-numero-telefono">--</span>
         </a>
 
+        <p class="text-[10px] text-slate-400 mt-4 font-bold uppercase tracking-wider">
+          Ayuda a Pet • Sistema Helpet
+        </p>
+
       </div>
 
     </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- MODAL CONFIGURACIÓN PROPIETARIO            -->
+  <!-- MODAL PANEL DEL PROPIETARIO               -->
   <!-- ========================================== -->
-  <div id="modal-edicion" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="relative bg-slate-900 text-white rounded-3xl max-w-md w-full p-6 space-y-4 border border-slate-800 shadow-2xl">
+  <div id="modal-edicion" class="hidden fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="relative bg-slate-900 text-white rounded-3xl max-w-md w-full p-6 space-y-4 border border-slate-700 shadow-2xl">
       <button onclick="cerrarModalEdicion()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold">✕</button>
       
       <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
-        <i class="fa-solid fa-sliders"></i> Panel del Propietario
+        <i class="fa-solid fa-sliders"></i> Panel de Configuración Helpet
       </h3>
 
-      <div class="p-4 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-3">
+      <!-- Formulario Alerta Pérdida -->
+      <div id="form-alerta-perdida" class="p-4 bg-slate-800/90 rounded-2xl border border-red-500/40 space-y-3">
         <label class="flex items-center justify-between cursor-pointer">
           <span class="text-sm font-bold text-red-400">🚨 Estado: ¿Mascota Extraviada?</span>
-          <input type="checkbox" id="input-esta-perdido" class="w-5 h-5 accent-red-600 rounded">
+          <input type="checkbox" id="input-esta-perdido" class="w-5 h-5 accent-red-600 rounded cursor-pointer">
         </label>
 
         <div>
-          <label class="block text-xs text-slate-300 mb-1">¿Dónde se perdió? (Referencia / Lugar)</label>
-          <input type="text" id="input-lugar-perdida" placeholder="Ej. Cerca al Parque Amarilis, Huánuco" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:border-red-500 outline-none">
+          <label class="block text-xs text-slate-300 mb-1">¿Dónde se perdió? (Lugar / Referencia)</label>
+          <input type="text" id="input-lugar-perdida" placeholder="Ej. Cerca al Parque Amarilis" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:border-red-500 outline-none">
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-xs text-slate-300 mb-1">Fecha de pérdida</label>
-            <input type="date" id="input-fecha-perdida" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:border-red-500 outline-none">
+            <input type="date" id="input-fecha-perdida" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:border-red-500 outline-none">
           </div>
           <div>
             <label class="block text-xs text-slate-300 mb-1">¿Recompensa?</label>
-            <select id="input-recompensa" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:border-red-500 outline-none">
+            <select id="input-recompensa" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:border-red-500 outline-none">
               <option value="No">No</option>
               <option value="Si">Sí</option>
             </select>
@@ -232,30 +239,30 @@
         </div>
       </div>
 
-      <div class="space-y-2 text-xs">
+      <div class="space-y-3 text-xs">
         <div>
           <label class="block text-slate-400 mb-1">Teléfono de Contacto</label>
           <input type="text" id="input-telefono" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none">
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">Notas Médicas</label>
+          <label class="block text-slate-400 mb-1">Notas Médicas / Observaciones</label>
           <textarea id="input-notas" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"></textarea>
         </div>
       </div>
 
-      <button onclick="guardarCambiosPropietario()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg">
+      <button onclick="guardarCambiosPropietario()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl transition shadow-lg">
         Guardar Cambios
       </button>
     </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- LÓGICA JAVASCRIPT                          -->
+  <!-- LÓGICA JAVASCRIPT (SUPABASE & UI)          -->
   <!-- ========================================== -->
   <script>
-    // Configuración de Supabase (Reemplaza con tus llaves)
+    // Configuración de Supabase
     const SUPABASE_URL = "https://TU_PROYECTO.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o";
+    const SUPABASE_KEY = "TU_SUPABASE_ANON_KEY";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let mascotaActual = null;
@@ -292,7 +299,7 @@
         renderizarPerfil(data);
 
       } catch (err) {
-        console.error("Error al cargar datos:", err);
+        console.error("Error al cargar datos de Helpet:", err);
       }
     }
 
@@ -315,7 +322,7 @@
         document.getElementById('pet-medical-notes').textContent = data.datos_medicos || data.notas;
       }
 
-      // Cargar inputs del modal de edición
+      // Cargar inputs en el modal de edición del dueño
       document.getElementById('input-esta-perdido').checked = data.esta_perdido || false;
       document.getElementById('input-lugar-perdida').value = data.lugar_perdida || '';
       document.getElementById('input-fecha-perdida').value = data.fecha_perdida || '';
@@ -323,18 +330,18 @@
       document.getElementById('input-telefono').value = tel;
       document.getElementById('input-notas').value = data.datos_medicos || data.notas || '';
 
-      // MODO PERDIDA ACTIVADO
+      // SI ESTÁ PERDIDA SE ACTIVA EL MODO "AYUDA A PET"
       if (data.esta_perdido) {
         document.getElementById('lost-alert-banner').classList.remove('hidden');
         
         const insignia = document.getElementById('insignia-estado-encabezado');
-        insignia.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold text-white";
-        insignia.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO MI HOGAR`;
+        insignia.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold text-white border border-red-400 shadow-lg";
+        insignia.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-yellow-300"></i> URGENTE: BUSCANDO SU HOGAR`;
 
         document.getElementById('sub-estado').className = "text-xs font-bold text-red-500 uppercase tracking-widest animate-pulse";
-        document.getElementById('sub-estado').textContent = "🚨 MASCOTA PERDIDA 🚨";
+        document.getElementById('sub-estado').textContent = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
 
-        document.getElementById('indicador-estado').className = "absolute bottom-3 right-4 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
+        document.getElementById('indicador-estado').className = "absolute bottom-3 right-4 bg-red-600 w-5 h-5 rounded-full border-2 border-white shadow-md animate-ping";
 
         renderizarCartel(data);
       }
@@ -398,20 +405,4 @@
         .from('mascotas')
         .update({
           esta_perdido: estaPerdido,
-          lugar_perdida: lugar,
-          fecha_perdida: fecha,
-          recompensa: recompensa,
-          telefono_contacto: telefono,
-          datos_medicos: notas
-        })
-        .eq('id', petId);
-
-      if (error) {
-        alert("Error al actualizar: " + error.message);
-      } else {
-        location.reload();
-      }
-    }
-  </script>
-</body>
-</html>
+          lugar_perdida: lu
