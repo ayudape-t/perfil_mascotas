@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de Mascota - Placa Inteligente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+  /* 1. FONDO GENERAL EXTERIOR CON CAPA OSCURA */
+.paw-dark-body {
+  background: linear-gradient(rgba(11, 15, 25, 0.65), rgba(11, 15, 25, 0.65)), url("https://i.pinimg.com/736x/86/fd/36/86fd365b7baff7189aad47deb7a9d894.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+    /* 2. FONDO INTERNO DE LA TARJETA (Claro con huesitos) */
+    .card-bones-pattern {
+      background-color: #f8fafc;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%2394a3b8' opacity='0.25'%3E%3Cpath d='M30 18c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Cpath d='M88 28c-1.2-1.2-3.1-1.2-4.2 0l-2.1 2.1-12.8-12.8 2.1-2.1c1.2-1.2 1.2-3.1 0-4.2-1.2-1.2-3.1-1.2-4.2 0l-1.5 1.5c-.8-.5-1.8-.4-2.5.3-1.2 1.2-1.2 3.1 0 4.2l12.8 12.8c1.2 1.2 3.1 1.2 4.2 0 .7-.7.8-1.7.3-2.5l1.5-1.5c1.1-1.1 1.1-3 0-4.2z'/%3E%3Ccircle cx='20' cy='85' r='4'/%3E%3Cpath d='M28 88c-1.2-1.2-3.1-1.2-4.2 0l-2.1 2.1-12.8-12.8 2.1-2.1c1.2-1.2 1.2-3.1 0-4.2-1.2-1.2-3.1-1.2-4.2 0l-1.5 1.5c-.8-.5-1.8-.4-2.5.3-1.2 1.2-1.2 3.1 0 4.2l12.8 12.8c1.2 1.2 3.1 1.2 4.2 0 .7-.7.8-1.7.3-2.5l1.5-1.5c1.1-1.1 1.1-3 0-4.2z'/%3E%3Cpath d='M90 78c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Ccircle cx='85' cy='20' r='3.5'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printable-poster, #printable-poster * { visibility: visible; }
+      #printable-poster { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="paw-dark-body min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-x-hidden">
+
+  <!-- PANTALLA SI LA PLACA NO ESTÁ REGISTRADA -->
+  <div id="unregistered-card" class="hidden card-bones-pattern rounded-3xl shadow-2xl p-8 max-w-sm w-full border border-slate-200 text-center space-y-4">
+    <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-sm">
+      <i class="fa-solid fa-qrcode"></i>
+    </div>
+    <h2 class="text-2xl font-black text-slate-900">Placa No Registrada</h2>
+    <p class="text-xs text-slate-500">Esta placa aún no tiene asignada información de ninguna mascota.</p>
+    <a id="link-register" href="#" class="block w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all text-sm">
+      <i class="fa-solid fa-plus-circle mr-1.5"></i> Registrar esta Placa Ahora
+    </a>
+  </div>
+
+  <!-- BANNER DE ALERTA ROJA (Mascota Perdida) -->
+  <div id="lost-alert-banner" class="hidden w-full max-w-sm bg-red-600 text-white font-extrabold text-center py-3 px-4 rounded-2xl mb-3 shadow-lg shadow-red-600/40 animate-bounce flex items-center justify-center gap-2 border-2 border-red-400">
+    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+    <span class="text-sm tracking-wide uppercase">¡MASCOTA BUSCADA / PERDIDA!</span>
+  </div>
+
+  <!-- TARJETA PRINCIPAL DEL PERFIL -->
+  <main id="app-container" class="hidden card-bones-pattern rounded-3xl shadow-2xl overflow-hidden max-w-sm w-full border border-slate-200/80 transition-all my-4">
+    
+    <!-- CABECERA ILUSTRADA CON LA IMAGEN QUE ENVIASTE -->
+    <div id="header-bg" class="relative h-48 w-full overflow-hidden flex items-start justify-center pt-3 border-b border-amber-200/50">
+      
+      <!-- Fondo Ilustrado Exacto -->
+      <!-- USANDO LA IMAGEN QUE ENVIASTE COMO FONDO -->
+      <img src="https://i.pinimg.com/1200x/d1/d1/81/d1d18156545ed373db49a08fa9896488.jpg" 
+           alt="Comunidad Mascotas" class="absolute inset-0 w-full h-full object-cover object-bottom">
+      
+      <!-- Sombra superior para resaltar la insignia -->
+      <div class="absolute inset-0 bg-gradient-to-b from-amber-950/20 via-transparent to-transparent"></div>
+
+      <!-- Insignia Flotante -->
+      <span id="header-status-badge" class="relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md">
+        <i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica
+      </span>
+    </div>
+
+    <!-- FOTO CIRCULAR DE LA MASCOTA (Tamaño Aumentado w-36 h-36) -->
+    <div class="relative -mt-16 text-center flex justify-center z-20">
+      <div class="relative">
+        <img id="pet-photo" src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=500&q=80" 
+             alt="Foto Mascota" class="w-36 h-36 rounded-full border-4 border-white shadow-xl object-cover bg-slate-200">
+        
+        <!-- Indicador de Estado Activo reposicionado para el nuevo tamaño -->
+        <span id="status-indicator" class="absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md" title="Placa Activa"></span>
+      </div>
+    </div>
+
+    <!-- Información de la Mascota -->
+    <div class="p-6 pt-4 text-center space-y-4">
+      <div>
+        <h1 id="pet-name" class="text-4xl font-black text-slate-900 tracking-tight">Cargando...</h1>
+        <p id="sub-status" class="text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2">Mascota Feliz & Amada 🐾</p>
+      </div>
+
+      <!-- Datos del Dueño -->
+      <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 text-left space-y-2 shadow-sm">
+        <div class="flex items-center space-x-3 text-slate-700">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dueño / Responsable</p>
+            <p id="owner-name" class="text-sm font-bold text-slate-800">...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de Contacto -->
+      <div class="space-y-2 pt-1">
+        <a id="btn-whatsapp" href="#" target="_blank" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
+          <i class="fa-brands fa-whatsapp text-xl"></i> Escribir por WhatsApp
+        </a>
+
+        <a id="btn-call" href="#" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all">
+          <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
+        </a>
+
+        <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all border-2 border-red-300">
+          <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "SE BUSCA"
+        </button>
+      </div>
+
+      <!-- TARJETA: FICHA MÉDICA DIGITAL -->
+      <div id="medical-card" class="hidden text-left bg-rose-50/90 backdrop-blur-sm border border-rose-200 rounded-2xl p-4 space-y-3 shadow-sm">
+        <div class="flex items-center justify-between border-b border-rose-200/80 pb-2">
+          <span class="text-xs font-extrabold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-kit-medical"></i> Ficha Médica & Salud
+          </span>
+          <span class="text-[10px] font-bold bg-rose-200 text-rose-800 px-2 py-0.5 rounded-md">Importante</span>
+        </div>
+
+        <div id="row-allergies" class="hidden text-xs">
+          <span class="font-bold text-rose-900 block">⚠️ Alergias:</span>
+          <span id="txt-allergies" class="text-rose-800"></span>
+        </div>
+
+        <div id="row-medical" class="hidden text-xs">
+          <span class="font-bold text-slate-800 block">💊 Cuidados / Medicación:</span>
+          <span id="txt-medical" class="text-slate-700"></span>
+        </div>
+
+        <div id="row-diet" class="hidden text-xs">
+          <span class="font-bold text-slate-800 block">🍖 Alimentación:</span>
+          <span id="txt-diet" class="text-slate-700"></span>
+        </div>
+
+        <div id="row-vet" class="hidden pt-1 border-t border-rose-200/60">
+          <a id="btn-vet-call" href="#" class="w-full py-2 bg-white hover:bg-rose-100 text-rose-700 font-bold border border-rose-300 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm">
+            <i class="fa-solid fa-user-doctor"></i>
+            <span id="txt-vet-name">Llamar a Clínica Veterinaria</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Acceso de Edición Protegido -->
+      <div class="pt-2 border-t border-slate-200/60">
+        <button type="button" onclick="abrirModalPIN()" class="text-xs text-slate-500 hover:text-amber-600 font-semibold flex items-center justify-center gap-1.5 transition-colors mx-auto">
+          <i class="fa-solid fa-lock"></i> ¿Eres el dueño? Modificar datos
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL DE PIN -->
+  <div id="pin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 relative border border-slate-100">
+      <button onclick="cerrarModalPIN()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-key"></i>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">Verificación del Dueño</h3>
+        <p class="text-xs text-slate-500 mt-1">Ingresa tu PIN de 4 dígitos para editar la información.</p>
+      </div>
+
+      <input type="password" id="modal-pin-input" maxlength="4" placeholder="••••" pattern="[0-9]{4}" 
+             class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500">
+
+      <button onclick="validarPINModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all">
+        Ingresar
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL AFICHE "SE BUSCA" -->
+  <div id="afiche-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4 overflow-y-auto">
+    <div class="no-print mb-4 flex flex-wrap gap-2 justify-center">
+      <button id="btn-share-img" onclick="compartirAficheImagen()" class="py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-lg flex items-center gap-2 text-sm transition-all">
+        <i class="fa-solid fa-share-nodes text-base"></i> Compartir Imagen (WhatsApp / Redes)
+      </button>
+
+      <button onclick="imprimirAfiche()" class="py-2.5 px-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm transition-all flex items-center gap-1.5">
+        <i class="fa-solid fa-print"></i> PDF / Imprimir
+      </button>
+
+      <button onclick="cerrarAficheModal()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div id="printable-poster" class="bg-white text-slate-900 p-6 rounded-3xl max-w-sm w-full border-4 border-red-600 shadow-2xl text-center space-y-4">
+      <div class="bg-red-600 text-white py-3 rounded-2xl font-black text-3xl uppercase tracking-wider shadow-md">
+        ¡SE BUSCA!
+      </div>
+
+      <img id="poster-photo" crossorigin="anonymous" src="" class="w-52 h-52 rounded-2xl object-cover mx-auto border-4 border-slate-200 shadow-md">
+
+      <div>
+        <h2 id="poster-pet-name" class="text-4xl font-black text-slate-900 tracking-tight uppercase">---</h2>
+        <p class="text-xs font-bold text-red-600 uppercase tracking-widest mt-1">¡Por favor ayúdanos a encontrarlo!</p>
+      </div>
+
+      <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200 space-y-1">
+        <p class="text-[11px] text-slate-500 font-extrabold uppercase tracking-wider">Si lo ves o tienes información:</p>
+        <p id="poster-owner" class="text-base font-black text-slate-800">---</p>
+        <p id="poster-phone" class="text-2xl font-black text-emerald-600 font-mono tracking-wide">---</p>
+      </div>
+
+      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Placa Inteligente de Seguridad</p>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://cjxcqdgtchhtfowreuca.supabase.co";
+    /* RECUERDA REEMPLAZAR TU CLAVE AQUÍ */
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o";
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let petData = null;
+    let tagId = 'PET-001';
+
+    async function cargarPerfil() {
+      const urlParams = new URLSearchParams(window.location.search);
+      tagId = urlParams.get('id') || 'PET-001';
+
+      try {
+        const { data, error } = await db.from('pets').select('*').eq('id', tagId).maybeSingle();
+
+        if (error || !data) {
+          document.getElementById('link-register').href = `registro.html?id=${tagId}`;
+          document.getElementById('unregistered-card').classList.remove('hidden');
+          return;
+        }
+
+        petData = data;
+        document.getElementById('app-container').classList.remove('hidden');
+
+        document.getElementById('pet-name').innerText = data.pet;
+        document.getElementById('owner-name').innerText = data.owner;
+        if (data.photo) document.getElementById('pet-photo').src = data.photo;
+
+        const subStatusEl = document.getElementById('sub-status');
+        if (data.description && data.description.trim() !== '') {
+          subStatusEl.innerText = data.description;
+        } else {
+          subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
+        }
+
+        const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
+        document.getElementById('btn-whatsapp').href = `https://wa.me/${data.phone}?text=${mensajeWA}`;
+        document.getElementById('btn-call').href = `tel:${data.phone}`;
+
+        // FICHA MÉDICA
+        let tieneDatosMedicos = false;
+        if (data.allergies) {
+          document.getElementById('row-allergies').classList.remove('hidden');
+          document.getElementById('txt-allergies').innerText = data.allergies;
+          tieneDatosMedicos = true;
+        }
+        if (data.medical_notes) {
+          document.getElementById('row-medical').classList.remove('hidden');
+          document.getElementById('txt-medical').innerText = data.medical_notes;
+          tieneDatosMedicos = true;
+        }
+        if (data.diet) {
+          document.getElementById('row-diet').classList.remove('hidden');
+          document.getElementById('txt-diet').innerText = data.diet;
+          tieneDatosMedicos = true;
+        }
+        if (data.vet_phone) {
+          document.getElementById('row-vet').classList.remove('hidden');
+          document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
+          if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
+          tieneDatosMedicos = true;
+        }
+        if (tieneDatosMedicos) {
+          document.getElementById('medical-card').classList.remove('hidden');
+        }
+
+        // MODO ALERTA MASCOTA PERDIDA
+        if (data.is_lost) {
+          document.getElementById('lost-alert-banner').classList.remove('hidden');
+          document.getElementById('btn-afiche').classList.remove('hidden');
+
+          const badge = document.getElementById('header-status-badge');
+          badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
+          badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO MI HOGAR`;
+
+          subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
+          subStatusEl.innerText = "🚨 MASCOTA PERDIDA 🚨";
+
+          const indicator = document.getElementById('status-indicator');
+          indicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
+        }
+
+      } catch (err) {
+        console.error("Error al cargar:", err);
+      }
+    }
+
+    function abrirAficheModal() {
+      if (!petData) return;
+
+      document.getElementById('poster-pet-name').innerText = petData.pet;
+      document.getElementById('poster-owner').innerText = petData.owner;
+      document.getElementById('poster-phone').innerText = `+${petData.phone}`;
+      if (petData.photo) document.getElementById('poster-photo').src = petData.photo;
+
+      document.getElementById('afiche-modal').classList.remove('hidden');
+    }
+
+    function cerrarAficheModal() {
+      document.getElementById('afiche-modal').classList.add('hidden');
+    }
+
+    function imprimirAfiche() {
+      window.print();
+    }
+
+    async function compartirAficheImagen() {
+      const btn = document.getElementById('btn-share-img');
+      const textOriginal = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generando Imagen...`;
+      btn.disabled = true;
+
+      try {
+        const posterNode = document.getElementById('printable-poster');
+        
+        const canvas = await html2canvas(posterNode, {
+          useCORS: true,
+          scale: 2,
+          backgroundColor: null
+        });
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            alert("No se pudo generar la imagen.");
+            btn.innerHTML = textOriginal;
+            btn.disabled = false;
+            return;
+          }
+
+          const file = new File([blob], `SE_BUSCA_${petData.pet.toUpperCase()}.png`, { type: 'image/png' });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: `¡SE BUSCA A ${petData.pet.toUpperCase()}!`,
+                text: `¡Por favor ayúdanos a encontrar a ${petData.pet}! Si lo ves, comunícate al +${petData.phone}`
+              });
+            } catch (shareErr) {
+              console.log("Compartir cancelado:", shareErr);
+            }
+          } else {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `SE_BUSCA_${petData.pet.toUpperCase()}.png`;
+            a.click();
+            alert("¡Imagen descargada! Ya puedes compartirla en tus redes.");
+          }
+
+          btn.innerHTML = textOriginal;
+          btn.disabled = false;
+        }, 'image/png');
+
+      } catch (err) {
+        alert("Error al crear la imagen: " + err.message);
+        btn.innerHTML = textOriginal;
+        btn.disabled = false;
+      }
+    }
+
+    function abrirModalPIN() {
+      document.getElementById('pin-modal').classList.remove('hidden');
+      document.getElementById('modal-pin-input').value = '';
+      document.getElementById('modal-pin-input').focus();
+    }
+
+    function cerrarModalPIN() {
+      document.getElementById('pin-modal').classList.add('hidden');
+    }
+
+    function validarPINModal() {
+      const input = document.getElementById('modal-pin-input').value.trim();
+      if (!petData) return;
+
+      if (input === petData.pin) {
+        sessionStorage.setItem(`auth_${tagId}`, 'true');
+        window.location.href = `registro.html?id=${tagId}`;
+      } else {
+        alert("❌ PIN Incorrecto.");
+      }
+    }
+
+    cargarPerfil();
+  </script>
+</body>
+</html>
