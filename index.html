@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Fuente estilo letra inflada (DynaPuff) -->
+<link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&display=swap" rel="stylesheet">
   <!-- Logo personalizado para la pestaña y el menú de compartir -->
 <!-- Favicon corregido a .jpg -->
 <link rel="icon" type="image/jpeg" href="logo.jpg">
@@ -88,7 +90,12 @@
 
     <div class="p-6 pt-4 text-center space-y-4">
       <div>
-        <h1 id="pet-name" class="text-4xl font-black text-slate-900 tracking-tight">Cargando...</h1>
+       <!-- Contenedor del nombre con estilo inflado -->
+<h1 id="pet-name" 
+    class="text-4xl font-extrabold uppercase text-slate-800 tracking-wider my-2 text-center" 
+    style="font-family: 'DynaPuff', cursive; text-shadow: 2px 2px 0px #fff, 4px 4px 0px #cbd5e1, 6px 6px 10px rgba(0,0,0,0.15);">
+    <!-- El JavaScript insertará aquí el nombre que escribió el dueño -->
+</h1>
         <p id="sub-status" class="text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2">Mascota Feliz & Amada 🐾</p>
       </div>
 
@@ -321,7 +328,7 @@
         petData = data;
         document.getElementById('app-container').classList.remove('hidden');
 
-        document.getElementById('pet-name').innerText = data.pet;
+        document.getElementById('pet-name').innerText = (data.pet || '').toUpperCase();
         document.getElementById('owner-name').innerText = data.owner;
         
         document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
