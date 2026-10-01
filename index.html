@@ -346,26 +346,19 @@ async function cargarPerfil() {
   } catch (err) { console.error("Error al cargar:", err); }
 }
 
-async function guardarEscaneoSilencioso(lat, lon) {
-  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-  try {
-    await db.from('escaneos_log').insert([
-      { pet_id: tagId, latitude: lat, longitude: lon, map_url: mapUrl }
-    ]);
-    console.log("📍 Escaneo guardado silenciosamente:", mapUrl);
-  } catch (err) { console.error("Error al registrar escaneo:", err); }
-}
-
+// SOLICITUD Y GUARDADO INMEDIATO AL DAR "PERMITIR"
 function pedirUbicacionAlCargar() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         ubicacionCapturada = `https://maps.google.com/?q=${lat},${lon}`;
 
-        guardarEscaneoSilencioso(lat, lon);
+        // 🚀 SE GUARDA EN SUPABASE INMEDIATAMENTE AL DAR PERMISO
+        await guardarEscaneoSilencioso(lat, lon);
 
+        // Actualizar interfaz visual
         const btnGPS = document.getElementById('btn-gps');
         if (btnGPS) {
           btnGPS.className = "w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all animate-bounce";
@@ -373,10 +366,25 @@ function pedirUbicacionAlCargar() {
         }
       },
       (error) => {
-        console.log("El usuario declinó o no activó el GPS al abrir.");
+        console.log("El usuario rechazó o no activó el GPS al abrir.");
       },
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
+      { enableHighAccuracy: false, timeout: 6000, maximumAge: 0 }
     );
+  }
+}
+
+async function guardarEscaneoSilencioso(lat, lon) {
+  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+  console.log("Intentando registrar escaneo para:", tagId);
+  
+  const { data, error } = await db.from('escaneos_log').insert([
+    { pet_id: tagId, latitude: lat, longitude: lon, map_url: mapUrl }
+  ]);
+
+  if (error) {
+    console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
+  } else {
+    console.log("✅ Ubicación guardada exitosamente en Supabase!");
   }
 }
 
