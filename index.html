@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Color de la barra de estado del celular (Coincide con el fondo de Helpet) -->
+<meta name="theme-color" content="#0b0f19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23f59e0b' d='M256 224c-79.5 0-144 64.5-144 144s64.5 144 144 144 144-64.5 144-144-64.5-144-144-144z'/></svg>">
   <!-- Metaetiquetas para WhatsApp y Redes Sociales -->
 <meta property="og:title" content="Helpet - Placa Inteligente de Seguridad">
@@ -427,6 +433,29 @@ function enviarUbicacionGPS() {
     });
   } else {
     alert("Tu navegador no soporta geolocalización.");
+  }
+}
+    // Se ejecuta automáticamente al cargar los datos si la mascota está marcada como perdida
+function intentarGeolocalizacionAutomatica(dataMascota) {
+  if (dataMascota.is_lost && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const mapaUrl = `https://maps.google.com/?q=${lat},${lon}`;
+
+        // 1. Opcional: Registrar el evento de escaneo con GPS en Supabase
+        await db.from('escaneos').insert([
+          { pet_id: tagId, latitud: lat, longitud: lon, fecha: new Date().toISOString() }
+        ]);
+
+        console.log("Ubicación de escaneo registrada:", mapaUrl);
+      },
+      (error) => {
+        console.log("El usuario declinó el permiso de ubicación o hubo error GPS.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   }
 }
 function cerrarFotoGrande() {
