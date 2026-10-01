@@ -132,8 +132,9 @@
         <a id="btn-call" href="#" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all">
           <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
         </a>
-        <button onclick="enviarUbicacionGPS()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all">
-  <i class="fa-solid fa-location-dot text-lg text-red-400"></i> Compartir mi Ubicación Actual al Dueño
+       <button id="btn-gps" onclick="enviarUbicacionGPS()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all">
+  <i class="fa-solid fa-location-dot text-lg text-red-400"></i>
+  <span>Enviar mi Ubicación GPS por WhatsApp</span>
 </button>
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all border-2 border-red-300">
           <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "¡SE BUSCA!"
@@ -421,18 +422,49 @@
   document.getElementById('photo-modal').classList.remove('hidden');
 }
 function enviarUbicacionGPS() {
+  const btn = document.getElementById('btn-gps');
+  const textoOriginal = btn ? btn.innerHTML : '';
+
+  if (btn) {
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
+    btn.disabled = true;
+  }
+
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-      const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a ${petData.pet}. Mi ubicación actual es: ${mapUrl}`);
-      window.open(`https://wa.me/${petData.phone}?text=${mensaje}`, '_blank');
-    }, () => {
-      alert("Por favor activa el GPS de tu celular para compartir la ubicación.");
-    });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+        const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
+
+        if (btn) {
+          btn.innerHTML = textoOriginal;
+          btn.disabled = false;
+        }
+
+        // Redirección directa: Abre WhatsApp al instante sin ser bloqueado por el navegador
+        window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
+      },
+      (error) => {
+        if (btn) {
+          btn.innerHTML = textoOriginal;
+          btn.disabled = false;
+        }
+        alert("No se pudo obtener la ubicación. Por favor asegura de tener el GPS activado en tu teléfono.");
+      },
+      {
+        enableHighAccuracy: false, // Triangulación rápida por red/Wi-Fi (Súper veloz)
+        timeout: 5000,            // Espera máxima de 5 segundos
+        maximumAge: 30000         // Usa la ubicación reciente si ya fue calculada
+      }
+    );
   } else {
-    alert("Tu navegador no soporta geolocalización.");
+    if (btn) {
+      btn.innerHTML = textoOriginal;
+      btn.disabled = false;
+    }
+    alert("Tu navegador o teléfono no soporta geolocalización.");
   }
 }
     // Se ejecuta automáticamente al cargar los datos si la mascota está marcada como perdida
