@@ -361,43 +361,52 @@
       }
     }
     inicializar();
-    async function cargarHistorialEscaneos() {
+   async function cargarHistorialEscaneos() {
   const listaEl = document.getElementById('escaneos-lista');
-  if (!listaEl) return;
+  if (!listaEl) {
+    console.error("❌ No existe el contenedor 'escaneos-lista' en el HTML.");
+    return;
+  }
 
-  // Detectar el ID de la URL sin importar el momento
+  // Detectar el ID de la mascota desde la URL
   const urlParams = new URLSearchParams(window.location.search);
   const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
 
+  listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Consultando historial en base de datos...</p>`;
+
   try {
-    // Usamos .ilike para ignorar mayúsculas/minúsculas en el ID
-    const { data: escaneos, error } = await db
+    // 1. Consultar todos los escaneos de la tabla
+    const { data: todosLosEscaneos, error } = await db
       .from('escaneos_log')
-      .select('*')
-      .ilike('pet_id', currentTagId.trim())
-      .order('created_at', { ascending: false })
-      .limit(4);
+      .select('*');
 
     if (error) {
-      console.error("❌ Error de Supabase:", error);
-      listaEl.innerHTML = `<p class="text-red-500 text-xs font-bold text-center py-2">Error al leer datos: ${error.message}</p>`;
+      console.error("❌ Error de Supabase al leer:", error);
+      listaEl.innerHTML = `<p class="text-red-500 text-xs font-bold text-center py-2">⚠️ Error de lectura: ${error.message}</p>`;
       return;
     }
 
-    if (!escaneos || escaneos.length === 0) {
-      listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Sin registros para "${currentTagId}" aún.</p>`;
+    // 2. Filtrar localmente por ID ignorando mayúsculas/minúsculas
+    const escaneosMascota = (todosLosEscaneos || [])
+      .filter(item => item.pet_id && item.pet_id.toString().trim().toLowerCase() === currentTagId.toString().trim().toLowerCase())
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 4);
+
+    if (escaneosMascota.length === 0) {
+      listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Sin registros de ubicación para: <b>${currentTagId}</b></p>`;
       return;
     }
 
+    // 3. Renderizar las tarjetas
     listaEl.innerHTML = '';
-    escaneos.forEach((item, index) => {
+    escaneosMascota.forEach((item, index) => {
       const fecha = item.created_at 
         ? new Date(item.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
         : 'Reciente';
       const urlMapa = item.map_url || `https://maps.google.com/?q=${item.latitude},${item.longitude}`;
 
       listaEl.innerHTML += `
-        <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs mb-2">
           <div>
             <p class="font-bold text-slate-800">Escaneo #${index + 1}</p>
             <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fecha}</p>
@@ -409,8 +418,8 @@
       `;
     });
   } catch (err) {
-    console.error("Error inesperado:", err);
-    listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay registros de escaneos aún.</p>`;
+    console.error("Error al cargar historial:", err);
+    listaEl.innerHTML = `<p class="text-red-500 text-xs text-center py-2">Error inesperado: ${err.message}</p>`;
   }
 }// Llama a esta función al terminar de validar y cargar la información del dueño
 cargarHistorialEscaneos();
