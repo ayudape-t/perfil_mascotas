@@ -119,36 +119,44 @@
           </div>
         </div>
       </div>
-
       <!-- Botones de Contacto -->
-      <div class="space-y-2 pt-1">
-        <a id="btn-whatsapp" href="#" target="_blank" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all">
+      <div class="space-y-3 pt-1">
+        
+        <a id="btn-whatsapp" href="#" target="_blank" class="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-emerald-500/20 transition-all active:scale-[0.98]">
           <i class="fa-brands fa-whatsapp text-xl"></i> Escribir por WhatsApp
         </a>
 
-        <a id="btn-call" href="#" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all">
+        <a id="btn-call" href="#" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-indigo-600/20 transition-all active:scale-[0.98]">
           <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
         </a>
 
         <!-- Contacto Secundario (Si está registrado) -->
-        <a id="btn-call-secondary" href="#" class="hidden w-full py-3.5 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all">
+        <a id="btn-call-secondary" href="#" class="hidden w-full py-3.5 px-4 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md transition-all active:scale-[0.98]">
           <i class="fa-solid fa-phone-volume text-lg"></i> Llamar a Contacto Secundario
         </a>
 
         <!-- Botón GPS: Oculto por defecto, sólo visible si is_lost === true -->
-        <button id="btn-gps" onclick="enviarUbicacionGPS()" class="hidden w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all">
-          <i class="fa-solid fa-location-dot text-lg text-red-400"></i>
-          <span>Enviar mi Ubicación GPS por WhatsApp</span>
+        <button id="btn-gps" onclick="enviarUbicacionGPS()" class="hidden w-full py-3.5 px-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-sky-500/20 transition-all active:scale-[0.98]">
+          <i class="fa-solid fa-location-dot text-lg text-white"></i> <span>Enviar mi Ubicación GPS por WhatsApp</span>
         </button>
 
-        <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all border-2 border-red-300">
+        <!-- Separador de sección -->
+        <div class="relative my-3 flex py-1 items-center">
+          <div class="flex-grow border-t border-slate-300/70"></div>
+          <span class="flex-shrink mx-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Opciones de difusión</span>
+          <div class="flex-grow border-t border-slate-300/70"></div>
+        </div>
+
+        <!-- Botón Afiche (Estilo limpio blanco/rojo) -->
+        <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 px-4 bg-white hover:bg-rose-50 text-rose-600 border-2 border-rose-500 font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-xs transition-all active:scale-[0.98]">
           <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "¡SE BUSCA!"
         </button>
 
-        <!-- Botón Compartir Perfil -->
-        <button id="btn-share-profile" onclick="compartirPerfil()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all text-xs uppercase tracking-wider">
-          <i class="fa-solid fa-share-nodes text-base"></i> Compartir Perfil de Mascota
+        <!-- Botón Compartir Perfil (Estilo limpio blanco/gris) -->
+        <button id="btn-share-profile" onclick="compartirPerfil()" class="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-xs transition-all active:scale-[0.98]">
+          <i class="fa-solid fa-share-nodes text-lg"></i> Compartir Perfil de Mascota
         </button>
+
       </div>
 
       <!-- Carnet Digital de Salud (Vacunas y Desparasitaciones) -->
