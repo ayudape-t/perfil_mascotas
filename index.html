@@ -130,14 +130,43 @@
           <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
         </a>
 
+        <!-- Contacto Secundario (Si está registrado) -->
+        <a id="btn-call-secondary" href="#" class="hidden w-full py-3.5 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all">
+          <i class="fa-solid fa-phone-volume text-lg"></i> Llamar a Contacto Secundario
+        </a>
+
         <!-- Botón GPS: Oculto por defecto, sólo visible si is_lost === true -->
-<button id="btn-gps" onclick="enviarUbicacionGPS()" class="hidden w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all">
-  <i class="fa-solid fa-location-dot text-lg text-red-400"></i>
-  <span>Enviar mi Ubicación GPS por WhatsApp</span>
-</button>
+        <button id="btn-gps" onclick="enviarUbicacionGPS()" class="hidden w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all">
+          <i class="fa-solid fa-location-dot text-lg text-red-400"></i>
+          <span>Enviar mi Ubicación GPS por WhatsApp</span>
+        </button>
+
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all border-2 border-red-300">
           <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "¡SE BUSCA!"
         </button>
+
+        <!-- Botón Compartir Perfil -->
+        <button id="btn-share-profile" onclick="compartirPerfil()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all text-xs uppercase tracking-wider">
+          <i class="fa-solid fa-share-nodes text-base"></i> Compartir Perfil de Mascota
+        </button>
+      </div>
+
+      <!-- Carnet Digital de Salud (Vacunas y Desparasitaciones) -->
+      <div id="health-card" class="hidden text-left bg-emerald-50/90 backdrop-blur-sm border border-emerald-200 rounded-2xl p-4 space-y-2 shadow-sm">
+        <div class="flex items-center justify-between border-b border-emerald-200/80 pb-2">
+          <span class="text-xs font-extrabold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar-check"></i> Carnet Digital de Salud
+          </span>
+          <span class="text-[10px] font-bold bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md">Control</span>
+        </div>
+        <div id="row-vaccine" class="hidden text-xs flex justify-between items-center py-0.5">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-syringe text-emerald-600 mr-1.5"></i> Próxima Vacuna:</span>
+          <span id="txt-vaccine" class="font-extrabold text-emerald-800"></span>
+        </div>
+        <div id="row-deworming" class="hidden text-xs flex justify-between items-center py-0.5">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-pills text-emerald-600 mr-1.5"></i> Próx. Desparasitación:</span>
+          <span id="txt-deworming" class="font-extrabold text-emerald-800"></span>
+        </div>
       </div>
 
       <!-- Ficha Médica -->
@@ -178,6 +207,7 @@
       </div>
       <input type="password" id="modal-pin-input" maxlength="4" placeholder="••••" pattern="[0-9]{4}" class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
       <button onclick="validarPINModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all">Ingresar</button>
+      <button type="button" onclick="recuperarPIN()" class="text-xs text-amber-600 hover:underline font-semibold block mx-auto pt-1">¿Olvidaste tu PIN? Contactar Soporte</button>
     </div>
   </div>
 
@@ -260,171 +290,200 @@
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let petData = null;
     let tagId = 'PET-001';
-   // Variable global para almacenar coordenadas
-let ubicacionCapturada = null;
+    let ubicacionCapturada = null;
 
-async function cargarPerfil() {
-  const urlParams = new URLSearchParams(window.location.search);
-  tagId = urlParams.get('id') || 'PET-001';
+    async function cargarPerfil() {
+      const urlParams = new URLSearchParams(window.location.search);
+      tagId = urlParams.get('id') || 'PET-001';
 
-  try {
-    const { data, error } = await db.from('pets').select('*').eq('id', tagId).maybeSingle();
+      try {
+        const { data, error } = await db.from('pets').select('*').eq('id', tagId).maybeSingle();
 
-    if (error || !data) {
-      document.getElementById('link-register').href = `registro.html?id=${tagId}`;
-      document.getElementById('unregistered-card').classList.remove('hidden');
-      return;
-    }
-
-    petData = data;
-    document.getElementById('app-container').classList.remove('hidden');
-
-    document.getElementById('pet-name').innerText = data.pet;
-    document.getElementById('owner-name').innerText = data.owner;
-    
-    document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
-    document.getElementById('pet-color').innerText = data.color || 'No especificado';
-    document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
-    document.getElementById('pet-age').innerText = data.age || 'No especificada';
-
-    if (data.photo) document.getElementById('pet-photo').src = data.photo;
-
-    const subStatusEl = document.getElementById('sub-status');
-    if (data.description && data.description.trim() !== '') {
-      subStatusEl.innerText = data.description;
-    } else {
-      subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
-    }
-
-    const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
-    document.getElementById('btn-whatsapp').href = `https://wa.me/${data.phone}?text=${mensajeWA}`;
-    document.getElementById('btn-call').href = `tel:${data.phone}`;
-
-    // Ficha médica
-    let tieneDatosMedicos = false;
-    if (data.allergies) { document.getElementById('row-allergies').classList.remove('hidden'); document.getElementById('txt-allergies').innerText = data.allergies; tieneDatosMedicos = true; }
-    if (data.medical_notes) { document.getElementById('row-medical').classList.remove('hidden'); document.getElementById('txt-medical').innerText = data.medical_notes; tieneDatosMedicos = true; }
-    if (data.diet) { document.getElementById('row-diet').classList.remove('hidden'); document.getElementById('txt-diet').innerText = data.diet; tieneDatosMedicos = true; }
-    if (data.vet_phone) {
-      document.getElementById('row-vet').classList.remove('hidden');
-      document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
-      if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
-      tieneDatosMedicos = true;
-    }
-    if (tieneDatosMedicos) document.getElementById('medical-card').classList.remove('hidden');
-
-    // CONTROL DEL MODO PÉRDIDA Y GPS
-    if (data.is_lost) {
-      document.getElementById('lost-alert-banner').classList.remove('hidden');
-      document.getElementById('btn-afiche').classList.remove('hidden');
-      document.getElementById('btn-gps').classList.remove('hidden'); // 👈 Mostrar botón GPS
-      
-      const badge = document.getElementById('header-status-badge');
-      badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
-      badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
-      
-      subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
-      subStatusEl.innerText = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
-      
-      document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
-      
-      // 🚀 Pedir ubicación automáticamente al cargar por estar PERDIDA
-      pedirUbicacionAlCargar();
-    } else {
-      // Mascota Segura
-      document.getElementById('lost-alert-banner').classList.add('hidden');
-      document.getElementById('btn-afiche').classList.add('hidden');
-      document.getElementById('btn-gps').classList.add('hidden'); // 👈 Ocultar botón GPS
-      
-      const badge = document.getElementById('header-status-badge');
-      badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
-      badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
-      
-      subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
-      document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
-    }
-  } catch (err) { console.error("Error al cargar:", err); }
-}
-
-// SOLICITUD Y GUARDADO INMEDIATO AL DAR "PERMITIR"
-function pedirUbicacionAlCargar() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        ubicacionCapturada = `https://maps.google.com/?q=${lat},${lon}`;
-
-        // 🚀 SE GUARDA EN SUPABASE INMEDIATAMENTE AL DAR PERMISO
-        await guardarEscaneoSilencioso(lat, lon);
-
-        // Actualizar interfaz visual
-        const btnGPS = document.getElementById('btn-gps');
-        if (btnGPS) {
-          btnGPS.className = "w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all animate-bounce";
-          btnGPS.innerHTML = `<i class="fa-solid fa-circle-check text-xl text-yellow-300"></i> <span>📍 Ubicación capturada: Toca para enviar a WhatsApp</span>`;
+        if (error || !data) {
+          document.getElementById('link-register').href = `registro.html?id=${tagId}`;
+          document.getElementById('unregistered-card').classList.remove('hidden');
+          return;
         }
-      },
-      (error) => {
-        console.log("El usuario rechazó o no activó el GPS al abrir.");
-      },
-      { enableHighAccuracy: false, timeout: 6000, maximumAge: 0 }
-    );
-  }
-}
 
-async function guardarEscaneoSilencioso(lat, lon) {
-  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-  console.log("Intentando registrar escaneo para:", tagId);
-  
-  const { data, error } = await db.from('escaneos_log').insert([
-    { pet_id: tagId, latitude: lat, longitude: lon, map_url: mapUrl }
-  ]);
+        petData = data;
+        document.getElementById('app-container').classList.remove('hidden');
 
-  if (error) {
-    console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
-  } else {
-    console.log("✅ Ubicación guardada exitosamente en Supabase!");
-  }
-}
+        document.getElementById('pet-name').innerText = data.pet;
+        document.getElementById('owner-name').innerText = data.owner;
+        
+        document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
+        document.getElementById('pet-color').innerText = data.color || 'No especificado';
+        document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
+        document.getElementById('pet-age').innerText = data.age || 'No especificada';
 
-function enviarUbicacionGPS() {
-  if (ubicacionCapturada) {
-    const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${ubicacionCapturada}`);
-    window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
-  } else {
-    const btn = document.getElementById('btn-gps');
-    const textoOriginal = btn ? btn.innerHTML : '';
-    if (btn) {
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
-      btn.disabled = true;
+        if (data.photo) document.getElementById('pet-photo').src = data.photo;
+
+        const subStatusEl = document.getElementById('sub-status');
+        if (data.description && data.description.trim() !== '') {
+          subStatusEl.innerText = data.description;
+        } else {
+          subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
+        }
+
+        const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
+        document.getElementById('btn-whatsapp').href = `https://wa.me/${data.phone}?text=${mensajeWA}`;
+        document.getElementById('btn-call').href = `tel:${data.phone}`;
+
+        // Contacto secundario
+        if (data.phone_secondary) {
+          const btnSec = document.getElementById('btn-call-secondary');
+          btnSec.href = `tel:${data.phone_secondary}`;
+          btnSec.classList.remove('hidden');
+        }
+
+        // Carnet Digital de Salud
+        let tieneControlSalud = false;
+        if (data.next_vaccine) {
+          document.getElementById('row-vaccine').classList.remove('hidden');
+          document.getElementById('txt-vaccine').innerText = data.next_vaccine;
+          tieneControlSalud = true;
+        }
+        if (data.next_deworming) {
+          document.getElementById('row-deworming').classList.remove('hidden');
+          document.getElementById('txt-deworming').innerText = data.next_deworming;
+          tieneControlSalud = true;
+        }
+        if (tieneControlSalud) {
+          document.getElementById('health-card').classList.remove('hidden');
+        }
+
+        // Ficha médica
+        let tieneDatosMedicos = false;
+        if (data.allergies) { document.getElementById('row-allergies').classList.remove('hidden'); document.getElementById('txt-allergies').innerText = data.allergies; tieneDatosMedicos = true; }
+        if (data.medical_notes) { document.getElementById('row-medical').classList.remove('hidden'); document.getElementById('txt-medical').innerText = data.medical_notes; tieneDatosMedicos = true; }
+        if (data.diet) { document.getElementById('row-diet').classList.remove('hidden'); document.getElementById('txt-diet').innerText = data.diet; tieneDatosMedicos = true; }
+        if (data.vet_phone) {
+          document.getElementById('row-vet').classList.remove('hidden');
+          document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
+          if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
+          tieneDatosMedicos = true;
+        }
+        if (tieneDatosMedicos) document.getElementById('medical-card').classList.remove('hidden');
+
+        // CONTROL DEL MODO PÉRDIDA Y GPS
+        if (data.is_lost) {
+          document.getElementById('lost-alert-banner').classList.remove('hidden');
+          document.getElementById('btn-afiche').classList.remove('hidden');
+          document.getElementById('btn-gps').classList.remove('hidden');
+          
+          const badge = document.getElementById('header-status-badge');
+          badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
+          badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
+          
+          subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
+          subStatusEl.innerText = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
+          
+          document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
+          
+          pedirUbicacionAlCargar();
+        } else {
+          document.getElementById('lost-alert-banner').classList.add('hidden');
+          document.getElementById('btn-afiche').classList.add('hidden');
+          document.getElementById('btn-gps').classList.add('hidden');
+          
+          const badge = document.getElementById('header-status-badge');
+          badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
+          badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
+          
+          subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
+          document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
+        }
+      } catch (err) { console.error("Error al cargar:", err); }
     }
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-          
-          guardarEscaneoSilencioso(lat, lon);
-          
-          const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
-          if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-          window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
-        },
-        () => {
-          if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-          alert("Por favor habilita el acceso a la ubicación en tu navegador.");
-        },
-        { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
-      );
-    } else {
-      if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-      alert("Tu navegador no soporta geolocalización.");
+    function pedirUbicacionAlCargar() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            ubicacionCapturada = `https://maps.google.com/?q=${lat},${lon}`;
+
+            await guardarEscaneoSilencioso(lat, lon);
+
+            const btnGPS = document.getElementById('btn-gps');
+            if (btnGPS) {
+              btnGPS.className = "w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all animate-bounce";
+              btnGPS.innerHTML = `<i class="fa-solid fa-circle-check text-xl text-yellow-300"></i> <span>📍 Ubicación capturada: Toca para enviar a WhatsApp</span>`;
+            }
+          },
+          (error) => { console.log("Permiso GPS no otorgado al iniciar."); },
+          { enableHighAccuracy: false, timeout: 6000, maximumAge: 0 }
+        );
+      }
     }
-  }
-}
+
+    async function guardarEscaneoSilencioso(lat, lon) {
+      const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+      const { error } = await db.from('escaneos_log').insert([
+        { pet_id: tagId, latitude: lat, longitude: lon, map_url: mapUrl }
+      ]);
+      if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
+    }
+
+    function enviarUbicacionGPS() {
+      if (ubicacionCapturada) {
+        const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${ubicacionCapturada}`);
+        window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
+      } else {
+        const btn = document.getElementById('btn-gps');
+        const textoOriginal = btn ? btn.innerHTML : '';
+        if (btn) {
+          btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
+          btn.disabled = true;
+        }
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+              const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+              
+              guardarEscaneoSilencioso(lat, lon);
+              
+              const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
+              if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
+              window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
+            },
+            () => {
+              if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
+              alert("Por favor habilita el acceso a la ubicación en tu navegador.");
+            },
+            { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
+          );
+        } else {
+          if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
+          alert("Tu navegador no soporta geolocalización.");
+        }
+      }
+    }
+
+    async function compartirPerfil() {
+      const shareData = {
+        title: `Perfil Helpet - ${petData ? petData.pet : 'Mascota'}`,
+        text: `Conoce la ficha oficial de ${petData ? petData.pet : 'esta mascota'} protegida con Helpet:`,
+        url: window.location.href
+      };
+      if (navigator.share) {
+        try { await navigator.share(shareData); } catch (e) {}
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert("¡Enlace del perfil copiado al portapapeles!");
+      }
+    }
+
+    function recuperarPIN() {
+      const msg = encodeURIComponent(`¡Hola! Olvidé el PIN de mi placa Helpet con ID: ${tagId}. Solicito ayuda para recuperarlo.`);
+      const destPhone = (petData && petData.phone) ? petData.phone : '';
+      window.open(`https://wa.me/${destPhone}?text=${msg}`, '_blank');
+    }
+
     function abrirAficheModal() {
       if (!petData) return;
 
