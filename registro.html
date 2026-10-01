@@ -38,7 +38,7 @@
           <span>Segura en Casa</span>
         </button>
 
-        <!-- SECCIÓN DE DETALLES DE PÉRDIDA (Se despliega solo cuando está activa la alarma) -->
+        <!-- SECCIÓN DE DETALLES DE PÉRDIDA -->
         <div id="lost-details-box" class="hidden text-left bg-red-50 p-3.5 rounded-xl border border-red-200 space-y-3 mt-2">
           <h3 class="text-xs font-extrabold text-red-700 uppercase tracking-wider flex items-center gap-1.5">
             <i class="fa-solid fa-location-dot"></i> Datos para el Afiche de Pérdida
@@ -68,19 +68,21 @@
           </div>
         </div>
       </div>
+
       <!-- SECCIÓN HISTORIAL DE LOS ÚLTIMOS 4 ESCANEOS GPS -->
-<div id="section-escaneos" class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200 text-left space-y-3 shadow-sm mt-4">
-  <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-    <span class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-      <i class="fa-solid fa-location-crosshairs text-red-500"></i> Últimos 4 Escaneos GPS
-    </span>
-    <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">Rastreo</span>
-  </div>
-  
-  <div id="escaneos-lista" class="space-y-2 text-xs">
-    <p class="text-slate-400 italic text-center py-2">Cargando historial de ubicación...</p>
-  </div>
-</div>
+      <div id="section-escaneos" class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200 text-left space-y-3 shadow-sm mt-4">
+        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+          <span class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-location-crosshairs text-red-500"></i> Últimos 4 Escaneos GPS
+          </span>
+          <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">Rastreo</span>
+        </div>
+        
+        <div id="escaneos-lista" class="space-y-2 text-xs">
+          <p class="text-slate-400 italic text-center py-2">Cargando historial de ubicación...</p>
+        </div>
+      </div>
+
       <!-- SECCIÓN: DATOS BÁSICOS -->
       <div class="border-b border-slate-200/80 pb-4">
         <h2 class="text-xs font-extrabold text-amber-600 uppercase tracking-wider flex items-center gap-1.5 mb-3">
@@ -130,8 +132,14 @@
         </div>
 
         <div class="mb-3">
-          <label for="input-phone" class="block text-xs font-bold text-slate-600 uppercase mb-1">Teléfono con WhatsApp *</label>
+          <label for="input-phone" class="block text-xs font-bold text-slate-600 uppercase mb-1">Teléfono Principal con WhatsApp *</label>
           <input type="tel" id="input-phone" placeholder="Ej. 51987654321" required class="w-full px-4 py-3 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm text-slate-800">
+        </div>
+
+        <!-- TELÉFONO SECUNDARIO -->
+        <div class="mb-3">
+          <label for="input-phone-secondary" class="block text-xs font-bold text-slate-600 uppercase mb-1">Teléfono Secundario / Emergencia (Opcional)</label>
+          <input type="tel" id="input-phone-secondary" placeholder="Ej. 51912345678" class="w-full px-4 py-2.5 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm text-slate-800">
         </div>
 
         <!-- Foto -->
@@ -159,11 +167,23 @@
         </div>
       </div>
 
-      <!-- SECCIÓN: FICHA MÉDICA -->
+      <!-- SECCIÓN: FICHA MÉDICA Y SALUD -->
       <div class="border-b border-slate-200/80 pb-3 pt-2">
         <h2 class="text-xs font-extrabold text-rose-600 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-          <i class="fa-solid fa-notes-medical"></i> Ficha Médica y Salud (Opcional)
+          <i class="fa-solid fa-notes-medical"></i> Carnet de Salud Veterinario (Opcional)
         </h2>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label for="input-next-vaccine" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próxima Vacuna</label>
+            <input type="text" id="input-next-vaccine" placeholder="Ej. 15 de Octubre" class="w-full px-3 py-2 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-400 outline-none text-xs text-slate-800">
+          </div>
+          <div>
+            <label for="input-next-deworming" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próx. Desparasitación</label>
+            <input type="text" id="input-next-deworming" placeholder="Ej. 01 de Noviembre" class="w-full px-3 py-2 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-400 outline-none text-xs text-slate-800">
+          </div>
+        </div>
+
         <div class="mb-3">
           <label for="input-allergies" class="block text-xs font-bold text-slate-600 uppercase mb-1">Alergias Conocidas</label>
           <input type="text" id="input-allergies" placeholder="Ej. Pollo, Penicilina" class="w-full px-4 py-2.5 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-400 outline-none text-sm text-slate-800">
@@ -229,6 +249,7 @@
         document.getElementById('input-description').value = data.description || '';
         document.getElementById('input-owner').value = data.owner || '';
         document.getElementById('input-phone').value = data.phone || '';
+        document.getElementById('input-phone-secondary').value = data.phone_secondary || '';
         
         savedPin = data.pin;
         isLostState = data.is_lost || false;
@@ -237,6 +258,9 @@
         document.getElementById('input-lost-date').value = data.lost_date || '';
         document.getElementById('input-lost-time').value = data.lost_time || '';
         document.getElementById('input-reward').checked = data.reward || false;
+
+        document.getElementById('input-next-vaccine').value = data.next_vaccine || '';
+        document.getElementById('input-next-deworming').value = data.next_deworming || '';
 
         document.getElementById('input-allergies').value = data.allergies || '';
         document.getElementById('input-medical').value = data.medical_notes || '';
@@ -254,6 +278,8 @@
           document.getElementById('placeholder-icon').classList.add('hidden');
         }
       }
+
+      await cargarHistorialEscaneos();
     }
 
     function toggleMascotaPerdida() { 
@@ -336,6 +362,7 @@
           description: document.getElementById('input-description').value.trim(),
           owner: owner,
           phone: phone,
+          phone_secondary: document.getElementById('input-phone-secondary').value.trim(),
           pin: finalPin,
           is_lost: isLostState,
           lost_location: document.getElementById('input-lost-location').value.trim(),
@@ -343,6 +370,8 @@
           lost_time: document.getElementById('input-lost-time').value.trim(),
           reward: document.getElementById('input-reward').checked,
           photo: photoPublicUrl,
+          next_vaccine: document.getElementById('input-next-vaccine').value.trim(),
+          next_deworming: document.getElementById('input-next-deworming').value.trim(),
           allergies: document.getElementById('input-allergies').value.trim(),
           medical_notes: document.getElementById('input-medical').value.trim(),
           diet: document.getElementById('input-diet').value.trim(),
@@ -361,69 +390,65 @@
         btn.innerHTML = `<i class="fa-solid fa-cloud-check mr-2"></i> Guardar Cambios`;
       }
     }
+
+    async function cargarHistorialEscaneos() {
+      const listaEl = document.getElementById('escaneos-lista');
+      if (!listaEl) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
+
+      try {
+        const { data: todosLosEscaneos, error } = await db.from('escaneos_log').select('*');
+
+        if (error) {
+          listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">No se pudieron cargar los datos.</p>`;
+          return;
+        }
+
+        const escaneosMascota = (todosLosEscaneos || [])
+          .filter(item => item.pet_id && item.pet_id.toString().trim().toLowerCase() === currentTagId.toString().trim().toLowerCase())
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 4);
+
+        if (escaneosMascota.length === 0) {
+          listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Sin registros de ubicación para: <b>${currentTagId}</b></p>`;
+          return;
+        }
+
+        listaEl.innerHTML = '';
+        escaneosMascota.forEach((item, index) => {
+          const fecha = item.created_at 
+            ? new Date(item.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
+            : 'Reciente';
+          const urlMaps = item.map_url || `https://maps.google.com/?q=${item.latitude},${item.longitude}`;
+          const urlWaze = (item.latitude && item.longitude) 
+            ? `https://waze.com/ul?ll=${item.latitude},${item.longitude}&navigate=yes` 
+            : urlMaps;
+
+          listaEl.innerHTML += `
+            <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs mb-2 gap-2">
+              <div>
+                <p class="font-bold text-slate-800 text-xs">Escaneo #${index + 1}</p>
+                <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fecha}</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <a href="${urlMaps}" target="_blank" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded-xl flex items-center gap-1 transition-all shadow-sm">
+                  <i class="fa-solid fa-map-location-dot"></i> Maps
+                </a>
+                <a href="${urlWaze}" target="_blank" class="px-2.5 py-1.5 bg-cyan-500 hover:bg-cyan-600 text-white text-[10px] font-bold rounded-xl flex items-center gap-1 transition-all shadow-sm">
+                  <i class="fa-brands fa-waze"></i> Waze
+                </a>
+              </div>
+            </div>
+          `;
+        });
+      } catch (err) {
+        listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Sin registros aún.</p>`;
+      }
+    }
+
     inicializar();
-   async function cargarHistorialEscaneos() {
-  const listaEl = document.getElementById('escaneos-lista');
-  if (!listaEl) {
-    console.error("❌ No existe el contenedor 'escaneos-lista' en el HTML.");
-    return;
-  }
-
-  // Detectar el ID de la mascota desde la URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
-
-  listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Consultando historial en base de datos...</p>`;
-
-  try {
-    // 1. Consultar todos los escaneos de la tabla
-    const { data: todosLosEscaneos, error } = await db
-      .from('escaneos_log')
-      .select('*');
-
-    if (error) {
-      console.error("❌ Error de Supabase al leer:", error);
-      listaEl.innerHTML = `<p class="text-red-500 text-xs font-bold text-center py-2">⚠️ Error de lectura: ${error.message}</p>`;
-      return;
-    }
-
-    // 2. Filtrar localmente por ID ignorando mayúsculas/minúsculas
-    const escaneosMascota = (todosLosEscaneos || [])
-      .filter(item => item.pet_id && item.pet_id.toString().trim().toLowerCase() === currentTagId.toString().trim().toLowerCase())
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 4);
-
-    if (escaneosMascota.length === 0) {
-      listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Sin registros de ubicación para: <b>${currentTagId}</b></p>`;
-      return;
-    }
-
-    // 3. Renderizar las tarjetas
-    listaEl.innerHTML = '';
-    escaneosMascota.forEach((item, index) => {
-      const fecha = item.created_at 
-        ? new Date(item.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
-        : 'Reciente';
-      const urlMapa = item.map_url || `https://maps.google.com/?q=${item.latitude},${item.longitude}`;
-
-      listaEl.innerHTML += `
-        <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs mb-2">
-          <div>
-            <p class="font-bold text-slate-800">Escaneo #${index + 1}</p>
-            <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fecha}</p>
-          </div>
-          <a href="${urlMapa}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
-            <i class="fa-solid fa-map-location-dot"></i> Ver Mapa
-          </a>
-        </div>
-      `;
-    });
-  } catch (err) {
-    console.error("Error al cargar historial:", err);
-    listaEl.innerHTML = `<p class="text-red-500 text-xs text-center py-2">Error inesperado: ${err.message}</p>`;
-  }
-}// Llama a esta función al terminar de validar y cargar la información del dueño
-cargarHistorialEscaneos();
   </script>
 </body>
 </html>
