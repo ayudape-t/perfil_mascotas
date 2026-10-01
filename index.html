@@ -130,11 +130,11 @@
           <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
         </a>
 
-        <button id="btn-gps" onclick="enviarUbicacionGPS()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all">
-          <i class="fa-solid fa-location-dot text-lg text-red-400"></i>
-          <span>Enviar mi Ubicación GPS por WhatsApp</span>
-        </button>
-
+        <!-- Botón GPS: Oculto por defecto, sólo visible si is_lost === true -->
+<button id="btn-gps" onclick="enviarUbicacionGPS()" class="hidden w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all">
+  <i class="fa-solid fa-location-dot text-lg text-red-400"></i>
+  <span>Enviar mi Ubicación GPS por WhatsApp</span>
+</button>
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all border-2 border-red-300">
           <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "¡SE BUSCA!"
         </button>
@@ -260,163 +260,163 @@
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let petData = null;
     let tagId = 'PET-001';
-    let ubicacionCapturada = null;
+   // Variable global para almacenar coordenadas
+let ubicacionCapturada = null;
 
-    async function cargarPerfil() {
-      const urlParams = new URLSearchParams(window.location.search);
-      tagId = urlParams.get('id') || 'PET-001';
+async function cargarPerfil() {
+  const urlParams = new URLSearchParams(window.location.search);
+  tagId = urlParams.get('id') || 'PET-001';
 
-      try {
-        const { data, error } = await db.from('pets').select('*').eq('id', tagId).maybeSingle();
+  try {
+    const { data, error } = await db.from('pets').select('*').eq('id', tagId).maybeSingle();
 
-        if (error || !data) {
-          document.getElementById('link-register').href = `registro.html?id=${tagId}`;
-          document.getElementById('unregistered-card').classList.remove('hidden');
-          return;
-        }
-
-        petData = data;
-        document.getElementById('app-container').classList.remove('hidden');
-
-        document.getElementById('pet-name').innerText = data.pet;
-        document.getElementById('owner-name').innerText = data.owner;
-        
-        document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
-        document.getElementById('pet-color').innerText = data.color || 'No especificado';
-        document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
-        document.getElementById('pet-age').innerText = data.age || 'No especificada';
-
-        if (data.photo) document.getElementById('pet-photo').src = data.photo;
-
-        const subStatusEl = document.getElementById('sub-status');
-        if (data.description && data.description.trim() !== '') {
-          subStatusEl.innerText = data.description;
-        } else {
-          subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
-        }
-
-        const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
-        document.getElementById('btn-whatsapp').href = `https://wa.me/${data.phone}?text=${mensajeWA}`;
-        document.getElementById('btn-call').href = `tel:${data.phone}`;
-
-        // Ficha médica
-        let tieneDatosMedicos = false;
-        if (data.allergies) { document.getElementById('row-allergies').classList.remove('hidden'); document.getElementById('txt-allergies').innerText = data.allergies; tieneDatosMedicos = true; }
-        if (data.medical_notes) { document.getElementById('row-medical').classList.remove('hidden'); document.getElementById('txt-medical').innerText = data.medical_notes; tieneDatosMedicos = true; }
-        if (data.diet) { document.getElementById('row-diet').classList.remove('hidden'); document.getElementById('txt-diet').innerText = data.diet; tieneDatosMedicos = true; }
-        if (data.vet_phone) {
-          document.getElementById('row-vet').classList.remove('hidden');
-          document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
-          if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
-          tieneDatosMedicos = true;
-        }
-        if (tieneDatosMedicos) document.getElementById('medical-card').classList.remove('hidden');
-
-        // MODO ALERTA MASCOTA PERDIDA
-        if (data.is_lost) {
-          document.getElementById('lost-alert-banner').classList.remove('hidden');
-          document.getElementById('btn-afiche').classList.remove('hidden');
-          
-          const badge = document.getElementById('header-status-badge');
-          badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
-          badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
-          
-          subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
-          subStatusEl.innerText = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
-          
-          document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
-          
-          pedirUbicacionAlCargar();
-        } else {
-          // ESTADO NORMAL (Mascota Segura en Casa)
-          document.getElementById('lost-alert-banner').classList.add('hidden');
-          document.getElementById('btn-afiche').classList.add('hidden');
-          
-          const badge = document.getElementById('header-status-badge');
-          badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
-          badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
-          
-          subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
-          
-          document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
-        }
-      } catch (err) { console.error("Error al cargar:", err); }
+    if (error || !data) {
+      document.getElementById('link-register').href = `registro.html?id=${tagId}`;
+      document.getElementById('unregistered-card').classList.remove('hidden');
+      return;
     }
 
-    async function guardarEscaneoSilencioso(lat, lon) {
-      const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-      try {
-        await db.from('escaneos_log').insert([
-          { pet_id: tagId, latitude: lat, longitude: lon, map_url: mapUrl }
-        ]);
-        console.log("📍 Escaneo registrado silenciosamente en Supabase:", mapUrl);
-      } catch (err) {
-        console.error("Error al registrar en escaneos_log:", err);
-      }
+    petData = data;
+    document.getElementById('app-container').classList.remove('hidden');
+
+    document.getElementById('pet-name').innerText = data.pet;
+    document.getElementById('owner-name').innerText = data.owner;
+    
+    document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
+    document.getElementById('pet-color').innerText = data.color || 'No especificado';
+    document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
+    document.getElementById('pet-age').innerText = data.age || 'No especificada';
+
+    if (data.photo) document.getElementById('pet-photo').src = data.photo;
+
+    const subStatusEl = document.getElementById('sub-status');
+    if (data.description && data.description.trim() !== '') {
+      subStatusEl.innerText = data.description;
+    } else {
+      subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
     }
 
-    function pedirUbicacionAlCargar() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            ubicacionCapturada = `https://maps.google.com/?q=${lat},${lon}`;
+    const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
+    document.getElementById('btn-whatsapp').href = `https://wa.me/${data.phone}?text=${mensajeWA}`;
+    document.getElementById('btn-call').href = `tel:${data.phone}`;
 
-            guardarEscaneoSilencioso(lat, lon);
-
-            const btnGPS = document.getElementById('btn-gps');
-            if (btnGPS) {
-              btnGPS.className = "w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all animate-bounce";
-              btnGPS.innerHTML = `<i class="fa-solid fa-circle-check text-xl text-yellow-300"></i> <span>📍 Ubicación capturada: Toca para enviar a WhatsApp</span>`;
-            }
-          },
-          (error) => {
-            console.log("El usuario rechazó el permiso de GPS o tardó en responder.");
-          },
-          { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
-        );
-      }
+    // Ficha médica
+    let tieneDatosMedicos = false;
+    if (data.allergies) { document.getElementById('row-allergies').classList.remove('hidden'); document.getElementById('txt-allergies').innerText = data.allergies; tieneDatosMedicos = true; }
+    if (data.medical_notes) { document.getElementById('row-medical').classList.remove('hidden'); document.getElementById('txt-medical').innerText = data.medical_notes; tieneDatosMedicos = true; }
+    if (data.diet) { document.getElementById('row-diet').classList.remove('hidden'); document.getElementById('txt-diet').innerText = data.diet; tieneDatosMedicos = true; }
+    if (data.vet_phone) {
+      document.getElementById('row-vet').classList.remove('hidden');
+      document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
+      if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
+      tieneDatosMedicos = true;
     }
+    if (tieneDatosMedicos) document.getElementById('medical-card').classList.remove('hidden');
 
-    function enviarUbicacionGPS() {
-      if (ubicacionCapturada) {
-        const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${ubicacionCapturada}`);
-        window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
-      } else {
-        const btn = document.getElementById('btn-gps');
-        const textoOriginal = btn ? btn.innerHTML : '';
-        if (btn) {
-          btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
-          btn.disabled = true;
+    // CONTROL DEL MODO PÉRDIDA Y GPS
+    if (data.is_lost) {
+      document.getElementById('lost-alert-banner').classList.remove('hidden');
+      document.getElementById('btn-afiche').classList.remove('hidden');
+      document.getElementById('btn-gps').classList.remove('hidden'); // 👈 Mostrar botón GPS
+      
+      const badge = document.getElementById('header-status-badge');
+      badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
+      badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
+      
+      subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
+      subStatusEl.innerText = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
+      
+      document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
+      
+      // 🚀 Pedir ubicación automáticamente al cargar por estar PERDIDA
+      pedirUbicacionAlCargar();
+    } else {
+      // Mascota Segura
+      document.getElementById('lost-alert-banner').classList.add('hidden');
+      document.getElementById('btn-afiche').classList.add('hidden');
+      document.getElementById('btn-gps').classList.add('hidden'); // 👈 Ocultar botón GPS
+      
+      const badge = document.getElementById('header-status-badge');
+      badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
+      badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
+      
+      subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
+      document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
+    }
+  } catch (err) { console.error("Error al cargar:", err); }
+}
+
+async function guardarEscaneoSilencioso(lat, lon) {
+  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+  try {
+    await db.from('escaneos_log').insert([
+      { pet_id: tagId, latitude: lat, longitude: lon, map_url: mapUrl }
+    ]);
+    console.log("📍 Escaneo guardado silenciosamente:", mapUrl);
+  } catch (err) { console.error("Error al registrar escaneo:", err); }
+}
+
+function pedirUbicacionAlCargar() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        ubicacionCapturada = `https://maps.google.com/?q=${lat},${lon}`;
+
+        guardarEscaneoSilencioso(lat, lon);
+
+        const btnGPS = document.getElementById('btn-gps');
+        if (btnGPS) {
+          btnGPS.className = "w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all animate-bounce";
+          btnGPS.innerHTML = `<i class="fa-solid fa-circle-check text-xl text-yellow-300"></i> <span>📍 Ubicación capturada: Toca para enviar a WhatsApp</span>`;
         }
+      },
+      (error) => {
+        console.log("El usuario declinó o no activó el GPS al abrir.");
+      },
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
+    );
+  }
+}
 
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const lat = position.coords.latitude;
-              const lon = position.coords.longitude;
-              const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-              
-              guardarEscaneoSilencioso(lat, lon);
-              
-              const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
-              if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-              window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
-            },
-            (error) => {
-              if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-              alert("No se pudo obtener la ubicación. Por favor asegura de tener el GPS activado en tu teléfono.");
-            },
-            { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
-          );
-        } else {
+function enviarUbicacionGPS() {
+  if (ubicacionCapturada) {
+    const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${ubicacionCapturada}`);
+    window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
+  } else {
+    const btn = document.getElementById('btn-gps');
+    const textoOriginal = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
+      btn.disabled = true;
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+          
+          guardarEscaneoSilencioso(lat, lon);
+          
+          const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
           if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-          alert("Tu navegador o teléfono no soporta geolocalización.");
-        }
-      }
+          window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
+        },
+        () => {
+          if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
+          alert("Por favor habilita el acceso a la ubicación en tu navegador.");
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
+      );
+    } else {
+      if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
+      alert("Tu navegador no soporta geolocalización.");
     }
-
+  }
+}
     function abrirAficheModal() {
       if (!petData) return;
 
