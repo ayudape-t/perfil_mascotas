@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Fuentes: DynaPuff (Nombre) + Fredoka (Información y Dueño) -->
+<link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Fuente estilo letra inflada (DynaPuff) -->
 <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&display=swap" rel="stylesheet">
   <!-- Logo personalizado para la pestaña y el menú de compartir -->
@@ -127,8 +129,41 @@
           </div>
           <div>
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dueño / Responsable</p>
-            <p id="owner-name" class="text-sm font-bold text-slate-800">...</p>
+            <!-- Nombre del dueño -->
+<p id="owner-name" 
+   class="text-xs font-semibold text-amber-700/80 uppercase tracking-widest text-center mb-4" 
+   style="font-family: 'Fredoka', sans-serif;">
+   <!-- El nombre del dueño cargado por JS -->
+</p>
           </div>
+          <!-- Grid de Detalles con texto más grande y mejor espacio -->
+<div class="grid grid-cols-2 gap-3.5 my-5" style="font-family: 'Fredoka', sans-serif;">
+
+  <!-- Raza -->
+  <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-100 text-center shadow-sm flex flex-col justify-center min-h-[85px]">
+    <span class="block text-sm font-semibold text-amber-900/60 uppercase tracking-wider mb-1">Raza</span>
+    <span id="pet-breed" class="text-lg font-bold text-slate-800 leading-tight"></span>
+  </div>
+
+  <!-- Color -->
+  <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-100 text-center shadow-sm flex flex-col justify-center min-h-[85px]">
+    <span class="block text-sm font-semibold text-amber-900/60 uppercase tracking-wider mb-1">Color</span>
+    <span id="pet-color" class="text-lg font-bold text-slate-800 leading-tight"></span>
+  </div>
+
+  <!-- Peso -->
+  <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-100 text-center shadow-sm flex flex-col justify-center min-h-[85px]">
+    <span class="block text-sm font-semibold text-amber-900/60 uppercase tracking-wider mb-1">Peso</span>
+    <span id="pet-weight" class="text-lg font-bold text-slate-800 leading-tight"></span>
+  </div>
+
+  <!-- Edad -->
+  <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-100 text-center shadow-sm flex flex-col justify-center min-h-[85px]">
+    <span class="block text-sm font-semibold text-amber-900/60 uppercase tracking-wider mb-1">Edad</span>
+    <span id="pet-age" class="text-lg font-bold text-slate-800 leading-tight"></span>
+  </div>
+
+</div>
         </div>
       </div>
       <!-- Botones de Contacto -->
