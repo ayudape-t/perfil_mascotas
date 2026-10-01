@@ -475,18 +475,50 @@ function intentarGeolocalizacionAutomatica(dataMascota) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         const mapaUrl = `https://maps.google.com/?q=${lat},${lon}`;
+        // Variable global
+let ubicacionCapturada = null;
 
-        // 1. Opcional: Registrar el evento de escaneo con GPS en Supabase
-        await db.from('escaneos').insert([
-          { pet_id: tagId, latitud: lat, longitud: lon, fecha: new Date().toISOString() }
-        ]);
+// FUNCIÓN PARA GUARDAR EN SUPABASE EN SEGUNDO PLANO
+async function guardarEscaneoSilencioso(lat, lon) {
+  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+  try {
+    await db.from('escaneos_log').insert([
+      {
+        pet_id: tagId,
+        latitude: lat,
+        longitude: lon,
+        map_url: mapUrl
+      }
+    ]);
+    console.log("📍 Escaneo registrado silenciosamente en Supabase:", mapUrl);
+  } catch (err) {
+    console.error("Error al registrar en escaneos_log:", err);
+  }
+}
 
-        console.log("Ubicación de escaneo registrada:", mapaUrl);
+// SOLICITUD DE GPS AUTOMÁTICA AL CARGAR
+function pedirUbicacionAlCargar() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        ubicacionCapturada = `https://maps.google.com/?q=${lat},${lon}`;
+
+        // 1. Guardado silencioso en Supabase en segundo plano
+        guardarEscaneoSilencioso(lat, lon);
+
+        // 2. Actualizar la interfaz visual del usuario
+        const btnGPS = document.getElementById('btn-gps');
+        if (btnGPS) {
+          btnGPS.className = "w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all animate-bounce";
+          btnGPS.innerHTML = `<i class="fa-solid fa-circle-check text-xl text-yellow-300"></i> <span>📍 Ubicación capturada: Toca para enviar a WhatsApp</span>`;
+        }
       },
       (error) => {
-        console.log("El usuario declinó el permiso de ubicación o hubo error GPS.");
+        console.log("El usuario rechazó el permiso de GPS o tardó en responder.");
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
     );
   }
 }
