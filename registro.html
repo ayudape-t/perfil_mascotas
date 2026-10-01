@@ -365,7 +365,6 @@
   const listaEl = document.getElementById('escaneos-lista');
   if (!listaEl) return;
 
-  // Obtiene el ID directamente de la URL si tagId aún no está cargado
   const urlParams = new URLSearchParams(window.location.search);
   const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
 
@@ -377,7 +376,13 @@
       .order('created_at', { ascending: false })
       .limit(4);
 
-    if (error || !escaneos || escaneos.length === 0) {
+    if (error) {
+      console.error("❌ ERROR AL LEER ESCANEOS:", error.message);
+      listaEl.innerHTML = `<p class="text-red-500 text-xs font-bold text-center py-2">Error de permisos: ${error.message}</p>`;
+      return;
+    }
+
+    if (!escaneos || escaneos.length === 0) {
       listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay registros de escaneos de ubicación aún.</p>`;
       return;
     }
@@ -403,10 +408,9 @@
     });
   } catch (err) {
     console.error("Error al cargar historial:", err);
-    listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay registros de escaneos de ubicación aún.</p>`;
+    listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay registros de escaneos aún.</p>`;
   }
-}
-// Llama a esta función al terminar de validar y cargar la información del dueño
+}// Llama a esta función al terminar de validar y cargar la información del dueño
 cargarHistorialEscaneos();
   </script>
 </body>
