@@ -365,12 +365,15 @@
   const listaEl = document.getElementById('escaneos-lista');
   if (!listaEl) return;
 
+  // Obtiene el ID directamente de la URL si tagId aún no está cargado
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
+
   try {
-    // Consulta a Supabase: Filtra por el tagId actual, ordena del más reciente al más antiguo y limita a 4
     const { data: escaneos, error } = await db
       .from('escaneos_log')
       .select('*')
-      .eq('pet_id', tagId)
+      .eq('pet_id', currentTagId)
       .order('created_at', { ascending: false })
       .limit(4);
 
@@ -381,10 +384,10 @@
 
     listaEl.innerHTML = '';
     escaneos.forEach((item, index) => {
-      const fecha = new Date(item.created_at).toLocaleString('es-PE', {
-        dateStyle: 'short',
-        timeStyle: 'short'
-      });
+      const fecha = item.created_at 
+        ? new Date(item.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
+        : 'Reciente';
+      const urlMapa = item.map_url || `https://maps.google.com/?q=${item.latitude},${item.longitude}`;
 
       listaEl.innerHTML += `
         <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
@@ -392,18 +395,17 @@
             <p class="font-bold text-slate-800">Escaneo #${index + 1}</p>
             <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fecha}</p>
           </div>
-          <a href="${item.map_url}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+          <a href="${urlMapa}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
             <i class="fa-solid fa-map-location-dot"></i> Ver Mapa
           </a>
         </div>
       `;
     });
   } catch (err) {
-    console.error("Error al cargar escaneos:", err);
-    listaEl.innerHTML = `<p class="text-red-400 text-center py-2">Error al obtener el historial.</p>`;
+    console.error("Error al cargar historial:", err);
+    listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay registros de escaneos de ubicación aún.</p>`;
   }
 }
-
 // Llama a esta función al terminar de validar y cargar la información del dueño
 cargarHistorialEscaneos();
   </script>
