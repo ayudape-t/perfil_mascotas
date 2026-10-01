@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23f59e0b' d='M256 224c-79.5 0-144 64.5-144 144s64.5 144 144 144 144-64.5 144-144-64.5-144-144-144z'/></svg>">
+  <!-- Metaetiquetas para WhatsApp y Redes Sociales -->
+<meta property="og:title" content="Helpet - Placa Inteligente de Seguridad">
+<meta property="og:description" content="Perfil oficial y ficha médica de mascota protegida por Helpet.">
+<meta property="og:image" content="https://gusmanreyessnayder-prog.github.io/perfil_mascotas/https://i.pinimg.com/736x/83/bc/1b/83bc1bfef9159ca06e3e1968bb6d8ec7.jpg">
+<meta property="og:type" content="website">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Helpet - Perfil de Mascota</title>
@@ -120,7 +126,9 @@
         <a id="btn-call" href="#" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all">
           <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
         </a>
-
+        <button onclick="enviarUbicacionGPS()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all">
+  <i class="fa-solid fa-location-dot text-lg text-red-400"></i> Compartir mi Ubicación Actual al Dueño
+</button>
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all border-2 border-red-300">
           <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "¡SE BUSCA!"
         </button>
@@ -406,7 +414,21 @@
   document.getElementById('full-pet-photo').src = fotoActual;
   document.getElementById('photo-modal').classList.remove('hidden');
 }
-
+function enviarUbicacionGPS() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+      const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a ${petData.pet}. Mi ubicación actual es: ${mapUrl}`);
+      window.open(`https://wa.me/${petData.phone}?text=${mensaje}`, '_blank');
+    }, () => {
+      alert("Por favor activa el GPS de tu celular para compartir la ubicación.");
+    });
+  } else {
+    alert("Tu navegador no soporta geolocalización.");
+  }
+}
 function cerrarFotoGrande() {
   document.getElementById('photo-modal').classList.add('hidden');
 }
