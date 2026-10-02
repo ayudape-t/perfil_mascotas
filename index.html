@@ -128,6 +128,23 @@
   </div>
 
 </div>
+      <!-- SECCIÓN HISTORIAL MÉDICO -->
+<div id="medical-section" class="mt-4 bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 shadow-sm hidden" style="font-family: 'Fredoka', sans-serif;">
+  
+  <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+      <i class="fa-solid fa-file-medical text-amber-500"></i>
+      Historial Médico & Recetas
+    </h3>
+    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Ficha Digital</span>
+  </div>
+
+  <!-- Lista dinámica cargada con JS -->
+  <div id="medical-list">
+    <!-- Se llenará automáticamente con la función cargarHistorialMedico -->
+  </div>
+
+</div>
 
       <!-- Datos Dueño -->
       <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 text-left space-y-2 shadow-sm">
@@ -342,16 +359,45 @@
           return;
         }
 
-        petData = data;
-        document.getElementById('app-container').classList.remove('hidden');
+       // Variable data recibida de Supabase
+petData = data;
 
-        document.getElementById('pet-name').innerText = (data.pet || '').toUpperCase();
-        document.getElementById('owner-name').innerText = data.owner;
-        
-        document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
-        document.getElementById('pet-color').innerText = data.color || 'No especificado';
-        document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
-        document.getElementById('pet-age').innerText = data.age || 'No especificada';
+document.getElementById('app-container').classList.remove('hidden');
+document.getElementById('pet-name').innerText = (data.pet || '').toUpperCase();
+document.getElementById('owner-name').innerText = data.owner;
+
+// ==========================================
+// CONTROL DE PRIVACIDAD / MODO PERDIDO
+// ==========================================
+const isLost = data.is_lost || false;
+
+if (isLost) {
+  // MODO PERDIDO: Ocultamos datos sensibles y Ficha Médica
+  document.getElementById('pet-breed').innerText = "PROTEGIDO";
+  document.getElementById('pet-color').innerText = "PROTEGIDO";
+  document.getElementById('pet-weight').innerText = "--";
+  document.getElementById('pet-age').innerText = "--";
+  
+  // Ocultar sección médica si existe
+  if (document.getElementById('medical-section')) {
+    document.getElementById('medical-section').classList.add('hidden');
+  }
+  
+  // Mostrar Banner de Emergencia
+  if (document.getElementById('lost-banner')) {
+    document.getElementById('lost-banner').classList.remove('hidden');
+  }
+
+} else {
+  // MODO SEGURO: Mostramos Ficha Técnica Completa
+  document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
+  document.getElementById('pet-color').innerText = data.color || 'No especificado';
+  document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
+  document.getElementById('pet-age').innerText = data.age || 'No especificada';
+  
+  // Mostrar la Ficha Médica
+  cargarHistorialMedico(tagId);
+}
 
         if (data.photo) document.getElementById('pet-photo').src = data.photo;
 
@@ -611,7 +657,44 @@ function recuperarPIN() {
         btn.disabled = false; 
       }
     }
+    async function cargarHistorialMedico(tagId) {
+  const medicalSection = document.getElementById('medical-section');
+  if (!medicalSection) return;
 
+  // Consultar registros médicos ordenados por fecha más reciente
+  const { data: records, error } = await db
+    .from('medical_records')
+    .select('*')
+    .eq('pet_id', tagId)
+    .order('visit_date', { ascending: false });
+
+  if (error || !records || records.length === 0) {
+    document.getElementById('medical-list').innerHTML = `
+      <p class="text-xs text-slate-400 text-center py-3">No hay registros médicos cargados aún.</p>
+    `;
+    medicalSection.classList.remove('hidden');
+    return;
+  }
+
+  // Generar las tarjetas de historial médico
+  let html = '';
+  records.forEach(rec => {
+    html += `
+      <div class="bg-amber-50/60 p-3 rounded-xl border border-amber-100 mb-2">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-bold text-amber-900">${rec.vet_name}</span>
+          <span class="text-[10px] text-amber-700/70 font-semibold">${rec.visit_date}</span>
+        </div>
+        <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta'}</p>
+        ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${rec.diagnosis}</p>` : ''}
+        ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50 p-2 rounded-lg border border-emerald-100 mt-1"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
+      </div>
+    `;
+  });
+
+  document.getElementById('medical-list').innerHTML = html;
+  medicalSection.classList.remove('hidden');
+}
     function abrirModalPIN() { document.getElementById('pin-modal').classList.remove('hidden'); document.getElementById('modal-pin-input').value = ''; document.getElementById('modal-pin-input').focus(); }
     function cerrarModalPIN() { document.getElementById('pin-modal').classList.add('hidden'); }
     function validarPINModal() {
