@@ -514,12 +514,15 @@
         alert("¡Enlace del perfil copiado al portapapeles!");
       }
     }
+function recuperarPIN() {
+  // Reemplaza con tu número real de Soporte Helpet (con código de país, ej. 51 para Perú)
+  const NUMERO_SOPORTE = '51921512933'; 
 
-    function recuperarPIN() {
-      const msg = encodeURIComponent(`¡Hola! Olvidé el PIN de mi placa Helpet con ID: ${tagId}. Solicito ayuda para recuperarlo.`);
-      const destPhone = (petData && petData.phone) ? petData.phone : '';
-      window.open(`https://wa.me/${destPhone}?text=${msg}`, '_blank');
-    }
+  const msg = encodeURIComponent(`¡Hola! Olvidé el PIN de mi placa Helpet con ID: ${tagId}. Solicito ayuda para recuperarlo.`);
+  
+  // Ahora envía directamente a tu WhatsApp de Soporte
+  window.open(`https://wa.me/${NUMERO_SOPORTE}?text=${msg}`, '_blank');
+}
 
     function abrirAficheModal() {
       if (!petData) return;
@@ -638,7 +641,7 @@
   
   <!-- Botón de Soporte Oficial -->
   <a id="btn-support-whatsapp" 
-     href="https://wa.me/519XXXXXXXX?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." 
+     href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." 
      target="_blank" 
      class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2.5 rounded-full border border-emerald-200/80 transition-all shadow-sm">
     <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
