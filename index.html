@@ -105,7 +105,7 @@
       </div>
 
       <!-- Ficha Técnica (Compacta pero con texto grande) -->
-<div class="grid grid-cols-2 gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-slate-200/80 shadow-sm" style="font-family: 'Fredoka', sans-serif;">
+<div id="pet-tech-sheet" class="grid grid-cols-2 gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-slate-200/80 shadow-sm" style="font-family: 'Fredoka', sans-serif;">
   
   <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
     <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-dog text-amber-500 mr-1"></i> Raza</p>
@@ -361,46 +361,26 @@ document.getElementById('pet-name').innerText = (data.pet || '').toUpperCase();
 document.getElementById('owner-name').innerText = data.owner;
 
 // ==========================================
-// CONTROL DE PRIVACIDAD / MODO PERDIDO
-// ==========================================
-const isLost = data.is_lost || false;
+        // CONTROL DE PRIVACIDAD / MODO PERDIDO VS SEGURO
+        // ==========================================
+        const isLost = data.is_lost || false;
 
-if (isLost) {
-  // MODO PERDIDO: Ocultamos datos sensibles y el botón de Ficha Médica
-  document.getElementById('pet-breed').innerText = "PROTEGIDO";
-  document.getElementById('pet-color').innerText = "PROTEGIDO";
-  document.getElementById('pet-weight').innerText = "--";
-  document.getElementById('pet-age').innerText = "--";
-  
-  // Ocultar botón de Ficha Médica por privacidad
-  const btnMedical = document.getElementById('btn-medical-history');
-  if (btnMedical) btnMedical.classList.add('hidden');
-  
-  // Mostrar Banner de Emergencia
-  const lostBanner = document.getElementById('lost-banner');
-  if (lostBanner) lostBanner.classList.remove('hidden');
+        // Referencias a contenedores
+        const techSheet = document.getElementById('pet-tech-sheet');      // Ficha técnica (raza, color, peso, edad)
+        const btnMedical = document.getElementById('btn-medical-history'); // Botón modal médico
+        const healthCard = document.getElementById('health-card');        // Carnet de vacunas/desparasitaciones
+        const medicalCard = document.getElementById('medical-card');      // Ficha de alergias/dieta/vet
+        const lostAlertBanner = document.getElementById('lost-alert-banner');
+        const btnAfiche = document.getElementById('btn-afiche');
+        const btnGps = document.getElementById('btn-gps');
+        const subStatusEl = document.getElementById('sub-status');
+        const badge = document.getElementById('header-status-badge');
+        const statusIndicator = document.getElementById('status-indicator');
 
-} else {
-  // MODO SEGURO: Mostramos Ficha Técnica Completa
-  document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
-  document.getElementById('pet-color').innerText = data.color || 'No especificado';
-  document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
-  document.getElementById('pet-age').innerText = data.age || 'No especificada';
-  
-  // ¡AQUÍ HACEMOS VISIBLE EL BOTÓN EN PANTALLA!
-  const btnMedical = document.getElementById('btn-medical-history');
-  if (btnMedical) btnMedical.classList.remove('hidden');
-}
-
+        // Foto principal
         if (data.photo) document.getElementById('pet-photo').src = data.photo;
 
-        const subStatusEl = document.getElementById('sub-status');
-        if (data.description && data.description.trim() !== '') {
-          subStatusEl.innerText = data.description;
-        } else {
-          subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
-        }
-
+        // Botones de contacto principales
         const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
         document.getElementById('btn-whatsapp').href = `https://wa.me/${data.phone}?text=${mensajeWA}`;
         document.getElementById('btn-call').href = `tel:${data.phone}`;
@@ -408,66 +388,102 @@ if (isLost) {
         // Contacto secundario
         if (data.phone_secondary) {
           const btnSec = document.getElementById('btn-call-secondary');
-          btnSec.href = `tel:${data.phone_secondary}`;
-          btnSec.classList.remove('hidden');
+          if (btnSec) {
+            btnSec.href = `tel:${data.phone_secondary}`;
+            btnSec.classList.remove('hidden');
+          }
         }
 
-        // Carnet Digital de Salud
-        let tieneControlSalud = false;
-        if (data.next_vaccine) {
-          document.getElementById('row-vaccine').classList.remove('hidden');
-          document.getElementById('txt-vaccine').innerText = data.next_vaccine;
-          tieneControlSalud = true;
-        }
-        if (data.next_deworming) {
-          document.getElementById('row-deworming').classList.remove('hidden');
-          document.getElementById('txt-deworming').innerText = data.next_deworming;
-          tieneControlSalud = true;
-        }
-        if (tieneControlSalud) {
-          document.getElementById('health-card').classList.remove('hidden');
-        }
+        if (isLost) {
+          // 🔴 MODO PERDIDO: Ocultar Ficha Técnica, Carnet de Salud, Ficha Médica y Botón
+          if (techSheet) techSheet.classList.add('hidden');
+          if (btnMedical) btnMedical.classList.add('hidden');
+          if (healthCard) healthCard.classList.add('hidden');
+          if (medicalCard) medicalCard.classList.add('hidden');
 
-        // Ficha médica
-        let tieneDatosMedicos = false;
-        if (data.allergies) { document.getElementById('row-allergies').classList.remove('hidden'); document.getElementById('txt-allergies').innerText = data.allergies; tieneDatosMedicos = true; }
-        if (data.medical_notes) { document.getElementById('row-medical').classList.remove('hidden'); document.getElementById('txt-medical').innerText = data.medical_notes; tieneDatosMedicos = true; }
-        if (data.diet) { document.getElementById('row-diet').classList.remove('hidden'); document.getElementById('txt-diet').innerText = data.diet; tieneDatosMedicos = true; }
-        if (data.vet_phone) {
-          document.getElementById('row-vet').classList.remove('hidden');
-          document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
-          if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
-          tieneDatosMedicos = true;
-        }
-        if (tieneDatosMedicos) document.getElementById('medical-card').classList.remove('hidden');
+          // Mostrar elementos de Emergencia / Pérdida
+          if (lostAlertBanner) lostAlertBanner.classList.remove('hidden');
+          if (btnAfiche) btnAfiche.classList.remove('hidden');
+          if (btnGps) btnGps.classList.remove('hidden');
 
-        // CONTROL DEL MODO PÉRDIDA Y GPS
-        if (data.is_lost) {
-          document.getElementById('lost-alert-banner').classList.remove('hidden');
-          document.getElementById('btn-afiche').classList.remove('hidden');
-          document.getElementById('btn-gps').classList.remove('hidden');
-          
-          const badge = document.getElementById('header-status-badge');
-          badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
-          badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
-          
-          subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
-          subStatusEl.innerText = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
-          
-          document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
-          
+          // Estilos visuales de Alerta Roja
+          if (badge) {
+            badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
+            badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
+          }
+
+          if (subStatusEl) {
+            subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
+            subStatusEl.innerText = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
+          }
+
+          if (statusIndicator) {
+            statusIndicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
+          }
+
           pedirUbicacionAlCargar();
+
         } else {
-          document.getElementById('lost-alert-banner').classList.add('hidden');
-          document.getElementById('btn-afiche').classList.add('hidden');
-          document.getElementById('btn-gps').classList.add('hidden');
-          
-          const badge = document.getElementById('header-status-badge');
-          badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
-          badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
-          
-          subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
-          document.getElementById('status-indicator').className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
+          // 🟢 MODO SEGURO: Mostrar Ficha Técnica y Botón Médico
+          if (techSheet) techSheet.classList.remove('hidden');
+          if (btnMedical) btnMedical.classList.remove('hidden');
+
+          // Ocultar elementos de alerta
+          if (lostAlertBanner) lostAlertBanner.classList.add('hidden');
+          if (btnAfiche) btnAfiche.classList.add('hidden');
+          if (btnGps) btnGps.classList.add('hidden');
+
+          // Llenar Ficha Técnica
+          document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
+          document.getElementById('pet-color').innerText = data.color || 'No especificado';
+          document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
+          document.getElementById('pet-age').innerText = data.age || 'No especificada';
+
+          // Carnet Digital de Salud (Vacunas y Desparasitaciones)
+          let tieneControlSalud = false;
+          if (data.next_vaccine) {
+            document.getElementById('row-vaccine').classList.remove('hidden');
+            document.getElementById('txt-vaccine').innerText = data.next_vaccine;
+            tieneControlSalud = true;
+          }
+          if (data.next_deworming) {
+            document.getElementById('row-deworming').classList.remove('hidden');
+            document.getElementById('txt-deworming').innerText = data.next_deworming;
+            tieneControlSalud = true;
+          }
+          if (tieneControlSalud && healthCard) healthCard.classList.remove('hidden');
+
+          // Ficha Médica Básica (Alergias, Notas, Dieta, Vet)
+          let tieneDatosMedicos = false;
+          if (data.allergies) { document.getElementById('row-allergies').classList.remove('hidden'); document.getElementById('txt-allergies').innerText = data.allergies; tieneDatosMedicos = true; }
+          if (data.medical_notes) { document.getElementById('row-medical').classList.remove('hidden'); document.getElementById('txt-medical').innerText = data.medical_notes; tieneDatosMedicos = true; }
+          if (data.diet) { document.getElementById('row-diet').classList.remove('hidden'); document.getElementById('txt-diet').innerText = data.diet; tieneDatosMedicos = true; }
+          if (data.vet_phone) {
+            document.getElementById('row-vet').classList.remove('hidden');
+            document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
+            if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
+            tieneDatosMedicos = true;
+          }
+          if (tieneDatosMedicos && medicalCard) medicalCard.classList.remove('hidden');
+
+          // Estilos visuales normales
+          if (badge) {
+            badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
+            badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
+          }
+
+          if (subStatusEl) {
+            subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
+            if (data.description && data.description.trim() !== '') {
+              subStatusEl.innerText = data.description;
+            } else {
+              subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
+            }
+          }
+
+          if (statusIndicator) {
+            statusIndicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
+          }
         }
       } catch (err) { console.error("Error al cargar:", err); }
     }
@@ -553,15 +569,13 @@ if (isLost) {
         alert("¡Enlace del perfil copiado al portapapeles!");
       }
     }
-function recuperarPIN() {
-  // Reemplaza con tu número real de Soporte Helpet (con código de país, ej. 51 para Perú)
-  const NUMERO_SOPORTE = '51921512933'; 
 
-  const msg = encodeURIComponent(`¡Hola! Olvidé el PIN de mi placa Helpet con ID: ${tagId}. Solicito ayuda para recuperarlo.`);
-  
-  // Ahora envía directamente a tu WhatsApp de Soporte
-  window.open(`https://wa.me/${NUMERO_SOPORTE}?text=${msg}`, '_blank');
-}
+    function recuperarPIN() {
+      const NUMERO_SOPORTE = '51921512933'; 
+
+      const msg = encodeURIComponent(`¡Hola! Olvidé el PIN de mi placa Helpet con ID: ${tagId}. Solicito ayuda para recuperarlo.`);
+      window.open(`https://wa.me/${NUMERO_SOPORTE}?text=${msg}`, '_blank');
+    }
 
     function abrirAficheModal() {
       if (!petData) return;
@@ -650,80 +664,77 @@ function recuperarPIN() {
         btn.disabled = false; 
       }
     }
-// ==========================================
-// FUNCIONES DE CONTROL DEL MODAL MÉDICO
-// ==========================================
 
-function abrirModalMedico() {
-  const modal = document.getElementById('modal-medico');
-  if (modal) {
-    modal.classList.remove('hidden');
-    // Usamos el ID del objeto petData o la variable tagId
-    const idPet = (petData && petData.id) ? petData.id : tagId;
-    cargarHistorialMedico(idPet);
-  }
-}
+    // ==========================================
+    // FUNCIONES DE CONTROL DEL MODAL MÉDICO
+    // ==========================================
 
-function cerrarModalMedico() {
-  const modal = document.getElementById('modal-medico');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
-}
+    function abrirModalMedico() {
+      const modal = document.getElementById('modal-medico');
+      if (modal) {
+        modal.classList.remove('hidden');
+        const idPet = (petData && petData.id) ? petData.id : tagId;
+        cargarHistorialMedico(idPet);
+      }
+    }
 
-async function cargarHistorialMedico(idMascota) {
-  const listContainer = document.getElementById('modal-medical-list');
+    function cerrarModalMedico() {
+      const modal = document.getElementById('modal-medico');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
 
-  if (!listContainer) {
-    console.error("❌ No existe el contenedor #modal-medical-list en el HTML");
-    return;
-  }
+    async function cargarHistorialMedico(idMascota) {
+      const listContainer = document.getElementById('modal-medical-list');
 
-  // 1. Indicador de carga dentro del modal
-  listContainer.innerHTML = `
-    <div class="text-center py-6">
-      <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
-      <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
-    </div>
-  `;
+      if (!listContainer) {
+        console.error("❌ No existe el contenedor #modal-medical-list en el HTML");
+        return;
+      }
 
-  // 2. Consultar registros médicos en Supabase
-  const { data: records, error } = await db
-    .from('medical_records')
-    .select('*')
-    .eq('pet_id', idMascota)
-    .order('visit_date', { ascending: false });
-
-  // 3. Si ocurre un error o no hay consultas guardadas
-  if (error || !records || records.length === 0) {
-    listContainer.innerHTML = `
-      <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-        <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
-        <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
-        <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
-      </div>
-    `;
-    return;
-  }
-
-  // 4. Renderizar tarjetas médicas
-  let html = '';
-  records.forEach(rec => {
-    html += `
-      <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
-        <div class="flex justify-between items-center mb-1.5">
-          <span class="text-xs font-bold text-amber-950 uppercase">${rec.vet_name}</span>
-          <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${rec.visit_date}</span>
+      listContainer.innerHTML = `
+        <div class="text-center py-6">
+          <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
+          <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta general'}</p>
-        ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${rec.diagnosis}</p>` : ''}
-        ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
-      </div>
-    `;
-  });
+      `;
 
-  listContainer.innerHTML = html;
-}
+      const { data: records, error } = await db
+        .from('medical_records')
+        .select('*')
+        .eq('pet_id', idMascota)
+        .order('visit_date', { ascending: false });
+
+      if (error || !records || records.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
+            <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      records.forEach(rec => {
+        html += `
+          <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-xs font-bold text-amber-950 uppercase">${rec.vet_name}</span>
+              <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${rec.visit_date}</span>
+            </div>
+            <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta general'}</p>
+            ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${rec.diagnosis}</p>` : ''}
+            ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
+          </div>
+        `;
+      });
+
+      listContainer.innerHTML = html;
+    }
+
     function abrirModalPIN() { document.getElementById('pin-modal').classList.remove('hidden'); document.getElementById('modal-pin-input').value = ''; document.getElementById('modal-pin-input').focus(); }
     function cerrarModalPIN() { document.getElementById('pin-modal').classList.add('hidden'); }
     function validarPINModal() {
@@ -745,47 +756,49 @@ async function cargarHistorialMedico(idMascota) {
 
     cargarPerfil();
   </script>
+
   <!-- Pie de página con Soporte Técnico Helpet -->
-<footer class="mt-8 pt-5 pb-4 border-t border-slate-200/80 text-center" style="font-family: 'Fredoka', sans-serif;">
-  <p class="text-xs font-semibold text-slate-400 mb-2">
-    ¿Tienes dudas o problemas con esta placa?
-  </p>
-  
-  <!-- Botón de Soporte Oficial -->
-  <a id="btn-support-whatsapp" 
-     href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." 
-     target="_blank" 
-     class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2.5 rounded-full border border-emerald-200/80 transition-all shadow-sm">
-    <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
-    Contactar a Soporte Helpet
-  </a>
-
-  <p class="text-[10px] text-slate-400 mt-4 font-normal">
-    © 2026 Helpet • Identificación Inteligente para Mascotas
-  </p>
-</footer>
-  <!-- MODAL FLOTANTE DE HISTORIAL MÉDICO -->
-<div id="modal-medico" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-300">
-  <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" style="font-family: 'Fredoka', sans-serif;">
+  <footer class="mt-8 pt-5 pb-4 border-t border-slate-200/80 text-center" style="font-family: 'Fredoka', sans-serif;">
+    <p class="text-xs font-semibold text-slate-400 mb-2">
+      ¿Tienes dudas o problemas con esta placa?
+    </p>
     
-    <!-- Cabecera -->
-    <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-file-medical text-amber-500 text-lg"></i>
-        <div>
-          <h3 class="text-sm font-bold text-slate-800">Historial Médico & Recetas</h3>
-          <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Ficha Digital</span>
+    <!-- Botón de Soporte Oficial -->
+    <a id="btn-support-whatsapp" 
+       href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." 
+       target="_blank" 
+       class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2.5 rounded-full border border-emerald-200/80 transition-all shadow-sm">
+      <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
+      Contactar a Soporte Helpet
+    </a>
+
+    <p class="text-[10px] text-slate-400 mt-4 font-normal">
+      © 2026 Helpet • Identificación Inteligente para Mascotas
+    </p>
+  </footer>
+
+  <!-- MODAL FLOTANTE DE HISTORIAL MÉDICO -->
+  <div id="modal-medico" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-300">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" style="font-family: 'Fredoka', sans-serif;">
+      
+      <!-- Cabecera -->
+      <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-file-medical text-amber-500 text-lg"></i>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">Historial Médico & Recetas</h3>
+            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Ficha Digital</span>
+          </div>
         </div>
+        <button onclick="cerrarModalMedico()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
       </div>
-      <button onclick="cerrarModalMedico()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
-        <i class="fa-solid fa-xmark text-sm"></i>
-      </button>
+
+      <!-- Lista dinámica donde JS insertará las consultas -->
+      <div id="modal-medical-list" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
+
     </div>
-
-    <!-- Lista dinámica donde JS insertará las consultas -->
-    <div id="modal-medical-list" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
-
   </div>
-</div>
 </body>
 </html>
