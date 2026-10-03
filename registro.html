@@ -73,47 +73,47 @@
         </div>
       </div>
 
-    <!-- ACCORDEÓN: ÚLTIMOS ESCANEOS / UBICACIONES -->
-<details class="group bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden my-3 transition-all duration-300" style="font-family: 'Fredoka', sans-serif;">
+<!-- TARJETA ACORDEÓN DE ESCANEOS CON VISTA PREVIA -->
+<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden my-3" style="font-family: 'Fredoka', sans-serif;">
   
-  <!-- CABECERA DEL ACORDEÓN (Click para abrir/cerrar) -->
-  <summary class="flex items-center justify-between p-4 cursor-pointer select-none bg-slate-50/50 hover:bg-slate-100/80 transition-colors list-none">
+  <!-- CABECERA: ÚLTIMO ESCANEO + BOTÓN MAPS -->
+  <div onclick="toggleHistorialEscaneos()" class="p-3.5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors cursor-pointer select-none flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">
+      <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
         <i class="fa-solid fa-location-dot"></i>
       </div>
       <div>
-        <h3 class="text-sm font-bold text-slate-800">Últimos Escaneos GPS</h3>
-        <p class="text-[11px] text-slate-500 font-medium">Historial de ubicaciones registradas</p>
-      </div>
-    </div>
-    
-    <!-- Flecha que gira al desplegar -->
-    <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300 group-open:rotate-180"></i>
-  </summary>
-
-  <!-- CONTENIDO DESPLEGABLE (Lista de escaneos) -->
-  <div class="p-4 border-t border-slate-100 bg-white space-y-3" id="lista-escaneos-container">
-    
-    <!-- Este contenedor es alimentado dinámicamente desde tu JS -->
-    <div id="contenedor-escaneos">
-      <!-- Ejemplo visual de ítem dentro del historial -->
-      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between text-xs mb-2">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-[#00C853] fa-circle-dot text-emerald-500 text-[10px]"></i>
-          <div>
-            <p class="font-bold text-slate-700">Escaneo Reciente</p>
-            <p class="text-[10px] text-slate-400">Hoy, 10:30 AM</p>
-          </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-800">Última ubicación</span>
+          <span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-md uppercase">Reciente</span>
         </div>
-        <a href="#" target="_blank" class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-lg border border-amber-200/60 hover:bg-amber-100 transition-all text-[11px] flex items-center gap-1">
-          <i class="fa-solid fa-map-location-dot"></i> Ver
-        </a>
+        <p id="preview-ultimo-escaneo" class="text-[11px] text-slate-500 font-medium">Cargando...</p>
       </div>
     </div>
 
+    <div class="flex items-center gap-1.5">
+      <!-- Botón Maps para el último escaneo -->
+      <a id="btn-ultimo-maps" href="#" target="_blank" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-xl transition-all flex items-center gap-1 hidden shadow-sm">
+        <i class="fa-solid fa-map-location-dot"></i> Maps
+      </a>
+      <!-- Flecha desplegable -->
+      <button type="button" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600">
+        <i id="flecha-escaneos" class="fa-solid fa-chevron-down text-xs transition-transform duration-300"></i>
+      </button>
+    </div>
   </div>
-</details>
+
+  <!-- DESPLEGABLE CON EL RESTO DE HISTORIAL -->
+  <div id="desplegable-escaneos" class="hidden border-t border-slate-100 p-3 bg-white space-y-2 max-h-52 overflow-y-auto">
+    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Historial anterior</p>
+    
+    <!-- Contenedor dinámico -->
+    <div id="escaneos-lista-anteriores" class="space-y-2">
+      <!-- Se llena dinámicamente con JS -->
+    </div>
+  </div>
+
+</div>
 
       <!-- SECCIÓN: DATOS BÁSICOS -->
       <div class="border-b border-slate-200/80 pb-4">
@@ -352,7 +352,7 @@
 
       await cargarHistorialEscaneos();
     }
-
+    
     function toggleMascotaPerdida() { 
       isLostState = !isLostState; 
       actualizarBotonAlarmaUI(); 
@@ -386,7 +386,18 @@
         reader.readAsDataURL(file);
       }
     });
-
+    function toggleHistorialEscaneos() {
+  const contenedor = document.getElementById('desplegable-historial-escaneos');
+  const flecha = document.getElementById('flecha-escaneos');
+  
+  if (contenedor.classList.contains('hidden')) {
+    contenedor.classList.remove('hidden');
+    flecha.classList.add('rotate-180');
+  } else {
+    contenedor.classList.add('hidden');
+    flecha.classList.remove('rotate-180');
+  }
+}
     async function guardarDatos() {
       const btn = document.getElementById('btn-save');
       const pet = document.getElementById('input-pet').value.trim();
@@ -537,57 +548,99 @@ window.guardarRegistroMedico = async function() {
     }
   }
 };
-   async function cargarHistorialEscaneos() {
-      const listaEl = document.getElementById('escaneos-lista');
-      if (!listaEl) return;
+  // Abrir y cerrar el desplegable
+function toggleHistorialEscaneos() {
+  const contenedor = document.getElementById('desplegable-escaneos');
+  const flecha = document.getElementById('flecha-escaneos');
+  if (!contenedor) return;
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
+  if (contenedor.classList.contains('hidden')) {
+    contenedor.classList.remove('hidden');
+    if (flecha) flecha.classList.add('rotate-180');
+  } else {
+    contenedor.classList.add('hidden');
+    if (flecha) flecha.classList.remove('rotate-180');
+  }
+}
 
-      try {
-        const { data: todosLosEscaneos, error } = await db.from('escaneos_log').select('*');
+// Cargar y dividir los escaneos (Último arriba, anteriores desplegables)
+async function cargarHistorialEscaneos() {
+  const previewTxt = document.getElementById('preview-ultimo-escaneo');
+  const btnUltimoMaps = document.getElementById('btn-ultimo-maps');
+  const listaAnteriores = document.getElementById('escaneos-lista-anteriores');
 
-        if (error) {
-          listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">No se pudieron cargar los datos.</p>`;
-          return;
-        }
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
 
-        const escaneosMascota = (todosLosEscaneos || [])
-          .filter(item => item.pet_id && item.pet_id.toString().trim().toLowerCase() === currentTagId.toString().trim().toLowerCase())
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          .slice(0, 4);
+  try {
+    const { data: todosLosEscaneos, error } = await db.from('escaneos_log').select('*');
 
-        if (escaneosMascota.length === 0) {
-          listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Sin registros de ubicación para: <b>${currentTagId}</b></p>`;
-          return;
-        }
-
-        listaEl.innerHTML = '';
-        escaneosMascota.forEach((item, index) => {
-          const fecha = item.created_at 
-            ? new Date(item.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
-            : 'Reciente';
-          const urlMaps = item.map_url || `https://maps.google.com/?q=${item.latitude},${item.longitude}`;
-
-          // Tarjeta rediseñada sin Waze, solo con Maps
-          listaEl.innerHTML += `
-            <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs mb-2">
-              <div>
-                <p class="font-bold text-slate-800 text-xs">Escaneo #${index + 1}</p>
-                <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fecha}</p>
-              </div>
-              <a href="${urlMaps}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
-                <i class="fa-solid fa-map-location-dot"></i> Ver en Maps
-              </a>
-            </div>
-          `;
-        });
-      } catch (err) {
-        listaEl.innerHTML = `<p class="text-slate-400 italic text-center py-2">Sin registros aún.</p>`;
-      }
+    if (error) {
+      if (previewTxt) previewTxt.innerText = 'Error al cargar datos.';
+      return;
     }
 
-    inicializar();
+    const escaneosMascota = (todosLosEscaneos || [])
+      .filter(item => item.pet_id && item.pet_id.toString().trim().toLowerCase() === currentTagId.toString().trim().toLowerCase())
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 5); // Carga los 5 más recientes
+
+    if (escaneosMascota.length === 0) {
+      if (previewTxt) previewTxt.innerHTML = `Sin registros para: <b>${currentTagId}</b>`;
+      if (btnUltimoMaps) btnUltimoMaps.classList.add('hidden');
+      if (listaAnteriores) listaAnteriores.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
+      return;
+    }
+
+    // 1. PRIMER ESCANEO (El más reciente - Se queda en la tarjeta compacta)
+    const ultimo = escaneosMascota[0];
+    const fechaUltimo = ultimo.created_at 
+      ? new Date(ultimo.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
+      : 'Reciente';
+    const urlMapsUltimo = ultimo.map_url || `https://maps.google.com/?q=${ultimo.latitude},${ultimo.longitude}`;
+
+    if (previewTxt) previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fechaUltimo}`;
+    if (btnUltimoMaps) {
+      btnUltimoMaps.href = urlMapsUltimo;
+      btnUltimoMaps.classList.remove('hidden');
+    }
+
+    // 2. ESCANEOS ANTERIORES (Van dentro del desplegable)
+    const anteriores = escaneosMascota.slice(1);
+
+    if (anteriores.length === 0) {
+      if (listaAnteriores) listaAnteriores.innerHTML = `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
+      return;
+    }
+
+    if (listaAnteriores) {
+      listaAnteriores.innerHTML = '';
+      anteriores.forEach((item, index) => {
+        const fecha = item.created_at 
+          ? new Date(item.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
+          : 'Reciente';
+        const urlMaps = item.map_url || `https://maps.google.com/?q=${item.latitude},${item.longitude}`;
+
+        listaAnteriores.innerHTML += `
+          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
+            <div>
+              <p class="font-bold text-slate-800 text-xs">Escaneo #${index + 2}</p>
+              <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fecha}</p>
+            </div>
+            <a href="${urlMaps}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+              <i class="fa-solid fa-map-location-dot"></i> Maps
+            </a>
+          </div>
+        `;
+      });
+    }
+
+  } catch (err) {
+    if (previewTxt) previewTxt.innerText = 'Sin registros aún.';
+  }
+}
+
+inicializar();
   </script>
 </body>
 </html>
