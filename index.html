@@ -366,21 +366,19 @@ document.getElementById('owner-name').innerText = data.owner;
 const isLost = data.is_lost || false;
 
 if (isLost) {
-  // MODO PERDIDO: Ocultamos datos sensibles y Ficha Médica
+  // MODO PERDIDO: Ocultamos datos sensibles y el botón de Ficha Médica
   document.getElementById('pet-breed').innerText = "PROTEGIDO";
   document.getElementById('pet-color').innerText = "PROTEGIDO";
   document.getElementById('pet-weight').innerText = "--";
   document.getElementById('pet-age').innerText = "--";
   
-  // Ocultar sección médica si existe
-  if (document.getElementById('medical-section')) {
-    document.getElementById('medical-section').classList.add('hidden');
-  }
+  // Ocultar botón de Ficha Médica por privacidad
+  const btnMedical = document.getElementById('btn-medical-history');
+  if (btnMedical) btnMedical.classList.add('hidden');
   
   // Mostrar Banner de Emergencia
-  if (document.getElementById('lost-banner')) {
-    document.getElementById('lost-banner').classList.remove('hidden');
-  }
+  const lostBanner = document.getElementById('lost-banner');
+  if (lostBanner) lostBanner.classList.remove('hidden');
 
 } else {
   // MODO SEGURO: Mostramos Ficha Técnica Completa
@@ -389,9 +387,9 @@ if (isLost) {
   document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
   document.getElementById('pet-age').innerText = data.age || 'No especificada';
   
-  // Usamos data.id o tagId de forma segura
-  const idPet = data.id || tagId;
-  cargarHistorialMedico(idPet);
+  // ¡AQUÍ HACEMOS VISIBLE EL BOTÓN EN PANTALLA!
+  const btnMedical = document.getElementById('btn-medical-history');
+  if (btnMedical) btnMedical.classList.remove('hidden');
 }
 
         if (data.photo) document.getElementById('pet-photo').src = data.photo;
@@ -652,16 +650,16 @@ function recuperarPIN() {
         btn.disabled = false; 
       }
     }
-    // ==========================================
-// FUNCIONES DEL MODAL DE HISTORIAL MÉDICO
+// ==========================================
+// FUNCIONES DE CONTROL DEL MODAL MÉDICO
 // ==========================================
 
 function abrirModalMedico() {
   const modal = document.getElementById('modal-medico');
   if (modal) {
     modal.classList.remove('hidden');
-    // Toma la ID de la URL o variable global de forma segura
-    const idPet = urlParams.get('id') || (typeof tagId !== 'undefined' ? tagId : '');
+    // Usamos el ID del objeto petData o la variable tagId
+    const idPet = (petData && petData.id) ? petData.id : tagId;
     cargarHistorialMedico(idPet);
   }
 }
@@ -673,52 +671,42 @@ function cerrarModalMedico() {
   }
 }
 
-// ==========================================
-// FUNCIÓN PARA CARGAR EL HISTORIAL MÉDICO
-// (Compatible con tu HTML actual)
-// ==========================================
-
 async function cargarHistorialMedico(idMascota) {
-  const medicalSection = document.getElementById('medical-section');
-  const medicalList = document.getElementById('medical-list');
+  const listContainer = document.getElementById('modal-medical-list');
 
-  // Si no existen estos elementos en tu HTML, no hace nada
-  if (!medicalSection || !medicalList) return;
+  if (!listContainer) {
+    console.error("❌ No existe el contenedor #modal-medical-list en el HTML");
+    return;
+  }
 
-  // 1. Mostrar mensaje de carga
-  medicalList.innerHTML = `
-    <div class="text-center py-4">
+  // 1. Indicador de carga dentro del modal
+  listContainer.innerHTML = `
+    <div class="text-center py-6">
       <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
       <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
     </div>
   `;
 
-  // 2. Si la mascota está en Modo Perdido (is_lost = true), ocultar la sección por privacidad
-  if (typeof petData !== 'undefined' && petData && petData.is_lost) {
-    medicalSection.classList.add('hidden');
-    return;
-  }
-
-  // 3. Consultar registros médicos en Supabase
+  // 2. Consultar registros médicos en Supabase
   const { data: records, error } = await db
     .from('medical_records')
     .select('*')
     .eq('pet_id', idMascota)
     .order('visit_date', { ascending: false });
 
-  // 4. Si ocurre un error o la mascota aún no tiene consultas registradas
+  // 3. Si ocurre un error o no hay consultas guardadas
   if (error || !records || records.length === 0) {
-    medicalList.innerHTML = `
-      <div class="text-center py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-        <p class="text-xs font-bold text-slate-500">Sin registros médicos</p>
+    listContainer.innerHTML = `
+      <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+        <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
+        <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
         <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
       </div>
     `;
-    medicalSection.classList.remove('hidden'); // Muestra la sección vacía pero informativa
     return;
   }
 
-  // 5. Construir las tarjetas del historial
+  // 4. Renderizar tarjetas médicas
   let html = '';
   records.forEach(rec => {
     html += `
@@ -734,9 +722,7 @@ async function cargarHistorialMedico(idMascota) {
     `;
   });
 
-  // 6. Inyectar en el HTML y hacer visible la sección
-  medicalList.innerHTML = html;
-  medicalSection.classList.remove('hidden');
+  listContainer.innerHTML = html;
 }
     function abrirModalPIN() { document.getElementById('pin-modal').classList.remove('hidden'); document.getElementById('modal-pin-input').value = ''; document.getElementById('modal-pin-input').focus(); }
     function cerrarModalPIN() { document.getElementById('pin-modal').classList.add('hidden'); }
@@ -778,11 +764,11 @@ async function cargarHistorialMedico(idMascota) {
     © 2026 Helpet • Identificación Inteligente para Mascotas
   </p>
 </footer>
-  <!-- MODAL FLOTANTE DEL HISTORIAL MÉDICO -->
+  <!-- MODAL FLOTANTE DE HISTORIAL MÉDICO -->
 <div id="modal-medico" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-300">
   <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" style="font-family: 'Fredoka', sans-serif;">
     
-    <!-- Encabezado del Modal (Tu mismo diseño) -->
+    <!-- Cabecera -->
     <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-file-medical text-amber-500 text-lg"></i>
@@ -796,10 +782,8 @@ async function cargarHistorialMedico(idMascota) {
       </button>
     </div>
 
-    <!-- Lista dinámica cargada con JS (Aquí se cargan las consultas) -->
-    <div id="modal-medical-list" class="p-4 overflow-y-auto space-y-3 flex-1">
-      <!-- Se llenará automáticamente con la función cargarHistorialMedico -->
-    </div>
+    <!-- Lista dinámica donde JS insertará las consultas -->
+    <div id="modal-medical-list" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
 
   </div>
 </div>
