@@ -651,12 +651,28 @@ function recuperarPIN() {
         btn.disabled = false; 
       }
     }
-    async function cargarHistorialMedico(tagId) {
-  const medicalSection = document.getElementById('medical-section');
-  if (!medicalSection) return;
+    // ==========================================
+// FUNCIONES DEL MODAL DE HISTORIAL MÉDICO
+// ==========================================
 
-// Cargar el historial médico dentro del MODAL
-async function cargarHistorialMedico(tagId) {
+function abrirModalMedico() {
+  const modal = document.getElementById('modal-medico');
+  if (modal) {
+    modal.classList.remove('hidden');
+    // Toma la ID de la URL o variable global de forma segura
+    const idPet = urlParams.get('id') || (typeof tagId !== 'undefined' ? tagId : '');
+    cargarHistorialMedico(idPet);
+  }
+}
+
+function cerrarModalMedico() {
+  const modal = document.getElementById('modal-medico');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+async function cargarHistorialMedico(petId) {
   const listContainer = document.getElementById('modal-medical-list');
   if (!listContainer) return;
 
@@ -664,15 +680,20 @@ async function cargarHistorialMedico(tagId) {
   listContainer.innerHTML = `
     <div class="text-center py-6">
       <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
-      <p class="text-xs text-slate-400">Cargando consultas...</p>
+      <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
     </div>
   `;
+
+  if (!petId) {
+    listContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">ID de mascota no válido.</p>`;
+    return;
+  }
 
   // Consultar registros médicos ordenados por fecha más reciente
   const { data: records, error } = await db
     .from('medical_records')
     .select('*')
-    .eq('pet_id', tagId)
+    .eq('pet_id', petId)
     .order('visit_date', { ascending: false });
 
   if (error || !records || records.length === 0) {
@@ -689,7 +710,7 @@ async function cargarHistorialMedico(tagId) {
   let html = '';
   records.forEach(rec => {
     html += `
-      <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm">
+      <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
         <div class="flex justify-between items-center mb-1.5">
           <span class="text-xs font-bold text-amber-950 uppercase">${rec.vet_name}</span>
           <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${rec.visit_date}</span>
@@ -702,26 +723,6 @@ async function cargarHistorialMedico(tagId) {
   });
 
   listContainer.innerHTML = html;
-}
-
-// Funciones para abrir y cerrar el Modal
-function abrirModalMedico() {
-  const modal = document.getElementById('modal-medico');
-  if (modal) {
-    modal.classList.remove('hidden');
-    cargarHistorialMedico(tagId); // Carga los datos actualizados al abrir
-  }
-}
-
-function cerrarModalMedico() {
-  const modal = document.getElementById('modal-medico');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
-}
-
-  document.getElementById('medical-list').innerHTML = html;
-  medicalSection.classList.remove('hidden');
 }
     function abrirModalPIN() { document.getElementById('pin-modal').classList.remove('hidden'); document.getElementById('modal-pin-input').value = ''; document.getElementById('modal-pin-input').focus(); }
     function cerrarModalPIN() { document.getElementById('pin-modal').classList.add('hidden'); }
