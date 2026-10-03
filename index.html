@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <meta property="og:title" content="Perfil de Mascota - Helpet" />
 <meta property="og:description" content="Si me encontraste, contáctate con mi dueño de inmediato." />
 <meta property="og:image" content="https://tudominio.com/logo.jpg" />
@@ -103,7 +104,41 @@
 </h1>
         <p id="sub-status" class="text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2">Mascota Feliz & Amada 🐾</p>
       </div>
+<!-- Tarjeta Carnet Digital (Diseñada para exportarse) -->
+<div id="carnet-digital" class="w-[350px] bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden hidden" style="font-family: 'Fredoka', sans-serif;">
+  <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+  
+  <div class="flex items-center justify-between border-b border-white/20 pb-4 mb-4">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-shield-dog text-2xl"></i>
+      <span class="font-extrabold tracking-wider text-lg">HELPET ID</span>
+    </div>
+    <span id="carnet-status-pill" class="text-[10px] bg-white/20 px-2.5 py-1 rounded-full font-bold uppercase">Pasaporte Activo</span>
+  </div>
 
+  <div class="flex items-center gap-4 mb-4">
+    <img id="carnet-img" src="" alt="Mascota" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 shadow-md">
+    <div>
+      <h2 id="carnet-nombre" class="text-xl font-bold leading-tight"></h2>
+      <p id="carnet-raza" class="text-xs text-white/80 mt-0.5"></p>
+      <p class="text-[11px] bg-black/20 inline-block px-2 py-0.5 rounded-lg mt-2 font-mono">ID: <span id="carnet-id"></span></p>
+    </div>
+  </div>
+
+  <div class="bg-white text-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 mt-4">
+    <div class="text-[10px] space-y-0.5">
+      <p class="font-bold text-slate-900">Escanea para emergencias</p>
+      <p class="text-slate-500">Acceso directo al historial médico y contacto del dueño.</p>
+    </div>
+    <!-- Espacio para el código QR generado -->
+    <div id="carnet-qrcode" class="bg-slate-100 p-1.5 rounded-xl"></div>
+  </div>
+</div>
+
+<!-- Botón para activar la descarga -->
+<button onclick="descargarCarnetDigital()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg text-xs transition-all flex items-center justify-center gap-2 mt-4">
+  <i class="fa-solid fa-download"></i> Descargar Carnet Digital (PNG)
+</button>
       <!-- Ficha Técnica (Compacta pero con texto grande) -->
 <div id="pet-tech-sheet" class="grid grid-cols-2 gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-slate-200/80 shadow-sm" style="font-family: 'Fredoka', sans-serif;">
   
@@ -569,7 +604,37 @@ document.getElementById('owner-name').innerText = data.owner;
         alert("¡Enlace del perfil copiado al portapapeles!");
       }
     }
+function descargarCarnetDigital() {
+  const carnet = document.getElementById('carnet-digital');
+  if (!carnet) return;
 
+  // 1. Rellenar datos dinámicos antes de exportar
+  document.getElementById('carnet-nombre').textContent = petData.nombre || 'Mascota';
+  document.getElementById('carnet-raza').textContent = `${petData.especie || ''} • ${petData.raza || ''}`;
+  document.getElementById('carnet-id').textContent = tagId;
+  if (petData.foto_url) {
+    document.getElementById('carnet-img').src = petData.foto_url;
+  }
+
+  // Mostrar temporalmente la tarjeta para que html2canvas pueda leerla
+  carnet.classList.remove('hidden');
+
+  // 2. Generar captura con html2canvas
+  html2canvas(carnet, { scale: 2, useCORS: true }).then(canvas => {
+    // Volver a ocultar la tarjeta base
+    carnet.classList.add('hidden');
+
+    // 3. Crear enlace de descarga automática
+    const link = document.createElement('a');
+    link.download = `Carnet_Helpet_${tagId}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(err => {
+    console.error("Error al generar carnet:", err);
+    carnet.classList.add('hidden');
+    alert("❌ No se pudo generar la imagen del carnet.");
+  });
+}
     function recuperarPIN() {
       const NUMERO_SOPORTE = '51921512933'; 
 
