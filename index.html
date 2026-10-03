@@ -735,8 +735,11 @@ document.getElementById('owner-name').innerText = data.owner;
       listContainer.innerHTML = html;
     }
 
-   function abrirModalPIN() { 
-  // Cierra el modal de la ficha médica para que no estorbe de fondo
+  let destinoPIN = ''; // Guarda la sección a la que debe ir después del PIN
+
+function abrirModalPIN(destino = '') { 
+  destinoPIN = destino; // Si viene del botón médico guarda '#seccion-medica', si es edición normal queda vacío
+  
   if (typeof cerrarModalMedico === 'function') cerrarModalMedico();
   
   document.getElementById('pin-modal').classList.remove('hidden'); 
@@ -746,6 +749,7 @@ document.getElementById('owner-name').innerText = data.owner;
 
 function cerrarModalPIN() { 
   document.getElementById('pin-modal').classList.add('hidden'); 
+  destinoPIN = ''; 
 }
 
 function validarPINModal() {
@@ -754,8 +758,8 @@ function validarPINModal() {
   
   if (input === petData.pin) { 
     sessionStorage.setItem(`auth_${tagId}`, 'true'); 
-    // Redirige añadiendo #seccion-medica al final
-    window.location.href = `registro.html?id=${tagId}#seccion-medica`; 
+    // Si viene de "+ Registrar" agrega #seccion-medica, si es acceso normal va al inicio
+    window.location.href = `registro.html?id=${tagId}${destinoPIN}`; 
   } else { 
     alert("❌ PIN Incorrecto."); 
   }
@@ -809,10 +813,10 @@ function validarPINModal() {
 
         <div class="flex items-center gap-2">
           <!-- Botón + Registrar (Solicita PIN) -->
-          <button onclick="abrirModalPIN()" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1">
-            <i class="fa-solid fa-plus text-[10px]"></i> Registrar
-          </button>
-
+          <!-- En el modal de la ficha médica -->
+<button onclick="abrirModalPIN('#seccion-medica')" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1">
+  <i class="fa-solid fa-plus text-[10px]"></i> Registrar
+</button>
           <button onclick="cerrarModalMedico()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
