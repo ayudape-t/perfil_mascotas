@@ -218,7 +218,7 @@
     <h3 class="text-sm font-bold text-slate-800">Agregar Atención Médica o Vacuna</h3>
   </div>
 
-  <form id="form-medical-record" onsubmit="guardarRegistroMedico(event)" class="space-y-3">
+  <form id="form-medical-record" class="space-y-3">
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Visita</label>
@@ -432,43 +432,77 @@
         btn.innerHTML = `<i class="fa-solid fa-cloud-check mr-2"></i> Guardar Cambios`;
       }
     }
-    // Guardar un nuevo registro médico en Supabase
+// ==========================================
+// REGISTRO DE ATENCIÓN MÉDICA / VACUNA
+// ==========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  const medForm = document.getElementById('form-medical-record');
+  if (medForm) {
+    medForm.addEventListener('submit', guardarRegistroMedico);
+  }
+});
+
 async function guardarRegistroMedico(e) {
   e.preventDefault();
+  console.log("🚀 Enviando formulario médico...");
 
   const btn = document.getElementById('btn-save-med');
-  const textOriginal = btn.innerHTML;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
-  btn.disabled = true;
+  const textOriginal = btn ? btn.innerHTML : '';
 
-  // Extraer valores del formulario
-  const visitDate = document.getElementById('med-date').value;
-  const vetName = document.getElementById('med-vet').value;
-  const reason = document.getElementById('med-reason').value;
-  const diagnosis = document.getElementById('med-diagnosis').value;
-  const prescription = document.getElementById('med-prescription').value;
-
-  // Insertar en la tabla medical_records
-  const { error } = await db.from('medical_records').insert([
-    {
-      pet_id: tagId, // ID de la placa (PET-001)
-      visit_date: visitDate,
-      vet_name: vetName,
-      reason: reason,
-      diagnosis: diagnosis || null,
-      prescription: prescription || null
-    }
-  ]);
-
-  if (error) {
-    alert("❌ Error al guardar el registro médico: " + error.message);
-  } else {
-    alert("✅ ¡Registro médico añadido con éxito!");
-    document.getElementById('form-medical-record').reset(); // Limpia el formulario
+  if (btn) {
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+    btn.disabled = true;
   }
 
-  btn.innerHTML = textOriginal;
-  btn.disabled = false;
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentTagId = urlParams.get('id') || (typeof tagId !== 'undefined' ? tagId : '');
+
+    if (!currentTagId) {
+      alert("❌ No se encontró el ID de la mascota en la URL (?id=...)");
+      return;
+    }
+
+    if (typeof db === 'undefined') {
+      alert("❌ Error: La conexión a Supabase (variable 'db') no está inicializada en esta página.");
+      return;
+    }
+
+    const visitDate = document.getElementById('med-date').value;
+    const vetName = document.getElementById('med-vet').value;
+    const reason = document.getElementById('med-reason').value;
+    const diagnosis = document.getElementById('med-diagnosis').value;
+    const prescription = document.getElementById('med-prescription').value;
+
+    const { data, error } = await db.from('medical_records').insert([
+      {
+        pet_id: currentTagId,
+        visit_date: visitDate,
+        vet_name: vetName,
+        reason: reason,
+        diagnosis: diagnosis || null,
+        prescription: prescription || null
+      }
+    ]);
+
+    if (error) {
+      console.error("❌ Error de Supabase:", error);
+      alert("❌ Error al guardar en Supabase: " + error.message);
+    } else {
+      alert("✅ ¡Registro médico guardado con éxito!");
+      document.getElementById('form-medical-record').reset();
+    }
+
+  } catch (err) {
+    console.error("❌ Error inesperado:", err);
+    alert("❌ Ocurrió un error inesperado: " + err.message);
+  } finally {
+    if (btn) {
+      btn.innerHTML = textOriginal;
+      btn.disabled = false;
+    }
+  }
 }
    async function cargarHistorialEscaneos() {
       const listaEl = document.getElementById('escaneos-lista');
