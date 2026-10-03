@@ -766,55 +766,70 @@ function descargarCarnetDigital() {
       }
     }
 
-    async function cargarHistorialMedico(idMascota) {
-      const listContainer = document.getElementById('modal-medical-list');
+   async function cargarHistorialMedico(idMascota) {
+  const listContainer = document.getElementById('modal-medical-list');
 
-      if (!listContainer) {
-        console.error("❌ No existe el contenedor #modal-medical-list en el HTML");
-        return;
-      }
+  // Si no hay ID, el semáforo se queda en estado neutro/sin historial
+  if (!idMascota) {
+    actualizarSemaforoSalud([]);
+    return;
+  }
 
+  // Muestra spinner de carga solo si el modal está abierto
+  if (listContainer) {
+    listContainer.innerHTML = `
+      <div class="text-center py-6">
+        <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
+        <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
+      </div>
+    `;
+  }
+
+  // Consulta a Supabase
+  const { data: records, error } = await db
+    .from('medical_records')
+    .select('*')
+    .eq('pet_id', idMascota)
+    .order('visit_date', { ascending: false });
+
+  // Si no hay datos o falla la consulta
+  if (error || !records || records.length === 0) {
+    if (listContainer) {
       listContainer.innerHTML = `
-        <div class="text-center py-6">
-          <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
-          <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
+        <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+          <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
+          <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
         </div>
       `;
-
-      const { data: records, error } = await db
-        .from('medical_records')
-        .select('*')
-        .eq('pet_id', idMascota)
-        .order('visit_date', { ascending: false });
-
-      if (error || !records || records.length === 0) {
-        listContainer.innerHTML = `
-          <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-            <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
-            <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
-          </div>
-        `;
-        return;
-      }
-
-      let html = '';
-      records.forEach(rec => {
-        html += `
-          <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
-            <div class="flex justify-between items-center mb-1.5">
-              <span class="text-xs font-bold text-amber-950 uppercase">${rec.vet_name}</span>
-              <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${rec.visit_date}</span>
-            </div>
-            <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta general'}</p>
-            ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${rec.diagnosis}</p>` : ''}
-            ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
-          </div>
-        `;
-      });
-
-      listContainer.innerHTML = html;
     }
+    // 💡 Actualiza el semáforo a "Sin historial médico"
+    actualizarSemaforoSalud([]);
+    return;
+  }
+
+  // Renderiza la lista si el contenedor existe
+  if (listContainer) {
+    let html = '';
+    records.forEach(rec => {
+      html += `
+        <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-bold text-amber-950 uppercase">${rec.vet_name}</span>
+            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${rec.visit_date}</span>
+          </div>
+          <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta general'}</p>
+          ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${rec.diagnosis}</p>` : ''}
+          ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
+        </div>
+      `;
+    });
+    listContainer.innerHTML = html;
+  }
+
+  // 💡 Actualiza el semáforo con las fechas encontradas
+  actualizarSemaforoSalud(records);
+}
 
   let destinoPIN = ''; // Guarda la sección a la que debe ir después del PIN
 
@@ -855,7 +870,9 @@ function validarPINModal() {
       document.getElementById('photo-modal').classList.add('hidden');
     }
 
-    cargarPerfil();
+   cargarPerfil();
+const idPet = (typeof petData !== 'undefined' && petData && petData.id) ? petData.id : tagId;
+if (idPet) cargarHistorialMedico(idPet);
     function actualizarSemaforoSalud(registrosMedicos) {
   // Elementos de la Web
   const badge = document.getElementById('vaccine-badge');
