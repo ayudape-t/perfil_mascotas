@@ -104,41 +104,57 @@
 </h1>
         <p id="sub-status" class="text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2">Mascota Feliz & Amada 🐾</p>
       </div>
-<!-- Tarjeta Carnet Digital (Diseñada para exportarse) -->
-<div id="carnet-digital" class="w-[350px] bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden hidden" style="font-family: 'Fredoka', sans-serif;">
-  <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+<!-- ======================================= -->
+<!-- ZONA DE SALUD Y CARNET DIGITAL          -->
+<!-- ======================================= -->
+<div class="mt-6 border-t border-slate-100 pt-5 space-y-4">
   
-  <div class="flex items-center justify-between border-b border-white/20 pb-4 mb-4">
-    <div class="flex items-center gap-2">
-      <i class="fa-solid fa-shield-dog text-2xl"></i>
-      <span class="font-extrabold tracking-wider text-lg">HELPET ID</span>
-    </div>
-    <span id="carnet-status-pill" class="text-[10px] bg-white/20 px-2.5 py-1 rounded-full font-bold uppercase">Pasaporte Activo</span>
-  </div>
-
-  <div class="flex items-center gap-4 mb-4">
-    <img id="carnet-img" src="" alt="Mascota" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 shadow-md">
-    <div>
-      <h2 id="carnet-nombre" class="text-xl font-bold leading-tight"></h2>
-      <p id="carnet-raza" class="text-xs text-white/80 mt-0.5"></p>
-      <p class="text-[11px] bg-black/20 inline-block px-2 py-0.5 rounded-lg mt-2 font-mono">ID: <span id="carnet-id"></span></p>
+  <!-- 1. El Semáforo (Visible en la web, justo arriba del carnet/botón) -->
+  <div class="flex flex-col items-center justify-center">
+    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Estado Clínico</h4>
+    <div id="vaccine-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm">
+      <span id="badge-dot" class="w-2.5 h-2.5 rounded-full animate-pulse"></span>
+      <span id="badge-text">Calculando estado...</span>
     </div>
   </div>
 
-  <div class="bg-white text-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 mt-4">
-    <div class="text-[10px] space-y-0.5">
-      <p class="font-bold text-slate-900">Escanea para emergencias</p>
-      <p class="text-slate-500">Acceso directo al historial médico y contacto del dueño.</p>
+  <!-- Botón para Descargar -->
+  <button onclick="descargarCarnetDigital()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg text-xs transition-all flex items-center justify-center gap-2">
+    <i class="fa-solid fa-download"></i> Descargar Carnet Digital (PNG)
+  </button>
+
+  <!-- 2. Tarjeta Carnet Digital Oculta (Diseño que se exporta con el semáforo dentro) -->
+  <div id="carnet-digital" class="w-[350px] bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden hidden" style="font-family: 'Fredoka', sans-serif;">
+    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+    
+    <div class="flex items-center justify-between border-b border-white/20 pb-4 mb-4">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-shield-dog text-2xl"></i>
+        <span class="font-extrabold tracking-wider text-lg">HELPET ID</span>
+      </div>
+      <!-- Esta pastilla cambia de color según el semáforo al exportar -->
+      <span id="carnet-status-pill" class="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md">Calculando...</span>
     </div>
-    <!-- Espacio para el código QR generado -->
-    <div id="carnet-qrcode" class="bg-slate-100 p-1.5 rounded-xl"></div>
+
+    <div class="flex items-center gap-4 mb-4">
+      <img id="carnet-img" src="" alt="Mascota" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 shadow-md">
+      <div>
+        <h2 id="carnet-nombre" class="text-xl font-bold leading-tight"></h2>
+        <p id="carnet-raza" class="text-xs text-white/80 mt-0.5"></p>
+        <p class="text-[11px] bg-black/20 inline-block px-2 py-0.5 rounded-lg mt-2 font-mono">ID: <span id="carnet-id"></span></p>
+      </div>
+    </div>
+
+    <div class="bg-white text-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 mt-4">
+      <div class="text-[10px] space-y-0.5">
+        <p class="font-bold text-slate-900">Escanea para emergencias</p>
+        <p class="text-slate-500">Acceso directo al historial médico.</p>
+      </div>
+      <div id="carnet-qrcode" class="bg-slate-100 p-1.5 rounded-xl"></div>
+    </div>
   </div>
+
 </div>
-
-<!-- Botón para activar la descarga -->
-<button onclick="descargarCarnetDigital()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg text-xs transition-all flex items-center justify-center gap-2 mt-4">
-  <i class="fa-solid fa-download"></i> Descargar Carnet Digital (PNG)
-</button>
       <!-- Ficha Técnica (Compacta pero con texto grande) -->
 <div id="pet-tech-sheet" class="grid grid-cols-2 gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-slate-200/80 shadow-sm" style="font-family: 'Fredoka', sans-serif;">
   
@@ -840,6 +856,68 @@ function validarPINModal() {
     }
 
     cargarPerfil();
+    function actualizarSemaforoSalud(registrosMedicos) {
+  // Elementos de la Web
+  const badge = document.getElementById('vaccine-badge');
+  const dot = document.getElementById('badge-dot');
+  const text = document.getElementById('badge-text');
+  // Elemento del Carnet Descargable
+  const carnetStatus = document.getElementById('carnet-status-pill');
+
+  if (!badge || !dot || !text) return;
+
+  // Variables para clases de Tailwind
+  let badgeClase, dotClase, textoEstado, carnetClase;
+
+  if (!registrosMedicos || registrosMedicos.length === 0) {
+    badgeClase = "bg-slate-50 text-slate-700 border-slate-200";
+    dotClase = "bg-slate-500 hidden";
+    textoEstado = "Sin historial médico";
+    carnetClase = "bg-slate-500/80 text-white";
+  } else {
+    const registroConRefuerzo = registrosMedicos.find(reg => reg.next_due_date);
+
+    if (!registroConRefuerzo) {
+      badgeClase = "bg-emerald-50 text-emerald-700 border-emerald-200";
+      dotClase = "bg-emerald-500";
+      textoEstado = "Atendido 🟢";
+      carnetClase = "bg-emerald-500 text-white border border-emerald-400";
+    } else {
+      const fechaRefuerzo = new Date(registroConRefuerzo.next_due_date);
+      const hoy = new Date();
+      const diferenciaDias = Math.ceil((fechaRefuerzo - hoy) / (1000 * 3600 * 24));
+
+      if (diferenciaDias > 15) {
+        badgeClase = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        dotClase = "bg-emerald-500";
+        textoEstado = "Protección al día 🟢";
+        carnetClase = "bg-emerald-500 text-white border border-emerald-400 shadow-lg shadow-emerald-500/30";
+      } else if (diferenciaDias >= 0 && diferenciaDias <= 15) {
+        badgeClase = "bg-amber-50 text-amber-700 border-amber-200";
+        dotClase = "bg-amber-500";
+        textoEstado = `Refuerzo en ${diferenciaDias} días 🟡`;
+        carnetClase = "bg-amber-500 text-white border border-amber-400 shadow-lg shadow-amber-500/30";
+      } else {
+        badgeClase = "bg-rose-50 text-rose-700 border-rose-200";
+        dotClase = "bg-rose-500";
+        textoEstado = "Atención Vencida 🔴";
+        carnetClase = "bg-rose-600 text-white border border-rose-400 shadow-lg shadow-rose-600/30 animate-pulse";
+      }
+    }
+  }
+
+  // 1. Aplicar al semáforo de la Web
+  badge.className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm ${badgeClase}`;
+  dot.className = `w-2.5 h-2.5 rounded-full animate-pulse ${dotClase}`;
+  text.textContent = textoEstado;
+
+  // 2. Aplicar la pastilla visual dentro del Carnet Digital
+  if (carnetStatus) {
+    carnetStatus.className = `text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md ${carnetClase}`;
+    // Le quitamos el emoji para que en el carnet físico/PNG se vea más formal
+    carnetStatus.textContent = textoEstado.replace(/🟢|🟡|🔴/g, '').trim(); 
+  }
+}
   </script>
 
   <!-- Pie de página con Soporte Técnico Helpet -->
