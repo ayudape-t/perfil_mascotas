@@ -211,7 +211,45 @@
           </div>
         </div>
       </div>
+      <!-- SECCIÓN: NUEVA CONSULTA / VACUNA -->
+<div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4 mt-6" style="font-family: 'Fredoka', sans-serif;">
+  <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+    <i class="fa-solid fa-stethoscope text-amber-500 text-lg"></i>
+    <h3 class="text-sm font-bold text-slate-800">Agregar Atención Médica o Vacuna</h3>
+  </div>
 
+  <form id="form-medical-record" onsubmit="guardarRegistroMedico(event)" class="space-y-3">
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Visita</label>
+        <input type="date" id="med-date" required class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Veterinaria / Dr.</label>
+        <input type="text" id="med-vet" placeholder="Ej. Vet. San Francisco" required class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 mb-1">Motivo / Tipo de Visita</label>
+      <input type="text" id="med-reason" placeholder="Ej. Vacuna Quíntuple, Chequeo Anual, Dolor de estómago" required class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 mb-1">Diagnóstico (Opcional)</label>
+      <input type="text" id="med-diagnosis" placeholder="Ej. Leve infección estomacal" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 mb-1">Receta / Tratamiento (Opcional)</label>
+      <textarea id="med-prescription" rows="2" placeholder="Ej. Amoxicilina 250mg cada 12h por 5 días" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500"></textarea>
+    </div>
+
+    <button type="submit" id="btn-save-med" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
+      <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial Médico
+    </button>
+  </form>
+</div>
       <button id="btn-save" type="button" onclick="guardarDatos()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all text-base mt-4 flex items-center justify-center">
         <i class="fa-solid fa-cloud-check mr-2"></i> <span>Guardar Cambios</span>
       </button>
@@ -394,7 +432,44 @@
         btn.innerHTML = `<i class="fa-solid fa-cloud-check mr-2"></i> Guardar Cambios`;
       }
     }
+    // Guardar un nuevo registro médico en Supabase
+async function guardarRegistroMedico(e) {
+  e.preventDefault();
 
+  const btn = document.getElementById('btn-save-med');
+  const textOriginal = btn.innerHTML;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+  btn.disabled = true;
+
+  // Extraer valores del formulario
+  const visitDate = document.getElementById('med-date').value;
+  const vetName = document.getElementById('med-vet').value;
+  const reason = document.getElementById('med-reason').value;
+  const diagnosis = document.getElementById('med-diagnosis').value;
+  const prescription = document.getElementById('med-prescription').value;
+
+  // Insertar en la tabla medical_records
+  const { error } = await db.from('medical_records').insert([
+    {
+      pet_id: tagId, // ID de la placa (PET-001)
+      visit_date: visitDate,
+      vet_name: vetName,
+      reason: reason,
+      diagnosis: diagnosis || null,
+      prescription: prescription || null
+    }
+  ]);
+
+  if (error) {
+    alert("❌ Error al guardar el registro médico: " + error.message);
+  } else {
+    alert("✅ ¡Registro médico añadido con éxito!");
+    document.getElementById('form-medical-record').reset(); // Limpia el formulario
+  }
+
+  btn.innerHTML = textOriginal;
+  btn.disabled = false;
+}
    async function cargarHistorialEscaneos() {
       const listaEl = document.getElementById('escaneos-lista');
       if (!listaEl) return;
