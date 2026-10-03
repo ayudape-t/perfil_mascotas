@@ -128,23 +128,17 @@
   </div>
 
 </div>
-      <!-- SECCIÓN HISTORIAL MÉDICO -->
-<div id="medical-section" class="mt-4 bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 shadow-sm hidden" style="font-family: 'Fredoka', sans-serif;">
-  
-  <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
-    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-      <i class="fa-solid fa-file-medical text-amber-500"></i>
-      Historial Médico & Recetas
-    </h3>
-    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Ficha Digital</span>
-  </div>
-
-  <!-- Lista dinámica cargada con JS -->
-  <div id="medical-list">
-    <!-- Se llenará automáticamente con la función cargarHistorialMedico -->
-  </div>
-
-</div>
+     <!-- BOTÓN COMPACTO DE FICHA MÉDICA (Reemplaza al bloque desplegado) -->
+<button id="btn-medical-history" 
+        onclick="abrirModalMedico()" 
+        class="w-full py-3 px-4 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-2xl flex items-center justify-between text-amber-900 font-bold text-sm shadow-sm transition-all my-3 hidden"
+        style="font-family: 'Fredoka', sans-serif;">
+  <span class="flex items-center gap-2">
+    <i class="fa-solid fa-file-medical text-amber-600 text-base"></i>
+    Ficha Médica & Vacunas
+  </span>
+  <i class="fa-solid fa-chevron-right text-xs text-amber-600"></i>
+</button>
 
       <!-- Datos Dueño -->
       <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 text-left space-y-2 shadow-sm">
@@ -661,6 +655,19 @@ function recuperarPIN() {
   const medicalSection = document.getElementById('medical-section');
   if (!medicalSection) return;
 
+// Cargar el historial médico dentro del MODAL
+async function cargarHistorialMedico(tagId) {
+  const listContainer = document.getElementById('modal-medical-list');
+  if (!listContainer) return;
+
+  // Indicador de carga
+  listContainer.innerHTML = `
+    <div class="text-center py-6">
+      <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
+      <p class="text-xs text-slate-400">Cargando consultas...</p>
+    </div>
+  `;
+
   // Consultar registros médicos ordenados por fecha más reciente
   const { data: records, error } = await db
     .from('medical_records')
@@ -669,10 +676,12 @@ function recuperarPIN() {
     .order('visit_date', { ascending: false });
 
   if (error || !records || records.length === 0) {
-    document.getElementById('medical-list').innerHTML = `
-      <p class="text-xs text-slate-400 text-center py-3">No hay registros médicos cargados aún.</p>
+    listContainer.innerHTML = `
+      <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+        <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
+      </div>
     `;
-    medicalSection.classList.remove('hidden');
     return;
   }
 
@@ -680,17 +689,36 @@ function recuperarPIN() {
   let html = '';
   records.forEach(rec => {
     html += `
-      <div class="bg-amber-50/60 p-3 rounded-xl border border-amber-100 mb-2">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs font-bold text-amber-900">${rec.vet_name}</span>
-          <span class="text-[10px] text-amber-700/70 font-semibold">${rec.visit_date}</span>
+      <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="text-xs font-bold text-amber-950 uppercase">${rec.vet_name}</span>
+          <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${rec.visit_date}</span>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta'}</p>
+        <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta general'}</p>
         ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${rec.diagnosis}</p>` : ''}
-        ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50 p-2 rounded-lg border border-emerald-100 mt-1"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
+        ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
       </div>
     `;
   });
+
+  listContainer.innerHTML = html;
+}
+
+// Funciones para abrir y cerrar el Modal
+function abrirModalMedico() {
+  const modal = document.getElementById('modal-medico');
+  if (modal) {
+    modal.classList.remove('hidden');
+    cargarHistorialMedico(tagId); // Carga los datos actualizados al abrir
+  }
+}
+
+function cerrarModalMedico() {
+  const modal = document.getElementById('modal-medico');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
 
   document.getElementById('medical-list').innerHTML = html;
   medicalSection.classList.remove('hidden');
@@ -735,5 +763,30 @@ function recuperarPIN() {
     © 2026 Helpet • Identificación Inteligente para Mascotas
   </p>
 </footer>
+  <!-- MODAL FLOTANTE DEL HISTORIAL MÉDICO -->
+<div id="modal-medico" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-300">
+  <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" style="font-family: 'Fredoka', sans-serif;">
+    
+    <!-- Encabezado del Modal (Tu mismo diseño) -->
+    <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-file-medical text-amber-500 text-lg"></i>
+        <div>
+          <h3 class="text-sm font-bold text-slate-800">Historial Médico & Recetas</h3>
+          <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Ficha Digital</span>
+        </div>
+      </div>
+      <button onclick="cerrarModalMedico()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Lista dinámica cargada con JS (Aquí se cargan las consultas) -->
+    <div id="modal-medical-list" class="p-4 overflow-y-auto space-y-3 flex-1">
+      <!-- Se llenará automáticamente con la función cargarHistorialMedico -->
+    </div>
+
+  </div>
+</div>
 </body>
 </html>
