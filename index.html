@@ -389,8 +389,9 @@ if (isLost) {
   document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
   document.getElementById('pet-age').innerText = data.age || 'No especificada';
   
-  // Mostrar la Ficha Médica
-  cargarHistorialMedico(tagId);
+  // Usamos data.id o tagId de forma segura
+  const idPet = data.id || tagId;
+  cargarHistorialMedico(idPet);
 }
 
         if (data.photo) document.getElementById('pet-photo').src = data.photo;
@@ -672,41 +673,52 @@ function cerrarModalMedico() {
   }
 }
 
-async function cargarHistorialMedico(petId) {
-  const listContainer = document.getElementById('modal-medical-list');
-  if (!listContainer) return;
+// ==========================================
+// FUNCIÓN PARA CARGAR EL HISTORIAL MÉDICO
+// (Compatible con tu HTML actual)
+// ==========================================
 
-  // Indicador de carga
-  listContainer.innerHTML = `
-    <div class="text-center py-6">
+async function cargarHistorialMedico(idMascota) {
+  const medicalSection = document.getElementById('medical-section');
+  const medicalList = document.getElementById('medical-list');
+
+  // Si no existen estos elementos en tu HTML, no hace nada
+  if (!medicalSection || !medicalList) return;
+
+  // 1. Mostrar mensaje de carga
+  medicalList.innerHTML = `
+    <div class="text-center py-4">
       <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
       <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
     </div>
   `;
 
-  if (!petId) {
-    listContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">ID de mascota no válido.</p>`;
+  // 2. Si la mascota está en Modo Perdido (is_lost = true), ocultar la sección por privacidad
+  if (typeof petData !== 'undefined' && petData && petData.is_lost) {
+    medicalSection.classList.add('hidden');
     return;
   }
 
-  // Consultar registros médicos ordenados por fecha más reciente
+  // 3. Consultar registros médicos en Supabase
   const { data: records, error } = await db
     .from('medical_records')
     .select('*')
-    .eq('pet_id', petId)
+    .eq('pet_id', idMascota)
     .order('visit_date', { ascending: false });
 
+  // 4. Si ocurre un error o la mascota aún no tiene consultas registradas
   if (error || !records || records.length === 0) {
-    listContainer.innerHTML = `
-      <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-        <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
+    medicalList.innerHTML = `
+      <div class="text-center py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+        <p class="text-xs font-bold text-slate-500">Sin registros médicos</p>
         <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
       </div>
     `;
+    medicalSection.classList.remove('hidden'); // Muestra la sección vacía pero informativa
     return;
   }
 
-  // Generar las tarjetas de historial médico
+  // 5. Construir las tarjetas del historial
   let html = '';
   records.forEach(rec => {
     html += `
@@ -722,7 +734,9 @@ async function cargarHistorialMedico(petId) {
     `;
   });
 
-  listContainer.innerHTML = html;
+  // 6. Inyectar en el HTML y hacer visible la sección
+  medicalList.innerHTML = html;
+  medicalSection.classList.remove('hidden');
 }
     function abrirModalPIN() { document.getElementById('pin-modal').classList.remove('hidden'); document.getElementById('modal-pin-input').value = ''; document.getElementById('modal-pin-input').focus(); }
     function cerrarModalPIN() { document.getElementById('pin-modal').classList.add('hidden'); }
