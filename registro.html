@@ -211,28 +211,28 @@
           </div>
         </div>
       </div>
-      <!-- SECCIÓN: NUEVA CONSULTA / VACUNA -->
+     <!-- SECCIÓN: NUEVA CONSULTA / VACUNA (Sin etiquetas <form> para evitar conflictos) -->
 <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4 mt-6" style="font-family: 'Fredoka', sans-serif;">
   <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
     <i class="fa-solid fa-stethoscope text-amber-500 text-lg"></i>
     <h3 class="text-sm font-bold text-slate-800">Agregar Atención Médica o Vacuna</h3>
   </div>
 
-  <form id="form-medical-record" onsubmit="guardarRegistroMedico(event)" class="space-y-3">
+  <div id="form-medical-record" class="space-y-3">
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Visita</label>
-        <input type="date" id="med-date" required class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-amber-500">
+        <input type="date" id="med-date" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-amber-500">
       </div>
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Veterinaria / Dr.</label>
-        <input type="text" id="med-vet" placeholder="Ej. Vet. San Francisco" required class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+        <input type="text" id="med-vet" placeholder="Ej. Vet. San Francisco" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
       </div>
     </div>
 
     <div>
       <label class="block text-xs font-bold text-slate-700 mb-1">Motivo / Tipo de Visita</label>
-      <input type="text" id="med-reason" placeholder="Ej. Vacuna Quíntuple, Chequeo Anual, Dolor de estómago" required class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+      <input type="text" id="med-reason" placeholder="Ej. Vacuna Quíntuple, Chequeo Anual" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
     </div>
 
     <div>
@@ -242,13 +242,14 @@
 
     <div>
       <label class="block text-xs font-bold text-slate-700 mb-1">Receta / Tratamiento (Opcional)</label>
-      <textarea id="med-prescription" rows="2" placeholder="Ej. Amoxicilina 250mg cada 12h por 5 días" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500"></textarea>
+      <textarea id="med-prescription" rows="2" placeholder="Ej. Amoxicilina 250mg cada 12h" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500"></textarea>
     </div>
 
-    <button type="submit" id="btn-save-med" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
+    <!-- BOTÓN CON ONCLICK DIRECTO -->
+    <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
       <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial Médico
     </button>
-  </form>
+  </div>
 </div>
       <button id="btn-save" type="button" onclick="guardarDatos()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all text-base mt-4 flex items-center justify-center">
         <i class="fa-solid fa-cloud-check mr-2"></i> <span>Guardar Cambios</span>
@@ -435,18 +436,19 @@
 // ==========================================
 // REGISTRO DE ATENCIÓN MÉDICA / VACUNA
 // ==========================================
-
-// ==========================================
-// REGISTRO DE ATENCIÓN MÉDICA / VACUNA
-// ==========================================
-window.guardarRegistroMedico = async function(e) {
-  if (e) e.preventDefault();
-  
-  // Alerta de confirmación de clic
-  alert("🔍 Procesando envío de historial médico...");
-
+window.guardarRegistroMedico = async function() {
   const btn = document.getElementById('btn-save-med');
   const textOriginal = btn ? btn.innerHTML : '';
+
+  // Validar campos obligatorios manualmente
+  const visitDate = document.getElementById('med-date').value;
+  const vetName = document.getElementById('med-vet').value;
+  const reason = document.getElementById('med-reason').value;
+
+  if (!visitDate || !vetName || !reason) {
+    alert("⚠️ Por favor completa la fecha, el nombre de la veterinaria y el motivo.");
+    return;
+  }
 
   if (btn) {
     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
@@ -454,6 +456,7 @@ window.guardarRegistroMedico = async function(e) {
   }
 
   try {
+    // 1. Obtener ID de la mascota desde la URL (?id=PET-001)
     const urlParams = new URLSearchParams(window.location.search);
     const currentTagId = urlParams.get('id') || (typeof tagId !== 'undefined' ? tagId : '');
 
@@ -462,17 +465,16 @@ window.guardarRegistroMedico = async function(e) {
       return;
     }
 
+    // 2. Validar cliente de Supabase
     if (typeof db === 'undefined') {
-      alert("❌ Error: La variable 'db' de Supabase no está declarada en esta página.");
+      alert("❌ Error: La variable 'db' de Supabase no está declarada.");
       return;
     }
 
-    const visitDate = document.getElementById('med-date').value;
-    const vetName = document.getElementById('med-vet').value;
-    const reason = document.getElementById('med-reason').value;
     const diagnosis = document.getElementById('med-diagnosis').value;
     const prescription = document.getElementById('med-prescription').value;
 
+    // 3. Insertar registro en Supabase
     const { data, error } = await db.from('medical_records').insert([
       {
         pet_id: currentTagId,
@@ -489,7 +491,12 @@ window.guardarRegistroMedico = async function(e) {
       alert("❌ Error al guardar en Supabase: " + error.message);
     } else {
       alert("✅ ¡Registro médico guardado con éxito!");
-      document.getElementById('form-medical-record').reset();
+      // Limpiar campos
+      document.getElementById('med-date').value = '';
+      document.getElementById('med-vet').value = '';
+      document.getElementById('med-reason').value = '';
+      document.getElementById('med-diagnosis').value = '';
+      document.getElementById('med-prescription').value = '';
     }
 
   } catch (err) {
