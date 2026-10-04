@@ -188,7 +188,11 @@
             </label>
           </div>
         </div>
-
+<div id="activation-box" class="hidden mb-3">
+  <label for="input-codigo" class="block text-xs font-bold text-amber-600 uppercase mb-1"><i class="fa-solid fa-ticket mr-1"></i> Código de activación *</label>
+  <input type="text" id="input-codigo" maxlength="9" placeholder="Ej. NAF3-NU2K" autocapitalize="characters" class="w-full px-4 py-3 bg-white rounded-xl border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-mono tracking-widest text-center font-bold text-slate-800">
+  <p class="text-[10px] text-slate-400 mt-1">Lo encuentras en la tarjeta dentro del empaque de tu placa.</p>
+</div>
         <!-- PIN -->
         <div id="pin-creation-box" class="mb-1">
           <label for="input-pin" class="block text-xs font-bold text-amber-600 uppercase mb-1">
@@ -303,12 +307,11 @@ let savedPin = null;
 let isLostState = false;
 let pinSesion = '';
 const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
-const msgEstado = e => e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' : e === 'incorrecto' ? 'PIN incorrecto: vuelve a entrar desde el perfil.' : e === 'no_existe' ? 'Primero guarda los datos de la placa.' : e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' : 'Revisa los datos (' + e + ').';
-
+const msgEstado = e => e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' : e === 'incorrecto' ? 'PIN incorrecto: vuelve a entrar desde el perfil.' : e === 'no_existe' ? 'Primero guarda los datos de la placa.' : e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' : e === 'codigo_incorrecto' ? 'El código de activación es incorrecto.' : e === 'placa_invalida' ? 'Esta placa no es válida o ya fue activada.' : 'Revisa los datos (' + e + ').';
 async function inicializar() {
-  tagId = new URLSearchParams(window.location.search).get('id') || 'PET-001';
+  tagId = new URLSearchParams(window.location.search).get('id') || '';
   $('input-id').value = tagId;
-
+if (!tagId) { alert('Enlace de placa no válido.'); return; }
   const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
   if (existe) {
     pinSesion = sessionStorage.getItem(`pin_${tagId}`) || '';
@@ -350,7 +353,12 @@ async function inicializar() {
       $('placeholder-icon').classList.add('hidden');
     }
   }
-  await cargarHistorialEscaneos();
+  if (!existe) {
+  const { data: est } = await client.rpc('estado_placa', { p_id: tagId });
+  if (est !== 'sin_activar') { window.location.href = `index.html?id=${encodeURIComponent(tagId)}`; return; }
+  $('activation-box').classList.remove('hidden');
+}
+await cargarHistorialEscaneos();
 }
 
 function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
@@ -407,7 +415,7 @@ async function guardarDatos() {
     }
     const v = id => val(id).trim();
     const { data: res, error: dbError } = await client.rpc('guardar_mascota', {
-      p_id: tagId, p_pin: finalPin,
+      p_id: tagId, p_pin: finalPin, p_codigo: val('input-codigo').trim() || null,
       p_datos: {
         pet, owner, phone,
         breed: v('input-breed'), color: v('input-color'),
