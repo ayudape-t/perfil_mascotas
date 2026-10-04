@@ -294,341 +294,217 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o";
 
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const db = client;
-    let tagId = 'PET-001';
-    let existingPhotoUrl = "";
-    let savedPin = null;
-    let isLostState = false;
-    let pinSesion = '';
+const db = client;
+const $ = id => document.getElementById(id);
+const val = id => ($(id) || {}).value || '';
+let tagId = 'PET-001';
+let existingPhotoUrl = "";
+let savedPin = null;
+let isLostState = false;
+let pinSesion = '';
 const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
 const msgEstado = e => e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' : e === 'incorrecto' ? 'PIN incorrecto: vuelve a entrar desde el perfil.' : e === 'no_existe' ? 'Primero guarda los datos de la placa.' : e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' : 'Revisa los datos (' + e + ').';
-    async function inicializar() {
-      const urlParams = new URLSearchParams(window.location.search);
-      tagId = urlParams.get('id') || 'PET-001';
-      document.getElementById('input-id').value = tagId;
 
-     const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
-let data = null;
-if (existe) {
-  pinSesion = sessionStorage.getItem(`pin_${tagId}`) || '';
-  const { data: priv } = await client.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion });
-  if (!priv || priv.estado !== 'ok') { sessionStorage.removeItem(`pin_${tagId}`); window.location.href = `index.html?id=${tagId}`; return; }
-  data = priv.mascota;
+async function inicializar() {
+  tagId = new URLSearchParams(window.location.search).get('id') || 'PET-001';
+  $('input-id').value = tagId;
+
+  const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
+  if (existe) {
+    pinSesion = sessionStorage.getItem(`pin_${tagId}`) || '';
+    const { data: priv } = pinSesion
+      ? await client.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion })
+      : { data: null };
+    if (!priv || priv.estado !== 'ok') {
+      sessionStorage.removeItem(`pin_${tagId}`);
+      window.location.href = `index.html?id=${tagId}`;
+      return;
+    }
+    const data = priv.mascota;
+
+    $('form-title').innerText = "Editar Placa";
+    $('pin-creation-box').classList.add('hidden');
+    $('lost-toggle-box').classList.remove('hidden');
+
+    const campos = {
+      'input-pet': 'pet', 'input-breed': 'breed', 'input-color': 'color', 'input-weight': 'weight',
+      'input-age': 'age', 'input-description': 'description', 'input-owner': 'owner',
+      'input-phone': 'phone', 'input-phone-secondary': 'phone_secondary',
+      'input-lost-location': 'lost_location', 'input-lost-date': 'lost_date', 'input-lost-time': 'lost_time',
+      'input-next-vaccine': 'next_vaccine', 'input-next-deworming': 'next_deworming',
+      'input-allergies': 'allergies', 'input-medical': 'medical_notes', 'input-diet': 'diet',
+      'input-vet-name': 'vet_name', 'input-vet-phone': 'vet_phone'
+    };
+    for (const [idEl, col] of Object.entries(campos)) { if ($(idEl)) $(idEl).value = data[col] || ''; }
+    $('input-reward').checked = data.reward || false;
+
+    savedPin = pinSesion;
+    isLostState = data.is_lost || false;
+    actualizarBotonAlarmaUI();
+
+    if (data.photo) {
+      existingPhotoUrl = data.photo;
+      const p = $('preview-photo');
+      p.src = data.photo;
+      p.classList.remove('hidden');
+      $('placeholder-icon').classList.add('hidden');
+    }
+  }
+  await cargarHistorialEscaneos();
 }
 
-if (data) {
+function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
 
-        document.getElementById('form-title').innerText = "Editar Placa";
-        document.getElementById('pin-creation-box').classList.add('hidden');
-        document.getElementById('lost-toggle-box').classList.remove('hidden');
+function actualizarBotonAlarmaUI() {
+  const btn = $('btn-toggle-lost');
+  const box = $('lost-details-box');
+  const base = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ";
+  if (isLostState) {
+    btn.className = base + "bg-red-600 text-white shadow-lg shadow-red-600/30 animate-pulse";
+    btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i> <span>¡ALARMA ACTIVADA: MASCOTA PERDIDA!</span>`;
+    if (box) box.classList.remove('hidden');
+  } else {
+    btn.className = base + "bg-emerald-100 text-emerald-800 border border-emerald-300";
+    btn.innerHTML = `<i class="fa-solid fa-house-chimney text-base"></i> <span>Estado: Segura en Casa</span>`;
+    if (box) box.classList.add('hidden');
+  }
+}
 
-        document.getElementById('input-pet').value = data.pet || '';
-        document.getElementById('input-breed').value = data.breed || '';
-        document.getElementById('input-color').value = data.color || '';
-        document.getElementById('input-weight').value = data.weight || '';
-        document.getElementById('input-age').value = data.age || '';
-        document.getElementById('input-description').value = data.description || '';
-        document.getElementById('input-owner').value = data.owner || '';
-        document.getElementById('input-phone').value = data.phone || '';
-        document.getElementById('input-phone-secondary').value = data.phone_secondary || '';
-        
-        savedPin = pinSesion;
-        isLostState = data.is_lost || false;
+$('input-photo').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const p = $('preview-photo');
+    p.src = ev.target.result;
+    p.classList.remove('hidden');
+    $('placeholder-icon').classList.add('hidden');
+  };
+  reader.readAsDataURL(file);
+});
 
-        document.getElementById('input-lost-location').value = data.lost_location || '';
-        document.getElementById('input-lost-date').value = data.lost_date || '';
-        document.getElementById('input-lost-time').value = data.lost_time || '';
-        document.getElementById('input-reward').checked = data.reward || false;
+async function guardarDatos() {
+  const btn = $('btn-save');
+  const pet = val('input-pet').trim();
+  const owner = val('input-owner').trim();
+  const phone = normalizarTel(val('input-phone'));
+  const finalPin = savedPin ? savedPin : val('input-pin').trim();
+  const photoInput = $('input-photo');
 
-        document.getElementById('input-next-vaccine').value = data.next_vaccine || '';
-        document.getElementById('input-next-deworming').value = data.next_deworming || '';
+  if (!pet || !owner || !phone || !finalPin) { alert("Por favor completa los campos requeridos (*)."); return; }
+  if (!savedPin && (finalPin.length !== 4 || isNaN(finalPin))) { alert("El PIN debe ser de 4 números."); return; }
 
-        document.getElementById('input-allergies').value = data.allergies || '';
-        document.getElementById('input-medical').value = data.medical_notes || '';
-        document.getElementById('input-diet').value = data.diet || '';
-        document.getElementById('input-vet-name').value = data.vet_name || '';
-        document.getElementById('input-vet-phone').value = data.vet_phone || '';
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...`;
+  let photoPublicUrl = existingPhotoUrl || "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=500&q=80";
 
-        actualizarBotonAlarmaUI();
-
-        if (data.photo) {
-          existingPhotoUrl = data.photo;
-          const previewImg = document.getElementById('preview-photo');
-          previewImg.src = data.photo;
-          previewImg.classList.remove('hidden');
-          document.getElementById('placeholder-icon').classList.add('hidden');
-        }
-      }
-
-      await cargarHistorialEscaneos();
+  try {
+    if (photoInput.files && photoInput.files[0]) {
+      const file = photoInput.files[0];
+      const fileName = `${tagId}_${Date.now()}.${file.name.split('.').pop()}`;
+      const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false });
+      if (!uploadError) photoPublicUrl = client.storage.from('pet-photos').getPublicUrl(fileName).data.publicUrl;
     }
-    
-    function toggleMascotaPerdida() { 
-      isLostState = !isLostState; 
-      actualizarBotonAlarmaUI(); 
-    }
-
-    function actualizarBotonAlarmaUI() {
-      const btn = document.getElementById('btn-toggle-lost');
-      const detailsBox = document.getElementById('lost-details-box');
-
-      if (isLostState) {
-        btn.className = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-red-600 text-white shadow-lg shadow-red-600/30 animate-pulse";
-        btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i> <span>¡ALARMA ACTIVADA: MASCOTA PERDIDA!</span>`;
-        if (detailsBox) detailsBox.classList.remove('hidden');
-      } else {
-        btn.className = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-emerald-100 text-emerald-800 border border-emerald-300";
-        btn.innerHTML = `<i class="fa-solid fa-house-chimney text-base"></i> <span>Estado: Segura en Casa</span>`;
-        if (detailsBox) detailsBox.classList.add('hidden');
-      }
-    }
-
-    document.getElementById('input-photo').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          const previewImg = document.getElementById('preview-photo');
-          previewImg.src = event.target.result;
-          previewImg.classList.remove('hidden');
-          document.getElementById('placeholder-icon').classList.add('hidden');
-        };
-        reader.readAsDataURL(file);
+    const v = id => val(id).trim();
+    const { data: res, error: dbError } = await client.rpc('guardar_mascota', {
+      p_id: tagId, p_pin: finalPin,
+      p_datos: {
+        pet, owner, phone,
+        breed: v('input-breed'), color: v('input-color'),
+        weight: v('input-weight').replace(/\s*kg$/i, ''), age: v('input-age'),
+        description: v('input-description'), phone_secondary: normalizarTel(v('input-phone-secondary')),
+        is_lost: isLostState, lost_location: v('input-lost-location'),
+        lost_date: v('input-lost-date'), lost_time: v('input-lost-time'),
+        reward: $('input-reward').checked, photo: photoPublicUrl,
+        next_vaccine: v('input-next-vaccine'), next_deworming: v('input-next-deworming'),
+        allergies: v('input-allergies'), medical_notes: v('input-medical'), diet: v('input-diet'),
+        vet_name: v('input-vet-name'), vet_phone: v('input-vet-phone')
       }
     });
-    async function guardarDatos() {
-      const btn = document.getElementById('btn-save');
-      const pet = document.getElementById('input-pet').value.trim();
-      const owner = document.getElementById('input-owner').value.trim();
-      const phone = document.getElementById('input-phone').value.trim();
-      const inputPin = document.getElementById('input-pin').value.trim();
-      const photoInput = document.getElementById('input-photo');
+    if (dbError) throw dbError;
+    if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
 
-      const finalPin = savedPin ? savedPin : inputPin;
+    sessionStorage.setItem(`pin_${tagId}`, finalPin);
+    window.location.href = `index.html?id=${tagId}`;
+  } catch (err) {
+    alert("Error al guardar: " + err.message);
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-cloud-check mr-2"></i> Guardar Cambios`;
+  }
+}
 
-      if (!pet || !owner || !phone || !finalPin) {
-        alert("Por favor completa los campos requeridos (*).");
-        return;
-      }
-      if (!savedPin && (finalPin.length !== 4 || isNaN(finalPin))) {
-        alert("El PIN debe ser de 4 números.");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...`;
-
-      let photoPublicUrl = existingPhotoUrl || "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=500&q=80";
-
-      try {
-        if (photoInput.files && photoInput.files[0]) {
-          const file = photoInput.files[0];
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${tagId}_${Date.now()}.${fileExt}`;
-          const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false });
-          if (!uploadError) {
-            const { data: urlData } = client.storage.from('pet-photos').getPublicUrl(fileName);
-            photoPublicUrl = urlData.publicUrl;
-          }
-        }
-
-        const { data: res, error: dbError } = await client.rpc('guardar_mascota', { p_id: tagId, p_pin: finalPin, p_datos: {
-          id: tagId,
-          pet: pet,
-          breed: document.getElementById('input-breed').value.trim(),
-          color: document.getElementById('input-color').value.trim(),
-          weight: document.getElementById('input-weight').value.trim().replace(/\s*kg$/i, ''),
-          age: document.getElementById('input-age').value.trim(),
-          description: document.getElementById('input-description').value.trim(),
-          owner: owner,
-          phone: normalizarTel(phone),,
-          phone_secondary: document.getElementById('input-phone-secondary').value.trim(),
-          is_lost: isLostState,
-          lost_location: document.getElementById('input-lost-location').value.trim(),
-          lost_date: document.getElementById('input-lost-date').value.trim(),
-          lost_time: document.getElementById('input-lost-time').value.trim(),
-          reward: document.getElementById('input-reward').checked,
-          photo: photoPublicUrl,
-          next_vaccine: document.getElementById('input-next-vaccine').value.trim(),
-          next_deworming: document.getElementById('input-next-deworming').value.trim(),
-          allergies: document.getElementById('input-allergies').value.trim(),
-          medical_notes: document.getElementById('input-medical').value.trim(),
-          diet: document.getElementById('input-diet').value.trim(),
-          vet_name: document.getElementById('input-vet-name').value.trim(),
-          vet_phone: document.getElementById('input-vet-phone').value.trim()
-} });
-
-if (dbError) throw dbError;
-if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
-        sessionStorage.setItem(`pin_${tagId}`, finalPin);
-        window.location.href = `index.html?id=${tagId}`;
-
-      } catch (err) {
-        alert("Error al guardar: " + err.message);
-        btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-cloud-check mr-2"></i> Guardar Cambios`;
-      }
-    }
-// ==========================================
-// REGISTRO DE ATENCIÓN MÉDICA / VACUNA
-// ==========================================
-window.guardarRegistroMedico = async function() {
-  const btn = document.getElementById('btn-save-med');
+window.guardarRegistroMedico = async function () {
+  const btn = $('btn-save-med');
   const textOriginal = btn ? btn.innerHTML : '';
-
-  // Validar campos obligatorios manualmente
-  const visitDate = document.getElementById('med-date').value;
-  const vetName = document.getElementById('med-vet').value;
-  const reason = document.getElementById('med-reason').value;
+  const visitDate = val('med-date'), vetName = val('med-vet'), reason = val('med-reason');
 
   if (!visitDate || !vetName || !reason) {
     alert("⚠️ Por favor completa la fecha, el nombre de la veterinaria y el motivo.");
     return;
   }
-
-  if (btn) {
-    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
-    btn.disabled = true;
-  }
+  if (btn) { btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`; btn.disabled = true; }
 
   try {
-    // 1. Obtener ID de la mascota desde la URL (?id=PET-001)
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentTagId = urlParams.get('id') || (typeof tagId !== 'undefined' ? tagId : '');
-
-    if (!currentTagId) {
-      alert("❌ No se encontró el ID de la mascota en la URL (?id=...)");
-      return;
-    }
-
-    // 2. Validar cliente de Supabase
-    if (typeof db === 'undefined') {
-      alert("❌ Error: La variable 'db' de Supabase no está declarada.");
-      return;
-    }
-
-    const diagnosis = document.getElementById('med-diagnosis').value;
-    const prescription = document.getElementById('med-prescription').value;
-
-    // 3. Insertar registro en Supabase
-   const { data, error: rpcError } = await db.rpc('agregar_registro_medico', { p_id: currentTagId, p_pin: pinSesion, p_fecha: visitDate, p_vet: vetName, p_motivo: reason, p_diagnostico: diagnosis || null, p_receta: prescription || null, p_proxima: document.getElementById('med-next').value || null });
-const error = rpcError || ((data && data.estado === 'ok') ? null : { message: msgEstado(data ? data.estado : 'error') });
-
-    if (error) {
-      console.error("❌ Error de Supabase:", error);
-      alert("❌ Error al guardar en Supabase: " + error.message);
-    } else {
-      alert("✅ ¡Registro médico guardado con éxito!");
-      // Limpiar campos
-      document.getElementById('med-date').value = '';
-      document.getElementById('med-vet').value = '';
-      document.getElementById('med-reason').value = '';
-      document.getElementById('med-diagnosis').value = '';
-      document.getElementById('med-prescription').value = '';
-      document.getElementById('med-next').value = '';
-    }
-
+    const { data, error } = await db.rpc('agregar_registro_medico', {
+      p_id: tagId, p_pin: pinSesion, p_fecha: visitDate, p_vet: vetName, p_motivo: reason,
+      p_diagnostico: val('med-diagnosis') || null,
+      p_receta: val('med-prescription') || null,
+      p_proxima: val('med-next') || null
+    });
+    if (error) throw error;
+    if (data.estado !== 'ok') throw new Error(msgEstado(data.estado));
+    alert("✅ ¡Registro médico guardado con éxito!");
+    ['med-date', 'med-vet', 'med-reason', 'med-diagnosis', 'med-prescription', 'med-next'].forEach(id => { if ($(id)) $(id).value = ''; });
   } catch (err) {
-    console.error("❌ Error inesperado:", err);
-    alert("❌ Ocurrió un error inesperado: " + err.message);
+    alert("❌ Error al guardar: " + err.message);
   } finally {
-    if (btn) {
-      btn.innerHTML = textOriginal;
-      btn.disabled = false;
-    }
+    if (btn) { btn.innerHTML = textOriginal; btn.disabled = false; }
   }
 };
-  // Abrir y cerrar el desplegable
-function toggleHistorialEscaneos() {
-  const contenedor = document.getElementById('desplegable-escaneos');
-  const flecha = document.getElementById('flecha-escaneos');
-  if (!contenedor) return;
 
-  if (contenedor.classList.contains('hidden')) {
-    contenedor.classList.remove('hidden');
-    if (flecha) flecha.classList.add('rotate-180');
-  } else {
-    contenedor.classList.add('hidden');
-    if (flecha) flecha.classList.remove('rotate-180');
-  }
+function toggleHistorialEscaneos() {
+  const c = $('desplegable-escaneos'), f = $('flecha-escaneos');
+  if (!c) return;
+  const abierto = !c.classList.contains('hidden');
+  c.classList.toggle('hidden', abierto);
+  if (f) f.classList.toggle('rotate-180', !abierto);
 }
 
-// Cargar y dividir los escaneos (Último arriba, anteriores desplegables)
 async function cargarHistorialEscaneos() {
-  const previewTxt = document.getElementById('preview-ultimo-escaneo');
-  const btnUltimoMaps = document.getElementById('btn-ultimo-maps');
-  const listaAnteriores = document.getElementById('escaneos-lista-anteriores');
+  const previewTxt = $('preview-ultimo-escaneo'), btnMaps = $('btn-ultimo-maps'), lista = $('escaneos-lista-anteriores');
+  const fmt = f => f ? new Date(f).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente';
+  const url = s => `https://maps.google.com/?q=${Number(s.latitude)},${Number(s.longitude)}`;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
-
-  try {
-    const { data: resEsc, error } = await db.rpc('obtener_escaneos', { p_id: currentTagId, p_pin: pinSesion });
-const todosLosEscaneos = (resEsc && resEsc.estado === 'ok' ? resEsc.escaneos : []).map(x => ({ ...x, pet_id: currentTagId }));
-
-    if (error) {
-      if (previewTxt) previewTxt.innerText = 'Error al cargar datos.';
-      return;
-    }
-
-    const escaneosMascota = (todosLosEscaneos || [])
-      .filter(item => item.pet_id && item.pet_id.toString().trim().toLowerCase() === currentTagId.toString().trim().toLowerCase())
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 5); // Carga los 5 más recientes
-
-    if (escaneosMascota.length === 0) {
-      if (previewTxt) previewTxt.innerHTML = `Sin registros para: <b>${currentTagId}</b>`;
-      if (btnUltimoMaps) btnUltimoMaps.classList.add('hidden');
-      if (listaAnteriores) listaAnteriores.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
-      return;
-    }
-
-    // 1. PRIMER ESCANEO (El más reciente - Se queda en la tarjeta compacta)
-    const ultimo = escaneosMascota[0];
-    const fechaUltimo = ultimo.created_at 
-      ? new Date(ultimo.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
-      : 'Reciente';
-    const urlMapsUltimo = ultimo.map_url || `https://maps.google.com/?q=${ultimo.latitude},${ultimo.longitude}`;
-
-    if (previewTxt) previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fechaUltimo}`;
-    if (btnUltimoMaps) {
-      btnUltimoMaps.href = urlMapsUltimo;
-      btnUltimoMaps.classList.remove('hidden');
-    }
-
-    // 2. ESCANEOS ANTERIORES (Van dentro del desplegable)
-    const anteriores = escaneosMascota.slice(1);
-
-    if (anteriores.length === 0) {
-      if (listaAnteriores) listaAnteriores.innerHTML = `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
-      return;
-    }
-
-    if (listaAnteriores) {
-      listaAnteriores.innerHTML = '';
-      anteriores.forEach((item, index) => {
-        const fecha = item.created_at 
-          ? new Date(item.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
-          : 'Reciente';
-        const urlMaps = item.map_url || `https://maps.google.com/?q=${item.latitude},${item.longitude}`;
-
-        listaAnteriores.innerHTML += `
-          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
-            <div>
-              <p class="font-bold text-slate-800 text-xs">Escaneo #${index + 2}</p>
-              <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fecha}</p>
-            </div>
-            <a href="${urlMaps}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
-              <i class="fa-solid fa-map-location-dot"></i> Maps
-            </a>
-          </div>
-        `;
-      });
-    }
-
-  } catch (err) {
-    if (previewTxt) previewTxt.innerText = 'Sin registros aún.';
+  let escaneos = [];
+  if (pinSesion) {
+    const { data: res } = await db.rpc('obtener_escaneos', { p_id: tagId, p_pin: pinSesion });
+    if (res && res.estado === 'ok') escaneos = res.escaneos || [];
   }
+
+  if (escaneos.length === 0) {
+    previewTxt.textContent = 'Sin registros de ubicación aún.';
+    btnMaps.classList.add('hidden');
+    lista.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
+    return;
+  }
+
+  const [ultimo, ...anteriores] = escaneos;
+  previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fmt(ultimo.created_at)}`;
+  btnMaps.href = url(ultimo);
+  btnMaps.classList.remove('hidden');
+
+  lista.innerHTML = anteriores.length
+    ? anteriores.map((s, i) => `
+      <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
+        <div>
+          <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
+          <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
+        </div>
+        <a href="${url(s)}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+          <i class="fa-solid fa-map-location-dot"></i> Maps
+        </a>
+      </div>`).join('')
+    : `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
 }
 
 inicializar();
