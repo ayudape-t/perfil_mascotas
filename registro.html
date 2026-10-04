@@ -272,7 +272,10 @@
       <label class="block text-xs font-bold text-slate-700 mb-1">Receta / Tratamiento (Opcional)</label>
       <textarea id="med-prescription" rows="2" placeholder="Ej. Amoxicilina 250mg cada 12h" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500"></textarea>
     </div>
-
+    <div>
+  <label class="block text-xs font-bold text-slate-700 mb-1">Próxima dosis / refuerzo (Opcional)</label>
+  <input type="date" id="med-next" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+</div>
     <!-- BOTÓN CON ONCLICK DIRECTO -->
     <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
       <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial Médico
@@ -296,17 +299,24 @@
     let existingPhotoUrl = "";
     let savedPin = null;
     let isLostState = false;
-
+    let pinSesion = '';
+const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
+const msgEstado = e => e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' : e === 'incorrecto' ? 'PIN incorrecto: vuelve a entrar desde el perfil.' : e === 'no_existe' ? 'Primero guarda los datos de la placa.' : e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' : 'Revisa los datos (' + e + ').';
     async function inicializar() {
       const urlParams = new URLSearchParams(window.location.search);
       tagId = urlParams.get('id') || 'PET-001';
       document.getElementById('input-id').value = tagId;
 
-      const { data } = await client.from('pets').select('*').eq('id', tagId).maybeSingle();
+     const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
+let data = null;
+if (existe) {
+  pinSesion = sessionStorage.getItem(`pin_${tagId}`) || '';
+  const { data: priv } = await client.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion });
+  if (!priv || priv.estado !== 'ok') { sessionStorage.removeItem(`pin_${tagId}`); window.location.href = `index.html?id=${tagId}`; return; }
+  data = priv.mascota;
+}
 
-      if (data) {
-        const isAuth = sessionStorage.getItem(`auth_${tagId}`) === 'true';
-        if (!isAuth) { window.location.href = `index.html?id=${tagId}`; return; }
+if (data) {
 
         document.getElementById('form-title').innerText = "Editar Placa";
         document.getElementById('pin-creation-box').classList.add('hidden');
@@ -322,7 +332,7 @@
         document.getElementById('input-phone').value = data.phone || '';
         document.getElementById('input-phone-secondary').value = data.phone_secondary || '';
         
-        savedPin = data.pin;
+        savedPin = pinSesion;
         isLostState = data.is_lost || false;
 
         document.getElementById('input-lost-location').value = data.lost_location || '';
@@ -386,18 +396,6 @@
         reader.readAsDataURL(file);
       }
     });
-    function toggleHistorialEscaneos() {
-  const contenedor = document.getElementById('desplegable-historial-escaneos');
-  const flecha = document.getElementById('flecha-escaneos');
-  
-  if (contenedor.classList.contains('hidden')) {
-    contenedor.classList.remove('hidden');
-    flecha.classList.add('rotate-180');
-  } else {
-    contenedor.classList.add('hidden');
-    flecha.classList.remove('rotate-180');
-  }
-}
     async function guardarDatos() {
       const btn = document.getElementById('btn-save');
       const pet = document.getElementById('input-pet').value.trim();
@@ -427,25 +425,24 @@
           const file = photoInput.files[0];
           const fileExt = file.name.split('.').pop();
           const fileName = `${tagId}_${Date.now()}.${fileExt}`;
-          const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: true });
+          const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false });
           if (!uploadError) {
             const { data: urlData } = client.storage.from('pet-photos').getPublicUrl(fileName);
             photoPublicUrl = urlData.publicUrl;
           }
         }
 
-        const { error: dbError } = await client.from('pets').upsert({
+        const { data: res, error: dbError } = await client.rpc('guardar_mascota', { p_id: tagId, p_pin: finalPin, p_datos: {
           id: tagId,
           pet: pet,
           breed: document.getElementById('input-breed').value.trim(),
           color: document.getElementById('input-color').value.trim(),
-          weight: document.getElementById('input-weight').value.trim(),
+          weight: document.getElementById('input-weight').value.trim().replace(/\s*kg$/i, ''),
           age: document.getElementById('input-age').value.trim(),
           description: document.getElementById('input-description').value.trim(),
           owner: owner,
-          phone: phone,
+          phone: normalizarTel(phone),,
           phone_secondary: document.getElementById('input-phone-secondary').value.trim(),
-          pin: finalPin,
           is_lost: isLostState,
           lost_location: document.getElementById('input-lost-location').value.trim(),
           lost_date: document.getElementById('input-lost-date').value.trim(),
@@ -459,11 +456,11 @@
           diet: document.getElementById('input-diet').value.trim(),
           vet_name: document.getElementById('input-vet-name').value.trim(),
           vet_phone: document.getElementById('input-vet-phone').value.trim()
-        });
+} });
 
-        if (dbError) throw dbError;
-
-        sessionStorage.setItem(`auth_${tagId}`, 'true');
+if (dbError) throw dbError;
+if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
+        sessionStorage.setItem(`pin_${tagId}`, finalPin);
         window.location.href = `index.html?id=${tagId}`;
 
       } catch (err) {
@@ -514,16 +511,8 @@ window.guardarRegistroMedico = async function() {
     const prescription = document.getElementById('med-prescription').value;
 
     // 3. Insertar registro en Supabase
-    const { data, error } = await db.from('medical_records').insert([
-      {
-        pet_id: currentTagId,
-        visit_date: visitDate,
-        vet_name: vetName,
-        reason: reason,
-        diagnosis: diagnosis || null,
-        prescription: prescription || null
-      }
-    ]);
+   const { data, error: rpcError } = await db.rpc('agregar_registro_medico', { p_id: currentTagId, p_pin: pinSesion, p_fecha: visitDate, p_vet: vetName, p_motivo: reason, p_diagnostico: diagnosis || null, p_receta: prescription || null, p_proxima: document.getElementById('med-next').value || null });
+const error = rpcError || ((data && data.estado === 'ok') ? null : { message: msgEstado(data ? data.estado : 'error') });
 
     if (error) {
       console.error("❌ Error de Supabase:", error);
@@ -536,6 +525,7 @@ window.guardarRegistroMedico = async function() {
       document.getElementById('med-reason').value = '';
       document.getElementById('med-diagnosis').value = '';
       document.getElementById('med-prescription').value = '';
+      document.getElementById('med-next').value = '';
     }
 
   } catch (err) {
@@ -573,7 +563,8 @@ async function cargarHistorialEscaneos() {
   const currentTagId = (typeof tagId !== 'undefined' && tagId) ? tagId : (urlParams.get('id') || 'PET-001');
 
   try {
-    const { data: todosLosEscaneos, error } = await db.from('escaneos_log').select('*');
+    const { data: resEsc, error } = await db.rpc('obtener_escaneos', { p_id: currentTagId, p_pin: pinSesion });
+const todosLosEscaneos = (resEsc && resEsc.estado === 'ok' ? resEsc.escaneos : []).map(x => ({ ...x, pet_id: currentTagId }));
 
     if (error) {
       if (previewTxt) previewTxt.innerText = 'Error al cargar datos.';
