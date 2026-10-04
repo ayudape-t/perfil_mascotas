@@ -114,7 +114,11 @@
   </div>
 
 </div>
-
+<div id="telegram-box" class="hidden bg-white/90 p-4 rounded-2xl border border-sky-200 space-y-2 shadow-sm">
+  <h2 class="text-xs font-extrabold text-sky-600 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-brands fa-telegram"></i> Avisos por Telegram</h2>
+  <p id="telegram-estado" class="text-xs text-slate-600">Recibe un mensaje cuando escaneen la placa y cuando toque vacuna o control.</p>
+  <button type="button" id="btn-telegram" onclick="accionTelegram()" class="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl text-xs transition-all">Vincular Telegram</button>
+</div>
       <!-- SECCIÓN: DATOS BÁSICOS -->
       <div class="border-b border-slate-200/80 pb-4">
         <h2 class="text-xs font-extrabold text-amber-600 uppercase tracking-wider flex items-center gap-1.5 mb-3">
@@ -358,6 +362,7 @@ if (!tagId) { alert('Enlace de placa no válido.'); return; }
   if (est !== 'sin_activar') { window.location.href = `index.html?id=${encodeURIComponent(tagId)}`; return; }
   $('activation-box').classList.remove('hidden');
 }
+  if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); refrescarTelegram(); }
 await cargarHistorialEscaneos();
 }
 
@@ -545,7 +550,39 @@ async function cargarHistorialEscaneos() {
       </div>`).join('')
     : `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
 }
+const BOT_TELEGRAM = 'Ayudapetbot';
+let telegramVinculado = false;
 
+async function refrescarTelegram() {
+  if (!pinSesion) return;
+  const { data } = await db.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion });
+  if (!data || data.estado !== 'ok') return;
+  telegramVinculado = !!data.telegram_vinculado;
+  $('telegram-box').classList.remove('hidden');
+  $('telegram-estado').textContent = telegramVinculado
+    ? '✅ Vinculado: recibirás avisos de escaneos y recordatorios en Telegram.'
+    : 'Recibe un mensaje cuando escaneen la placa y cuando toque vacuna o control.';
+  $('btn-telegram').textContent = telegramVinculado ? 'Desvincular Telegram' : 'Vincular Telegram';
+}
+
+async function accionTelegram() {
+  if (telegramVinculado) {
+    if (!confirm('¿Dejar de recibir avisos en Telegram?')) return;
+    await db.rpc('desvincular_telegram', { p_id: tagId, p_pin: pinSesion });
+    return refrescarTelegram();
+  }
+  const w = window.open('', '_blank');
+  const { data, error } = await db.rpc('crear_vinculo_telegram', { p_id: tagId, p_pin: pinSesion });
+  if (error || !data || data.estado !== 'ok') {
+    if (w) w.close();
+    alert('No se pudo crear el enlace. Vuelve a entrar con tu PIN.');
+    return;
+  }
+  const url = `https://t.me/${BOT_TELEGRAM}?start=${data.token}`;
+  if (w) w.location.href = url; else window.location.href = url;
+}
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarTelegram(); });
 inicializar();
   </script>
 </body>
