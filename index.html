@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <meta property="og:title" content="Perfil de Mascota - Helpet" />
-<meta property="og:description" content="Si me encontraste, contáctate con mi dueño de inmediato." />
-<meta property="og:image" content="https://tudominio.com/logo.jpg" />
+
   <!-- Fuentes: DynaPuff (Nombre) + Fredoka (Información y Dueño) -->
 <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Fuente estilo letra inflada (DynaPuff) -->
-<link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&display=swap" rel="stylesheet">
+
   <!-- Logo personalizado para la pestaña y el menú de compartir -->
 <!-- Favicon corregido a .jpg -->
 <link rel="icon" type="image/jpeg" href="logo.jpg">
 <link rel="apple-touch-icon" href="logo.jpg">
 <!-- Vista previa de imagen para redes y Android (Open Graph) -->
-<meta property="og:image" content="logo.jpg">
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -390,13 +387,14 @@
     let petData = null;
     let tagId = 'PET-001';
     let ubicacionCapturada = null;
-
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
     async function cargarPerfil() {
       const urlParams = new URLSearchParams(window.location.search);
       tagId = urlParams.get('id') || 'PET-001';
 
       try {
-        const { data, error } = await db.from('pets').select('*').eq('id', tagId).maybeSingle();
+        const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
 
         if (error || !data) {
           document.getElementById('link-register').href = `registro.html?id=${tagId}`;
@@ -406,7 +404,7 @@
 
        // Variable data recibida de Supabase
 petData = data;
-
+{ const t = String(data.phone || '').replace(/\D/g, ''); data.phone = (t.length === 9 && t[0] === '9') ? '51' + t : t; }
 document.getElementById('app-container').classList.remove('hidden');
 document.getElementById('pet-name').innerText = (data.pet || '').toUpperCase();
 document.getElementById('owner-name').innerText = data.owner;
@@ -487,7 +485,7 @@ document.getElementById('owner-name').innerText = data.owner;
           // Llenar Ficha Técnica
           document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
           document.getElementById('pet-color').innerText = data.color || 'No especificado';
-          document.getElementById('pet-weight').innerText = data.weight ? `${data.weight} kg` : 'No especificado';
+          document.getElementById('pet-weight').innerText = fmtPeso(data.weight) || 'No especificado';
           document.getElementById('pet-age').innerText = data.age || 'No especificada';
 
           // Carnet Digital de Salud (Vacunas y Desparasitaciones)
@@ -563,9 +561,7 @@ document.getElementById('owner-name').innerText = data.owner;
 
     async function guardarEscaneoSilencioso(lat, lon) {
       const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-      const { error } = await db.from('escaneos_log').insert([
-        { pet_id: tagId, latitude: lat, longitude: lon, map_url: mapUrl }
-      ]);
+      const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
       if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
     }
 
@@ -620,18 +616,22 @@ document.getElementById('owner-name').innerText = data.owner;
         alert("¡Enlace del perfil copiado al portapapeles!");
       }
     }
-function descargarCarnetDigital() {
+async function descargarCarnetDigital() {
   const carnet = document.getElementById('carnet-digital');
   if (!carnet) return;
 
   // 1. Rellenar datos dinámicos antes de exportar
-  document.getElementById('carnet-nombre').textContent = petData.nombre || 'Mascota';
-  document.getElementById('carnet-raza').textContent = `${petData.especie || ''} • ${petData.raza || ''}`;
+  document.getElementById('carnet-nombre').textContent = petData.pet || 'Mascota';
+  document.getElementById('carnet-raza').textContent = [petData.breed, petData.color].filter(Boolean).join(' • ');
   document.getElementById('carnet-id').textContent = tagId;
-  if (petData.foto_url) {
-    document.getElementById('carnet-img').src = petData.foto_url;
+ if (petData.photo) {
+  const im = document.getElementById('carnet-img');
+  if (im.src !== petData.photo) {
+    im.crossOrigin = 'anonymous';
+    im.src = petData.photo;
+    await new Promise(r => { im.onload = im.onerror = r; });
   }
-
+}
   // Mostrar temporalmente la tarjeta para que html2canvas pueda leerla
   carnet.classList.remove('hidden');
 
@@ -692,7 +692,7 @@ function descargarCarnetDigital() {
 
       let edadPesoArr = [];
       if (petData.age) edadPesoArr.push(petData.age);
-      if (petData.weight) edadPesoArr.push(`${petData.weight} kg`);
+      if (petData.weight) edadPesoArr.push(fmtPeso(petData.weight));
       document.getElementById('poster-age-weight').innerText = edadPesoArr.length > 0 ? edadPesoArr.join(' / ') : 'Sin indicar';
 
       document.getElementById('afiche-modal').classList.remove('hidden');
@@ -786,11 +786,7 @@ function descargarCarnetDigital() {
   }
 
   // Consulta a Supabase
-  const { data: records, error } = await db
-    .from('medical_records')
-    .select('*')
-    .eq('pet_id', idMascota)
-    .order('visit_date', { ascending: false });
+  const { data: records, error } = await db.rpc('obtener_historial_medico', { p_id: idMascota });
 
   // Si no hay datos o falla la consulta
   if (error || !records || records.length === 0) {
@@ -815,12 +811,12 @@ function descargarCarnetDigital() {
       html += `
         <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
           <div class="flex justify-between items-center mb-1.5">
-            <span class="text-xs font-bold text-amber-950 uppercase">${rec.vet_name}</span>
-            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${rec.visit_date}</span>
+            <span class="text-xs font-bold text-amber-950 uppercase">${esc(rec.vet_name)}</span>
+            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(rec.visit_date)}</span>
           </div>
-          <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${rec.reason || 'Consulta general'}</p>
-          ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${rec.diagnosis}</p>` : ''}
-          ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${rec.prescription}</p>` : ''}
+          <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong>${esc(rec.reason || 'Consulta general')}</p>
+          ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${esc(rec.diagnosis)}</p>` : ''}
+          ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${esc(rec.prescription)}</p>` : ''}
         </div>
       `;
     });
@@ -848,17 +844,17 @@ function cerrarModalPIN() {
   destinoPIN = ''; 
 }
 
-function validarPINModal() {
+async function validarPINModal() {
   const input = document.getElementById('modal-pin-input').value.trim();
   if (!petData) return;
-  
-  if (input === petData.pin) { 
-    sessionStorage.setItem(`auth_${tagId}`, 'true'); 
-    // Si viene de "+ Registrar" agrega #seccion-medica, si es acceso normal va al inicio
-    window.location.href = `registro.html?id=${tagId}${destinoPIN}`; 
-  } else { 
-    alert("❌ PIN Incorrecto."); 
-  }
+  const { data: estado, error } = await db.rpc('verificar_pin', { p_id: tagId, p_pin: input });
+  if (error) { alert("❌ No se pudo verificar el PIN. Intenta de nuevo."); return; }
+  if (estado === 'ok') {
+    sessionStorage.setItem(`pin_${tagId}`, input);
+    window.location.href = `registro.html?id=${tagId}${destinoPIN}`;
+  } else if (estado === 'bloqueado') {
+    alert("⏳ Demasiados intentos. Espera 15 minutos o contacta a soporte.");
+  } else { alert("❌ PIN Incorrecto."); }
 }
     function abrirFotoGrande() {
       const fotoActual = document.getElementById('pet-photo').src;
