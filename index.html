@@ -391,17 +391,24 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
     async function cargarPerfil() {
       const urlParams = new URLSearchParams(window.location.search);
-      tagId = urlParams.get('id') || 'PET-001';
+      tagId = urlParams.get('id') || '';
 
       try {
         const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
 
-        if (error || !data) {
-          document.getElementById('link-register').href = `registro.html?id=${tagId}`;
-          document.getElementById('unregistered-card').classList.remove('hidden');
-          return;
-        }
-
+       if (error || !data) {
+  const { data: est } = tagId ? await db.rpc('estado_placa', { p_id: tagId }) : { data: 'invalida' };
+  if (est === 'sin_activar') {
+    document.getElementById('link-register').href = `registro.html?id=${encodeURIComponent(tagId)}`;
+  } else {
+    const card = document.getElementById('unregistered-card');
+    card.querySelector('h2').textContent = 'Placa no válida';
+    card.querySelector('p').textContent = 'Este código no corresponde a una placa Helpet. Revisa el enlace o escribe a soporte.';
+    document.getElementById('link-register').classList.add('hidden');
+  }
+  document.getElementById('unregistered-card').classList.remove('hidden');
+  return;
+}
        // Variable data recibida de Supabase
 petData = data;
 { const t = String(data.phone || '').replace(/\D/g, ''); data.phone = (t.length === 9 && t[0] === '9') ? '51' + t : t; }
