@@ -390,7 +390,34 @@ $('input-photo').addEventListener('change', e => {
   };
   reader.readAsDataURL(file);
 });
-
+async function comprimirImagen(file, maxLado = 900, calidad = 0.82) {
+  if (!file.type.startsWith('image/')) return file;
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, fail) => {
+      const i = new Image();
+      i.onload = () => ok(i);
+      i.onerror = fail;
+      i.src = url;
+    });
+    const escala = Math.min(1, maxLado / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.round(img.naturalWidth * escala);
+    const h = Math.round(img.naturalHeight * escala);
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', calidad));
+    return blob && blob.size < file.size ? new File([blob], 'foto.jpg', { type: 'image/jpeg' }) : file;
+  } catch (e) {
+    return file;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 async function guardarDatos() {
   const btn = $('btn-save');
   const pet = val('input-pet').trim();
@@ -408,11 +435,15 @@ async function guardarDatos() {
 
   try {
     if (photoInput.files && photoInput.files[0]) {
-      const file = photoInput.files[0];
-      const fileName = `${tagId}_${Date.now()}.${file.name.split('.').pop()}`;
-      const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false });
-      if (!uploadError) photoPublicUrl = client.storage.from('pet-photos').getPublicUrl(fileName).data.publicUrl;
-    }
+  const file = await comprimirImagen(photoInput.files[0]);
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+    throw new Error('Formato de imagen no compatible. Usa una foto JPG o PNG.');
+  }
+  const fileName = `${tagId}_${Date.now()}.${file.name.split('.').pop().toLowerCase()}`;
+  const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false, contentType: file.type });
+  if (uploadError) throw new Error('No se pudo subir la foto: ' + uploadError.message);
+  photoPublicUrl = client.storage.from('pet-photos').getPublicUrl(fileName).data.publicUrl;
+}
     const v = id => val(id).trim();
     const { data: res, error: dbError } = await client.rpc('guardar_mascota', {
       p_id: tagId, p_pin: finalPin, p_codigo: val('input-codigo').trim() || null,
