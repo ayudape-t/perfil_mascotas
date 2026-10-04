@@ -417,6 +417,7 @@ const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
 petData = data;
 { const t = String(data.phone || '').replace(/\D/g, ''); data.phone = (t.length === 9 && t[0] === '9') ? '51' + t : t; }
 document.getElementById('app-container').classList.remove('hidden');
+        avisarEscaneo();
 document.getElementById('pet-name').innerText = (data.pet || '').toUpperCase();
 document.getElementById('owner-name').innerText = data.owner;
 
@@ -574,6 +575,7 @@ document.getElementById('owner-name').innerText = data.owner;
       const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
       const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
       if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
+      if (!error) avisarEscaneo(lat, lon);
     }
 
     function enviarUbicacionGPS() {
@@ -636,6 +638,13 @@ document.getElementById('owner-name').innerText = data.owner;
   u.hash = '';
   u.searchParams.set('id', tagId);
   new QRCode(box, { text: u.toString(), width: tam, height: tam, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+}
+    async function avisarEscaneo(lat, lon) {
+  if (!tagId || localStorage.getItem(`dueno_${tagId}`)) return;
+  const clave = lat != null ? `avisado_gps_${tagId}` : `avisado_${tagId}`;
+  if (sessionStorage.getItem(clave)) return;
+  sessionStorage.setItem(clave, '1');
+  try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon } }); } catch (e) {}
 }
 async function descargarCarnetDigital() {
   const carnet = document.getElementById('carnet-digital');
@@ -873,6 +882,7 @@ async function validarPINModal() {
   if (error) { alert("❌ No se pudo verificar el PIN. Intenta de nuevo."); return; }
   if (estado === 'ok') {
     sessionStorage.setItem(`pin_${tagId}`, input);
+    localStorage.setItem(`dueno_${tagId}`, '1');
     window.location.href = `registro.html?id=${tagId}${destinoPIN}`;
   } else if (estado === 'bloqueado') {
     alert("⏳ Demasiados intentos. Espera 15 minutos o contacta a soporte.");
