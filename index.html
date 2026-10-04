@@ -26,6 +26,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     .paw-dark-body {
@@ -365,7 +366,10 @@
         <div><span class="text-red-500 block text-[9px] uppercase font-bold">Edad / Peso</span><span id="poster-age-weight">--</span></div>
       </div>
 
-      <p class="relative z-10 text-[9px] font-bold text-slate-400 uppercase tracking-widest pt-1">Placa Inteligente • Helpet</p>
+      <div class="relative z-10 flex items-center justify-center gap-3 pt-1">
+  <div id="poster-qr" class="bg-white p-1 rounded-lg border border-red-200"></div>
+  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide text-left leading-tight">Escanea para ver<br>el perfil y contactar<br><span class="text-slate-400 text-[9px]">Placa Inteligente • Helpet</span></p>
+</div>
     </div>
   </div>
 
@@ -623,6 +627,16 @@ document.getElementById('owner-name').innerText = data.owner;
         alert("¡Enlace del perfil copiado al portapapeles!");
       }
     }
+    function crearQR(idContenedor, tam) {
+  const box = document.getElementById(idContenedor);
+  if (!box || typeof QRCode === 'undefined') return;
+  box.innerHTML = '';
+  const u = new URL(window.location.href);
+  u.search = '';
+  u.hash = '';
+  u.searchParams.set('id', tagId);
+  new QRCode(box, { text: u.toString(), width: tam, height: tam, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+}
 async function descargarCarnetDigital() {
   const carnet = document.getElementById('carnet-digital');
   if (!carnet) return;
@@ -631,6 +645,7 @@ async function descargarCarnetDigital() {
   document.getElementById('carnet-nombre').textContent = petData.pet || 'Mascota';
   document.getElementById('carnet-raza').textContent = [petData.breed, petData.color].filter(Boolean).join(' • ');
   document.getElementById('carnet-id').textContent = tagId;
+  crearQR('carnet-qrcode', 110);
  if (petData.photo) {
   const im = document.getElementById('carnet-img');
   if (im.src !== petData.photo) {
