@@ -1,41 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-  <!-- Fuentes: DynaPuff (Nombre) + Fredoka (Información y Dueño) -->
-<link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- Fuente estilo letra inflada (DynaPuff) -->
-
-  <!-- Logo personalizado para la pestaña y el menú de compartir -->
-<!-- Favicon corregido a .jpg -->
-<link rel="icon" type="image/jpeg" href="logo.jpg">
-<link rel="apple-touch-icon" href="logo.jpg">
-<!-- Vista previa de imagen para redes y Android (Open Graph) -->
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
+  <title>Helpet - Perfil de Mascota</title>
+
+  <!-- Vista previa al compartir (WhatsApp / redes) -->
   <meta property="og:title" content="Helpet - Placa Inteligente de Seguridad">
   <meta property="og:description" content="Perfil oficial y ficha médica de mascota protegida por Helpet.">
-  <meta property="og:image" content="https://i.pinimg.com/736x/83/bc/1b/83bc1bfef9159ca06e3e1968bb6d8ec7.jpg">
+  <meta property="og:image" content="https://ayudape-t.github.io/perfil_mascotas/logo.jpg">
   <meta property="og:type" content="website">
-  <title>Helpet - Perfil de Mascota</title>
+
+  <!-- Logo para la pestaña y el menú de compartir -->
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="apple-touch-icon" href="logo.jpg">
+
+  <!-- Fuentes: DynaPuff (Nombre) + Fredoka (Información y Dueño) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     .paw-dark-body {
       background-color: #0b0f19;
-      background-image: url("https://i.pinimg.com/736x/00/b2/29/00b22968d5ce27e79bcbc58873848f49.jpg");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23334155' opacity='0.3'%3E%3Cpath d='M30 18c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Cpath d='M80 68c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3C/g%3E%3C/svg%3E");
     }
     .card-bones-pattern {
       background-color: #f8fafc;
-      background-image: url("https://i.pinimg.com/736x/14/a4/f2/14a4f244fc90529795659f2f1c138d88.jpg");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%2394a3b8' opacity='0.25'%3E%3Cpath d='M30 18c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Cpath d='M88 28c-1.2-1.2-3.1-1.2-4.2 0l-2.1 2.1-12.8-12.8 2.1-2.1c1.2-1.2 1.2-3.1 0-4.2-1.2-1.2-3.1-1.2-4.2 0l-1.5 1.5c-.8-.5-1.8-.4-2.5.3-1.2 1.2-1.2 3.1 0 4.2l12.8 12.8c1.2 1.2 3.1 1.2 4.2 0 .7-.7.8-1.7.3-2.5l1.5-1.5c1.1-1.1 1.1-3 0-4.2z'/%3E%3Ccircle cx='20' cy='85' r='4'/%3E%3Cpath d='M28 88c-1.2-1.2-3.1-1.2-4.2 0l-2.1 2.1-12.8-12.8 2.1-2.1c1.2-1.2 1.2-3.1 0-4.2-1.2-1.2-3.1-1.2-4.2 0l-1.5 1.5c-.8-.5-1.8-.4-2.5.3-1.2 1.2-1.2 3.1 0 4.2l12.8 12.8c1.2 1.2 3.1 1.2 4.2 0 .7-.7.8-1.7.3-2.5l1.5-1.5c1.1-1.1 1.1-3 0-4.2z'/%3E%3Cpath d='M90 78c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Ccircle cx='85' cy='20' r='3.5'/%3E%3C/g%3E%3C/svg%3E");
     }
     .poster-paws-bg {
       background-color: #ffffff;
@@ -72,7 +71,7 @@
 
   <!-- Tarjeta Principal del Perfil -->
   <main id="app-container" class="hidden card-bones-pattern rounded-3xl shadow-2xl overflow-hidden max-w-sm w-full border border-slate-200/80 transition-all my-4">
-    
+
     <div id="header-bg" class="relative h-48 w-full overflow-hidden flex items-start justify-center pt-3 border-b border-amber-200/50 bg-slate-900">
       <img src="https://i.pinimg.com/736x/83/bc/1b/83bc1bfef9159ca06e3e1968bb6d8ec7.jpg" alt="Comunidad Mascotas" class="absolute inset-0 w-full h-full object-cover object-bottom">
       <div class="absolute inset-0 bg-gradient-to-b from-amber-950/30 via-transparent to-transparent"></div>
@@ -83,10 +82,10 @@
 
     <div class="relative -mt-16 text-center flex justify-center z-20">
       <div class="relative">
-        <img id="pet-photo" 
-             onclick="abrirFotoGrande()" 
-             src="https://images.unsplash.com/photo-1543466835-00a7907e9de1" 
-             alt="Foto Mascota" 
+        <img id="pet-photo"
+             onclick="abrirFotoGrande()"
+             src="https://images.unsplash.com/photo-1543466835-00a7907e9de1"
+             alt="Foto Mascota"
              class="w-40 h-40 rounded-full border-4 border-white shadow-xl object-cover bg-slate-200 cursor-pointer hover:scale-105 transition-transform">
         <span id="status-indicator" class="absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md" title="Placa Activa"></span>
       </div>
@@ -94,124 +93,115 @@
 
     <div class="p-6 pt-4 text-center space-y-4">
       <div>
-       <!-- Contenedor del nombre con estilo inflado -->
-<h1 id="pet-name" 
-    class="text-4xl font-extrabold uppercase text-slate-800 tracking-wider -mt-2 text-center" 
-    style="font-family: 'DynaPuff', cursive; text-shadow: 2px 2px 0px #fff, 4px 4px 0px #cbd5e1, 6px 6px 10px rgba(0,0,0,0.15);">
-    <!-- El JavaScript insertará aquí el nombre que escribió el dueño -->
-</h1>
+        <!-- Nombre con estilo inflado -->
+        <h1 id="pet-name"
+            class="text-4xl font-extrabold uppercase text-slate-800 tracking-wider -mt-2 text-center"
+            style="font-family: 'DynaPuff', cursive; text-shadow: 2px 2px 0px #fff, 4px 4px 0px #cbd5e1, 6px 6px 10px rgba(0,0,0,0.15);">
+        </h1>
         <p id="sub-status" class="text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2">Mascota Feliz & Amada 🐾</p>
       </div>
-<!-- ======================================= -->
-<!-- ZONA DE SALUD Y CARNET DIGITAL          -->
-<!-- ======================================= -->
-<div class="mt-6 border-t border-slate-100 pt-5 space-y-4">
-  
-  <!-- 1. El Semáforo (Visible en la web, justo arriba del carnet/botón) -->
-  <div class="flex flex-col items-center justify-center">
-    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Estado Clínico</h4>
-    <div id="vaccine-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm">
-      <span id="badge-dot" class="w-2.5 h-2.5 rounded-full animate-pulse"></span>
-      <span id="badge-text">Calculando estado...</span>
-    </div>
-  </div>
 
-  <!-- Botón para Descargar -->
-  <button onclick="descargarCarnetDigital()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg text-xs transition-all flex items-center justify-center gap-2">
-    <i class="fa-solid fa-download"></i> Descargar Carnet Digital (PNG)
-  </button>
+      <!-- ZONA DE SALUD Y CARNET DIGITAL (se oculta en modo perdido) -->
+      <div id="health-zone" class="mt-6 border-t border-slate-100 pt-5 space-y-4">
 
-  <!-- 2. Tarjeta Carnet Digital Oculta (Diseño que se exporta con el semáforo dentro) -->
-  <div id="carnet-digital" class="w-[350px] bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden hidden" style="font-family: 'Fredoka', sans-serif;">
-    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-    
-    <div class="flex items-center justify-between border-b border-white/20 pb-4 mb-4">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-shield-dog text-2xl"></i>
-        <span class="font-extrabold tracking-wider text-lg">HELPET ID</span>
+        <div class="flex flex-col items-center justify-center">
+          <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Estado Clínico</h4>
+          <div id="vaccine-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm">
+            <span id="badge-dot" class="w-2.5 h-2.5 rounded-full animate-pulse"></span>
+            <span id="badge-text">Calculando estado...</span>
+          </div>
+        </div>
+
+        <button onclick="descargarCarnetDigital()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg text-xs transition-all flex items-center justify-center gap-2">
+          <i class="fa-solid fa-download"></i> Descargar Carnet Digital (PNG)
+        </button>
+
+        <!-- Carnet oculto (se exporta con el semáforo dentro) -->
+        <div id="carnet-digital" class="w-[350px] bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden hidden" style="font-family: 'Fredoka', sans-serif;">
+          <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+
+          <div class="flex items-center justify-between border-b border-white/20 pb-4 mb-4">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-shield-dog text-2xl"></i>
+              <span class="font-extrabold tracking-wider text-lg">HELPET ID</span>
+            </div>
+            <span id="carnet-status-pill" class="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md">Calculando...</span>
+          </div>
+
+          <div class="flex items-center gap-4 mb-4">
+            <img id="carnet-img" src="" alt="Mascota" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 shadow-md">
+            <div>
+              <h2 id="carnet-nombre" class="text-xl font-bold leading-tight"></h2>
+              <p id="carnet-raza" class="text-xs text-white/80 mt-0.5"></p>
+              <p class="text-[11px] bg-black/20 inline-block px-2 py-0.5 rounded-lg mt-2 font-mono">ID: <span id="carnet-id"></span></p>
+            </div>
+          </div>
+
+          <div class="bg-white text-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 mt-4">
+            <div class="text-[10px] space-y-0.5">
+              <p class="font-bold text-slate-900">Escanea para emergencias</p>
+              <p class="text-slate-500">Acceso directo al perfil.</p>
+            </div>
+            <div id="carnet-qrcode" class="bg-slate-100 p-1.5 rounded-xl"></div>
+          </div>
+        </div>
+
       </div>
-      <!-- Esta pastilla cambia de color según el semáforo al exportar -->
-      <span id="carnet-status-pill" class="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md">Calculando...</span>
-    </div>
 
-    <div class="flex items-center gap-4 mb-4">
-      <img id="carnet-img" src="" alt="Mascota" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 shadow-md">
-      <div>
-        <h2 id="carnet-nombre" class="text-xl font-bold leading-tight"></h2>
-        <p id="carnet-raza" class="text-xs text-white/80 mt-0.5"></p>
-        <p class="text-[11px] bg-black/20 inline-block px-2 py-0.5 rounded-lg mt-2 font-mono">ID: <span id="carnet-id"></span></p>
+      <!-- Ficha Técnica -->
+      <div id="pet-tech-sheet" class="grid grid-cols-2 gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-slate-200/80 shadow-sm" style="font-family: 'Fredoka', sans-serif;">
+
+        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-dog text-amber-500 mr-1"></i> Raza</p>
+          <p id="pet-breed" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
+        </div>
+
+        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-palette text-amber-500 mr-1"></i> Color</p>
+          <p id="pet-color" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
+        </div>
+
+        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-weight-scale text-amber-500 mr-1"></i> Peso</p>
+          <p id="pet-weight" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
+        </div>
+
+        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-cake-candles text-amber-500 mr-1"></i> Edad</p>
+          <p id="pet-age" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
+        </div>
+
       </div>
-    </div>
 
-    <div class="bg-white text-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 mt-4">
-      <div class="text-[10px] space-y-0.5">
-        <p class="font-bold text-slate-900">Escanea para emergencias</p>
-        <p class="text-slate-500">Acceso directo al historial médico.</p>
-      </div>
-      <div id="carnet-qrcode" class="bg-slate-100 p-1.5 rounded-xl"></div>
-    </div>
-  </div>
-
-</div>
-      <!-- Ficha Técnica (Compacta pero con texto grande) -->
-<div id="pet-tech-sheet" class="grid grid-cols-2 gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-slate-200/80 shadow-sm" style="font-family: 'Fredoka', sans-serif;">
-  
-  <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-dog text-amber-500 mr-1"></i> Raza</p>
-    <p id="pet-breed" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
-  </div>
-
-  <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-palette text-amber-500 mr-1"></i> Color</p>
-    <p id="pet-color" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
-  </div>
-
-  <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-weight-scale text-amber-500 mr-1"></i> Peso</p>
-    <p id="pet-weight" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
-  </div>
-
-  <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-cake-candles text-amber-500 mr-1"></i> Edad</p>
-    <p id="pet-age" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
-  </div>
-
-</div>
-     <!-- BOTÓN COMPACTO DE FICHA MÉDICA (Reemplaza al bloque desplegado) -->
-<button id="btn-medical-history" 
-        onclick="abrirModalMedico()" 
-        class="w-full py-3 px-4 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-2xl flex items-center justify-between text-amber-900 font-bold text-sm shadow-sm transition-all my-3 hidden"
-        style="font-family: 'Fredoka', sans-serif;">
-  <span class="flex items-center gap-2">
-    <i class="fa-solid fa-file-medical text-amber-600 text-base"></i>
-    Ficha Médica & Vacunas
-  </span>
-  <i class="fa-solid fa-chevron-right text-xs text-amber-600"></i>
-</button>
+      <!-- Botón compacto de ficha médica (solo si el dueño activó "mostrar ficha médica") -->
+      <button id="btn-medical-history"
+              onclick="abrirModalMedico()"
+              class="w-full py-3 px-4 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-2xl flex items-center justify-between text-amber-900 font-bold text-sm shadow-sm transition-all my-3 hidden"
+              style="font-family: 'Fredoka', sans-serif;">
+        <span class="flex items-center gap-2">
+          <i class="fa-solid fa-file-medical text-amber-600 text-base"></i>
+          Ficha Médica & Vacunas
+        </span>
+        <i class="fa-solid fa-chevron-right text-xs text-amber-600"></i>
+      </button>
 
       <!-- Datos Dueño -->
-      <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 text-left space-y-2 shadow-sm">
+      <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 text-left shadow-sm">
         <div class="flex items-center space-x-3 text-slate-700">
           <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-sm">
             <i class="fa-solid fa-user-shield"></i>
           </div>
           <div>
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dueño / Responsable</p>
-            <!-- Nombre del dueño -->
-<p id="owner-name" 
-   class="text-sm font-bold text-amber-800 uppercase tracking-widest text-center mb-4" 
-   style="font-family: 'Fredoka', sans-serif;">
-   <!-- El nombre del dueño cargado por JS -->
-</p>
+            <p id="owner-name" class="text-sm font-bold text-amber-800 uppercase tracking-widest" style="font-family: 'Fredoka', sans-serif;"></p>
           </div>
-          <!-- Grid de Detalles con texto más grande y mejor espacio -->
-<div class="grid grid-cols-2 gap-3.5 my-5" style="font-family: 'Fredoka', sans-serif;">
         </div>
       </div>
+
       <!-- Botones de Contacto -->
       <div class="space-y-3 pt-1">
-        
-        <a id="btn-whatsapp" href="#" target="_blank" class="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-emerald-500/20 transition-all active:scale-[0.98]">
+
+        <a id="btn-whatsapp" href="#" target="_blank" rel="noopener" class="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-emerald-500/20 transition-all active:scale-[0.98]">
           <i class="fa-brands fa-whatsapp text-xl"></i> Escribir por WhatsApp
         </a>
 
@@ -219,15 +209,16 @@
           <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
         </a>
 
-        <!-- Contacto Secundario (Si está registrado) -->
+        <!-- Contacto Secundario (solo si el dueño lo hizo público) -->
         <a id="btn-call-secondary" href="#" class="hidden w-full py-3.5 px-4 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md transition-all active:scale-[0.98]">
           <i class="fa-solid fa-phone-volume text-lg"></i> Llamar a Contacto Secundario
         </a>
 
-        <!-- Botón GPS: Oculto por defecto, sólo visible si is_lost === true -->
-        <button id="btn-gps" onclick="enviarUbicacionGPS()" class="hidden w-full py-3.5 px-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-sky-500/20 transition-all active:scale-[0.98]">
-          <i class="fa-solid fa-location-dot text-lg text-white"></i> <span>Enviar mi Ubicación GPS por WhatsApp</span>
+        <!-- Botón GPS: visible siempre; el permiso se pide solo al tocarlo -->
+        <button id="btn-gps" onclick="enviarUbicacionGPS()" class="w-full py-3.5 px-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-sky-500/20 transition-all active:scale-[0.98]">
+          <i class="fa-solid fa-location-dot text-lg text-white"></i> <span>Encontré a esta mascota: enviar mi ubicación</span>
         </button>
+        <p id="gps-note" class="text-[10px] text-slate-500 text-center -mt-1 px-2">Al tocar el botón compartirás tu ubicación con el dueño y se abrirá WhatsApp.</p>
 
         <!-- Separador de sección -->
         <div class="relative my-3 flex py-1 items-center">
@@ -236,12 +227,12 @@
           <div class="flex-grow border-t border-slate-300/70"></div>
         </div>
 
-        <!-- Botón Afiche (Estilo limpio blanco/rojo) -->
+        <!-- Botón Afiche -->
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 px-4 bg-white hover:bg-rose-50 text-rose-600 border-2 border-rose-500 font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-xs transition-all active:scale-[0.98]">
           <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "¡SE BUSCA!"
         </button>
 
-        <!-- Botón Compartir Perfil (Estilo limpio blanco/gris) -->
+        <!-- Botón Compartir Perfil -->
         <button id="btn-share-profile" onclick="compartirPerfil()" class="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-xs transition-all active:scale-[0.98]">
           <i class="fa-solid fa-share-nodes text-lg"></i> Compartir Perfil de Mascota
         </button>
@@ -302,7 +293,7 @@
         <h3 class="text-lg font-bold text-slate-900">Verificación del Dueño</h3>
         <p class="text-xs text-slate-500 mt-1">Ingresa tu PIN de 4 dígitos para editar la información.</p>
       </div>
-      <input type="password" id="modal-pin-input" maxlength="4" placeholder="••••" pattern="[0-9]{4}" class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
+      <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" placeholder="••••" pattern="[0-9]{4}" class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
       <button onclick="validarPINModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all">Ingresar</button>
       <button type="button" onclick="recuperarPIN()" class="text-xs text-amber-600 hover:underline font-semibold block mx-auto pt-1">¿Olvidaste tu PIN? Contactar Soporte</button>
     </div>
@@ -338,12 +329,12 @@
 
       <div class="relative z-10 space-y-1.5 text-slate-800 text-sm font-semibold px-2 leading-relaxed">
         <p>
-          Nuestro amigo <span id="poster-pet-name" class="font-black text-slate-900 text-base">---</span> 
-          se perdió <span id="poster-lost-where">en la zona</span> 
-          <span id="poster-lost-when">recientemente</span>. 
+          Nuestro amigo <span id="poster-pet-name" class="font-black text-slate-900 text-base">---</span>
+          se perdió <span id="poster-lost-where">en la zona</span>
+          <span id="poster-lost-when">recientemente</span>.
           Agradecemos cualquier información oportuna que nos ayude a localizarlo.
         </p>
-        
+
         <p id="poster-reward-text" class="font-black text-red-600 text-sm hidden pt-1">
           🎁 ¡Se ofrece recompensa!
         </p>
@@ -367,9 +358,9 @@
       </div>
 
       <div class="relative z-10 flex items-center justify-center gap-3 pt-1">
-  <div id="poster-qr" class="bg-white p-1 rounded-lg border border-red-200"></div>
-  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide text-left leading-tight">Escanea para ver<br>el perfil y contactar<br><span class="text-slate-400 text-[9px]">Placa Inteligente • Helpet</span></p>
-</div>
+        <div id="poster-qr" class="bg-white p-1 rounded-lg border border-red-200"></div>
+        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide text-left leading-tight">Escanea para ver<br>el perfil y contactar<br><span class="text-slate-400 text-[9px]">Placa Inteligente • Helpet</span></p>
+      </div>
     </div>
   </div>
 
@@ -389,231 +380,235 @@
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let petData = null;
-    let tagId = 'PET-001';
-    let ubicacionCapturada = null;
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
+    let tagId = '';
+    let historial = null;
+    let posterBlobPromise = null;
+    let destinoPIN = '';
+
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const soloDigitos = v => String(v || '').replace(/\D/g, '');
+    const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
+    const fmtTel = p => {
+      const t = soloDigitos(p);
+      if (!t) return '---';
+      return (t.length === 11 && t.startsWith('51')) ? `+51 ${t.slice(2, 5)} ${t.slice(5, 8)} ${t.slice(8)}` : '+' + t;
+    };
+    const fmtFecha = iso => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+      return m ? `${m[3]}/${m[2]}/${m[1]}` : String(iso || '');
+    };
+    const diasHasta = iso => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+      if (!m) return null;
+      const d = new Date();
+      const hoy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      return Math.round((new Date(+m[1], +m[2] - 1, +m[3]) - hoy) / 86400000);
+    };
+
+    // Librerías pesadas: se cargan solo cuando se usan
+    const LIB_QR = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    const LIB_H2C = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    const _libs = {};
+    function cargarLib(src) {
+      if (!_libs[src]) {
+        _libs[src] = new Promise((ok, fail) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.onload = ok;
+          s.onerror = () => { delete _libs[src]; fail(new Error('No se pudo cargar una librería. Revisa tu conexión.')); };
+          document.head.appendChild(s);
+        });
+      }
+      return _libs[src];
+    }
+
+    function mostrarTarjetaPlaca(titulo, texto) {
+      const card = $('unregistered-card');
+      card.querySelector('h2').textContent = titulo;
+      card.querySelector('p').textContent = texto;
+      $('link-register').classList.add('hidden');
+      card.classList.remove('hidden');
+    }
+
     async function cargarPerfil() {
-      const urlParams = new URLSearchParams(window.location.search);
-      tagId = urlParams.get('id') || '';
+      tagId = new URLSearchParams(window.location.search).get('id') || '';
 
       try {
         const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
 
-       if (error || !data) {
-  const { data: est } = tagId ? await db.rpc('estado_placa', { p_id: tagId }) : { data: 'invalida' };
-  if (est === 'sin_activar') {
-    document.getElementById('link-register').href = `registro.html?id=${encodeURIComponent(tagId)}`;
-  } else {
-    const card = document.getElementById('unregistered-card');
-    card.querySelector('h2').textContent = 'Placa no válida';
-    card.querySelector('p').textContent = 'Este código no corresponde a una placa Helpet. Revisa el enlace o escribe a soporte.';
-    document.getElementById('link-register').classList.add('hidden');
-  }
-  document.getElementById('unregistered-card').classList.remove('hidden');
-  return;
-}
-       // Variable data recibida de Supabase
-petData = data;
-{ const t = String(data.phone || '').replace(/\D/g, ''); data.phone = (t.length === 9 && t[0] === '9') ? '51' + t : t; }
-document.getElementById('app-container').classList.remove('hidden');
-        avisarEscaneo();
-document.getElementById('pet-name').innerText = (data.pet || '').toUpperCase();
-document.getElementById('owner-name').innerText = data.owner;
+        if (error) {
+          mostrarTarjetaPlaca('Sin conexión', 'No se pudo cargar el perfil. Revisa tu internet e intenta de nuevo.');
+          return;
+        }
+        if (!data) {
+          const { data: est } = tagId ? await db.rpc('estado_placa', { p_id: tagId }) : { data: 'invalida' };
+          if (est === 'sin_activar') {
+            $('link-register').href = `registro.html?id=${encodeURIComponent(tagId)}`;
+            $('unregistered-card').classList.remove('hidden');
+          } else {
+            mostrarTarjetaPlaca('Placa no válida', 'Este código no corresponde a una placa Helpet. Revisa el enlace o escribe a soporte.');
+          }
+          return;
+        }
 
-// ==========================================
+        petData = data;
+        petData.phone = soloDigitos(data.phone);
+        if (petData.phone.length === 9 && petData.phone[0] === '9') petData.phone = '51' + petData.phone;
+
+        $('app-container').classList.remove('hidden');
+        avisarEscaneo();
+        $('pet-name').textContent = (data.pet || '').toUpperCase();
+        $('owner-name').textContent = data.owner || '';
+
+        // ==========================================
         // CONTROL DE PRIVACIDAD / MODO PERDIDO VS SEGURO
         // ==========================================
         const isLost = data.is_lost || false;
 
-        // Referencias a contenedores
-        const techSheet = document.getElementById('pet-tech-sheet');      // Ficha técnica (raza, color, peso, edad)
-        const btnMedical = document.getElementById('btn-medical-history'); // Botón modal médico
-        const healthCard = document.getElementById('health-card');        // Carnet de vacunas/desparasitaciones
-        const medicalCard = document.getElementById('medical-card');      // Ficha de alergias/dieta/vet
-        const lostAlertBanner = document.getElementById('lost-alert-banner');
-        const btnAfiche = document.getElementById('btn-afiche');
-        const btnGps = document.getElementById('btn-gps');
-        const subStatusEl = document.getElementById('sub-status');
-        const badge = document.getElementById('header-status-badge');
-        const statusIndicator = document.getElementById('status-indicator');
+        const techSheet = $('pet-tech-sheet');
+        const btnMedical = $('btn-medical-history');
+        const healthZone = $('health-zone');
+        const healthCard = $('health-card');
+        const medicalCard = $('medical-card');
+        const lostAlertBanner = $('lost-alert-banner');
+        const btnAfiche = $('btn-afiche');
+        const subStatusEl = $('sub-status');
+        const badge = $('header-status-badge');
+        const statusIndicator = $('status-indicator');
 
-        // Foto principal
-        if (data.photo) document.getElementById('pet-photo').src = data.photo;
+        if (data.photo) $('pet-photo').src = data.photo;
 
         // Botones de contacto principales
         const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
-        document.getElementById('btn-whatsapp').href = `https://wa.me/${data.phone}?text=${mensajeWA}`;
-        document.getElementById('btn-call').href = `tel:${data.phone}`;
+        $('btn-whatsapp').href = `https://wa.me/${petData.phone}?text=${mensajeWA}`;
+        $('btn-call').href = `tel:+${petData.phone}`;
 
-        // Contacto secundario
-        if (data.phone_secondary) {
-          const btnSec = document.getElementById('btn-call-secondary');
-          if (btnSec) {
-            btnSec.href = `tel:${data.phone_secondary}`;
-            btnSec.classList.remove('hidden');
-          }
+        // Contacto secundario (solo llega si el dueño lo hizo público)
+        const tel2 = soloDigitos(data.phone_secondary);
+        if (tel2) {
+          const btnSec = $('btn-call-secondary');
+          btnSec.href = `tel:+${tel2}`;
+          btnSec.classList.remove('hidden');
         }
 
         if (isLost) {
-          // 🔴 MODO PERDIDO: Ocultar Ficha Técnica, Carnet de Salud, Ficha Médica y Botón
+          // 🔴 MODO PERDIDO: solo contacto + emergencia
           if (techSheet) techSheet.classList.add('hidden');
           if (btnMedical) btnMedical.classList.add('hidden');
+          if (healthZone) healthZone.classList.add('hidden');
           if (healthCard) healthCard.classList.add('hidden');
           if (medicalCard) medicalCard.classList.add('hidden');
 
-          // Mostrar elementos de Emergencia / Pérdida
           if (lostAlertBanner) lostAlertBanner.classList.remove('hidden');
           if (btnAfiche) btnAfiche.classList.remove('hidden');
-          if (btnGps) btnGps.classList.remove('hidden');
 
-          // Estilos visuales de Alerta Roja
           if (badge) {
             badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
             badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
           }
-
           if (subStatusEl) {
             subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
-            subStatusEl.innerText = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
+            subStatusEl.textContent = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
           }
-
           if (statusIndicator) {
             statusIndicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
           }
 
-          pedirUbicacionAlCargar();
-
         } else {
-          // 🟢 MODO SEGURO: Mostrar Ficha Técnica y Botón Médico
+          // 🟢 MODO SEGURO
           if (techSheet) techSheet.classList.remove('hidden');
-          if (btnMedical) btnMedical.classList.remove('hidden');
+          if (healthZone) healthZone.classList.remove('hidden');
+          // El historial de vacunas solo se ofrece si el dueño activó "mostrar ficha médica"
+          if (btnMedical && data.mostrar_ficha) btnMedical.classList.remove('hidden');
 
-          // Ocultar elementos de alerta
           if (lostAlertBanner) lostAlertBanner.classList.add('hidden');
           if (btnAfiche) btnAfiche.classList.add('hidden');
-          if (btnGps) btnGps.classList.add('hidden');
 
-          // Llenar Ficha Técnica
-          document.getElementById('pet-breed').innerText = data.breed || 'No especificada';
-          document.getElementById('pet-color').innerText = data.color || 'No especificado';
-          document.getElementById('pet-weight').innerText = fmtPeso(data.weight) || 'No especificado';
-          document.getElementById('pet-age').innerText = data.age || 'No especificada';
+          $('pet-breed').textContent = data.breed || 'No especificada';
+          $('pet-color').textContent = data.color || 'No especificado';
+          $('pet-weight').textContent = fmtPeso(data.weight) || 'No especificado';
+          $('pet-age').textContent = data.age || 'No especificada';
 
-          // Carnet Digital de Salud (Vacunas y Desparasitaciones)
+          // Carnet Digital de Salud (próximas fechas)
           let tieneControlSalud = false;
           if (data.next_vaccine) {
-            document.getElementById('row-vaccine').classList.remove('hidden');
-            document.getElementById('txt-vaccine').innerText = data.next_vaccine;
+            $('row-vaccine').classList.remove('hidden');
+            $('txt-vaccine').textContent = fmtFecha(data.next_vaccine);
             tieneControlSalud = true;
           }
           if (data.next_deworming) {
-            document.getElementById('row-deworming').classList.remove('hidden');
-            document.getElementById('txt-deworming').innerText = data.next_deworming;
+            $('row-deworming').classList.remove('hidden');
+            $('txt-deworming').textContent = fmtFecha(data.next_deworming);
             tieneControlSalud = true;
           }
           if (tieneControlSalud && healthCard) healthCard.classList.remove('hidden');
 
-          // Ficha Médica Básica (Alergias, Notas, Dieta, Vet)
+          // Ficha médica básica (alergias siempre; notas, dieta y vet solo si el dueño lo activó)
           let tieneDatosMedicos = false;
-          if (data.allergies) { document.getElementById('row-allergies').classList.remove('hidden'); document.getElementById('txt-allergies').innerText = data.allergies; tieneDatosMedicos = true; }
-          if (data.medical_notes) { document.getElementById('row-medical').classList.remove('hidden'); document.getElementById('txt-medical').innerText = data.medical_notes; tieneDatosMedicos = true; }
-          if (data.diet) { document.getElementById('row-diet').classList.remove('hidden'); document.getElementById('txt-diet').innerText = data.diet; tieneDatosMedicos = true; }
-          if (data.vet_phone) {
-            document.getElementById('row-vet').classList.remove('hidden');
-            document.getElementById('btn-vet-call').href = `tel:${data.vet_phone}`;
-            if (data.vet_name) document.getElementById('txt-vet-name').innerText = `Llamar a ${data.vet_name}`;
+          if (data.allergies) { $('row-allergies').classList.remove('hidden'); $('txt-allergies').textContent = data.allergies; tieneDatosMedicos = true; }
+          if (data.medical_notes) { $('row-medical').classList.remove('hidden'); $('txt-medical').textContent = data.medical_notes; tieneDatosMedicos = true; }
+          if (data.diet) { $('row-diet').classList.remove('hidden'); $('txt-diet').textContent = data.diet; tieneDatosMedicos = true; }
+          const telVet = soloDigitos(data.vet_phone);
+          if (telVet) {
+            $('row-vet').classList.remove('hidden');
+            $('btn-vet-call').href = `tel:+${telVet}`;
+            if (data.vet_name) $('txt-vet-name').textContent = `Llamar a ${data.vet_name}`;
             tieneDatosMedicos = true;
           }
           if (tieneDatosMedicos && medicalCard) medicalCard.classList.remove('hidden');
 
-          // Estilos visuales normales
           if (badge) {
             badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
             badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
           }
-
           if (subStatusEl) {
             subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
-            if (data.description && data.description.trim() !== '') {
-              subStatusEl.innerText = data.description;
-            } else {
-              subStatusEl.innerText = "Mascota Feliz & Amada 🐾";
-            }
+            subStatusEl.textContent = (data.description && data.description.trim() !== '') ? data.description : "Mascota Feliz & Amada 🐾";
           }
-
           if (statusIndicator) {
             statusIndicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
           }
+
+          cargarHistorialMedico();
         }
       } catch (err) { console.error("Error al cargar:", err); }
     }
 
-    function pedirUbicacionAlCargar() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            ubicacionCapturada = `https://maps.google.com/?q=${lat},${lon}`;
-
-            await guardarEscaneoSilencioso(lat, lon);
-
-            const btnGPS = document.getElementById('btn-gps');
-            if (btnGPS) {
-              btnGPS.className = "w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all animate-bounce";
-              btnGPS.innerHTML = `<i class="fa-solid fa-circle-check text-xl text-yellow-300"></i> <span>📍 Ubicación capturada: Toca para enviar a WhatsApp</span>`;
-            }
-          },
-          (error) => { console.log("Permiso GPS no otorgado al iniciar."); },
-          { enableHighAccuracy: false, timeout: 6000, maximumAge: 0 }
-        );
-      }
-    }
-
     async function guardarEscaneoSilencioso(lat, lon) {
-      const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
       const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
       if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
-      if (!error) avisarEscaneo(lat, lon);
+      else await avisarEscaneo(lat, lon);
     }
 
+    // El permiso de ubicación se pide solo al tocar el botón (y el texto avisa a quién se envía)
     function enviarUbicacionGPS() {
-      if (ubicacionCapturada) {
-        const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${ubicacionCapturada}`);
-        window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
-      } else {
-        const btn = document.getElementById('btn-gps');
-        const textoOriginal = btn ? btn.innerHTML : '';
-        if (btn) {
-          btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
-          btn.disabled = true;
-        }
+      if (!petData) return;
+      const btn = $('btn-gps');
+      const textoOriginal = btn.innerHTML;
+      const restaurar = () => { btn.innerHTML = textoOriginal; btn.disabled = false; };
 
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const lat = position.coords.latitude;
-              const lon = position.coords.longitude;
-              const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-              
-              guardarEscaneoSilencioso(lat, lon);
-              
-              const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
-              if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-              window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
-            },
-            () => {
-              if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-              alert("Por favor habilita el acceso a la ubicación en tu navegador.");
-            },
-            { enableHighAccuracy: false, timeout: 5000, maximumAge: 30000 }
-          );
-        } else {
-          if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
-          alert("Tu navegador no soporta geolocalización.");
-        }
-      }
+      if (!navigator.geolocation) { alert("Tu navegador no soporta geolocalización."); return; }
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
+      btn.disabled = true;
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
+          // Espera el registro y el aviso (máx. 4 s) para que no se corten al abrir WhatsApp
+          await Promise.race([guardarEscaneoSilencioso(lat, lon), new Promise(r => setTimeout(r, 4000))]);
+          restaurar();
+          const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
+          window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
+        },
+        () => {
+          restaurar();
+          alert("Para enviar tu ubicación, permite el acceso a la ubicación en tu navegador.");
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
+      );
     }
 
     async function compartirPerfil() {
@@ -629,71 +624,90 @@ document.getElementById('owner-name').innerText = data.owner;
         alert("¡Enlace del perfil copiado al portapapeles!");
       }
     }
-    function crearQR(idContenedor, tam) {
-  const box = document.getElementById(idContenedor);
-  if (!box || typeof QRCode === 'undefined') return;
-  box.innerHTML = '';
-  const u = new URL(window.location.href);
-  u.search = '';
-  u.hash = '';
-  u.searchParams.set('id', tagId);
-  new QRCode(box, { text: u.toString(), width: tam, height: tam, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
-}
+
+    async function crearQR(idContenedor, tam) {
+      const box = $(idContenedor);
+      if (!box) return;
+      await cargarLib(LIB_QR);
+      box.innerHTML = '';
+      const u = new URL(window.location.href);
+      u.search = '';
+      u.hash = '';
+      u.searchParams.set('id', tagId);
+      new QRCode(box, { text: u.toString(), width: tam, height: tam, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+    }
+
     async function avisarEscaneo(lat, lon) {
-  if (!tagId || localStorage.getItem(`dueno_${tagId}`)) return;
-  const clave = lat != null ? `avisado_gps_${tagId}` : `avisado_${tagId}`;
-  if (sessionStorage.getItem(clave)) return;
-  sessionStorage.setItem(clave, '1');
-  try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon } }); } catch (e) {}
-}
-async function descargarCarnetDigital() {
-  const carnet = document.getElementById('carnet-digital');
-  if (!carnet) return;
+      if (!tagId || localStorage.getItem(`dueno_${tagId}`)) return;
+      const clave = lat != null ? `avisado_gps_${tagId}` : `avisado_${tagId}`;
+      if (sessionStorage.getItem(clave)) return;
+      sessionStorage.setItem(clave, '1');
+      try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon } }); } catch (e) {}
+    }
 
-  // 1. Rellenar datos dinámicos antes de exportar
-  document.getElementById('carnet-nombre').textContent = petData.pet || 'Mascota';
-  document.getElementById('carnet-raza').textContent = [petData.breed, petData.color].filter(Boolean).join(' • ');
-  document.getElementById('carnet-id').textContent = tagId;
-  crearQR('carnet-qrcode', 110);
- if (petData.photo) {
-  const im = document.getElementById('carnet-img');
-  if (im.src !== petData.photo) {
-    im.crossOrigin = 'anonymous';
-    im.src = petData.photo;
-    await new Promise(r => { im.onload = im.onerror = r; });
-  }
-}
-  // Mostrar temporalmente la tarjeta para que html2canvas pueda leerla
-  carnet.classList.remove('hidden');
+    async function descargarCarnetDigital() {
+      const carnet = $('carnet-digital');
+      if (!carnet || !petData) return;
+      try {
+        await Promise.all([cargarLib(LIB_H2C), cargarLib(LIB_QR)]);
+        if (historial === null) await cargarHistorialMedico();
 
-  // 2. Generar captura con html2canvas
-  html2canvas(carnet, { scale: 2, useCORS: true }).then(canvas => {
-    // Volver a ocultar la tarjeta base
-    carnet.classList.add('hidden');
+        $('carnet-nombre').textContent = petData.pet || 'Mascota';
+        $('carnet-raza').textContent = [petData.breed, petData.color].filter(Boolean).join(' • ');
+        $('carnet-id').textContent = tagId;
+        await crearQR('carnet-qrcode', 110);
+        if (petData.photo) {
+          const im = $('carnet-img');
+          if (im.src !== petData.photo) {
+            im.crossOrigin = 'anonymous';
+            im.src = petData.photo;
+            await new Promise(r => { im.onload = im.onerror = r; });
+          }
+        }
 
-    // 3. Crear enlace de descarga automática
-    const link = document.createElement('a');
-    link.download = `Carnet_Helpet_${tagId}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }).catch(err => {
-    console.error("Error al generar carnet:", err);
-    carnet.classList.add('hidden');
-    alert("❌ No se pudo generar la imagen del carnet.");
-  });
-}
+        carnet.classList.remove('hidden');
+        await new Promise(r => setTimeout(r, 80));
+        const canvas = await html2canvas(carnet, { scale: 2, useCORS: true });
+        carnet.classList.add('hidden');
+
+        const link = document.createElement('a');
+        link.download = `Carnet_Helpet_${tagId}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        console.error("Error al generar carnet:", err);
+        carnet.classList.add('hidden');
+        alert("❌ No se pudo generar la imagen del carnet.");
+      }
+    }
+
     function recuperarPIN() {
-      const NUMERO_SOPORTE = '51921512933'; 
-
+      const NUMERO_SOPORTE = '51921512933';
       const msg = encodeURIComponent(`¡Hola! Olvidé el PIN de mi placa Helpet con ID: ${tagId}. Solicito ayuda para recuperarlo.`);
       window.open(`https://wa.me/${NUMERO_SOPORTE}?text=${msg}`, '_blank');
+    }
+
+    // ==========================================
+    // AFICHE "¡SE BUSCA!"
+    // ==========================================
+    const esperarImg = img => new Promise(r => {
+      if (img.complete && img.naturalWidth) return r();
+      img.onload = img.onerror = () => r();
+    });
+
+    async function generarAficheBlob() {
+      await Promise.all([cargarLib(LIB_H2C), crearQR('poster-qr', 72)]);
+      await esperarImg($('poster-photo'));
+      await new Promise(r => setTimeout(r, 80));
+      const canvas = await html2canvas($('printable-poster'), { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
+      return await new Promise(r => canvas.toBlob(r, 'image/png'));
     }
 
     function abrirAficheModal() {
       if (!petData) return;
 
-      document.getElementById('poster-pet-name').innerText = petData.pet || 'Nuestra mascota';
-      if (petData.photo) document.getElementById('poster-photo').src = petData.photo;
+      $('poster-pet-name').textContent = petData.pet || 'Nuestra mascota';
+      if (petData.photo) $('poster-photo').src = petData.photo;
 
       const lugar = petData.lost_location ? `cerca a ${petData.lost_location}` : 'en la zona';
       let fechaHora = '';
@@ -705,242 +719,224 @@ async function descargarCarnetDigital() {
         fechaHora = 'recientemente';
       }
 
-      document.getElementById('poster-lost-where').innerText = lugar;
-      document.getElementById('poster-lost-when').innerText = fechaHora;
+      $('poster-lost-where').textContent = lugar;
+      $('poster-lost-when').textContent = fechaHora;
+      $('poster-reward-text').classList.toggle('hidden', !petData.reward);
 
-      const rewardEl = document.getElementById('poster-reward-text');
-      if (petData.reward) {
-        rewardEl.classList.remove('hidden');
-      } else {
-        rewardEl.classList.add('hidden');
-      }
+      $('poster-phone-num').textContent = fmtTel(petData.phone);
+      $('poster-phone-btn').href = `tel:+${petData.phone}`;
 
-      document.getElementById('poster-phone-num').innerText = petData.phone || '---';
-      document.getElementById('poster-phone-btn').href = `tel:${petData.phone}`;
+      $('poster-breed').textContent = petData.breed || 'Sin indicar';
+      $('poster-color').textContent = petData.color || 'Sin indicar';
 
-      document.getElementById('poster-breed').innerText = petData.breed || 'Sin indicar';
-      document.getElementById('poster-color').innerText = petData.color || 'Sin indicar';
+      const edadPeso = [];
+      if (petData.age) edadPeso.push(petData.age);
+      if (petData.weight) edadPeso.push(fmtPeso(petData.weight));
+      $('poster-age-weight').textContent = edadPeso.length > 0 ? edadPeso.join(' / ') : 'Sin indicar';
 
-      let edadPesoArr = [];
-      if (petData.age) edadPesoArr.push(petData.age);
-      if (petData.weight) edadPesoArr.push(fmtPeso(petData.weight));
-      document.getElementById('poster-age-weight').innerText = edadPesoArr.length > 0 ? edadPesoArr.join(' / ') : 'Sin indicar';
-
-      document.getElementById('afiche-modal').classList.remove('hidden');
+      $('afiche-modal').classList.remove('hidden');
+      // La imagen se prepara al abrir: así compartir responde al instante (iOS exige el toque reciente)
+      posterBlobPromise = generarAficheBlob().catch(e => { console.error(e); return null; });
     }
 
-    function cerrarAficheModal() { document.getElementById('afiche-modal').classList.add('hidden'); }
+    function cerrarAficheModal() { $('afiche-modal').classList.add('hidden'); }
     function imprimirAfiche() { window.print(); }
 
     async function compartirAficheImagen() {
-      const btn = document.getElementById('btn-share-img');
+      const btn = $('btn-share-img');
       const textOriginal = btn.innerHTML;
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generando...`;
       btn.disabled = true;
       try {
-        const canvas = await html2canvas(document.getElementById('printable-poster'), { 
-          useCORS: true, 
-          scale: 2, 
-          backgroundColor: '#ffffff' 
-        });
-        
-        canvas.toBlob(async (blob) => {
-          if (!blob) {
-            alert("No se pudo generar la imagen.");
-            btn.innerHTML = textOriginal;
-            btn.disabled = false;
-            return;
-          }
+        let blob = posterBlobPromise ? await posterBlobPromise : null;
+        if (!blob) blob = await generarAficheBlob();
+        if (!blob) throw new Error("No se pudo generar la imagen.");
 
-          const file = new File([blob], `SE_BUSCA_${petData.pet.toUpperCase()}.png`, { type: 'image/png' });
+        const nombre = (petData.pet || 'MASCOTA').toUpperCase().replace(/[^A-Z0-9]+/g, '_');
+        const file = new File([blob], `SE_BUSCA_${nombre}.png`, { type: 'image/png' });
 
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ 
-              files: [file], 
-              title: `¡SE BUSCA A ${petData.pet.toUpperCase()}!`, 
-              text: `Por favor ayúdanos a encontrar a ${petData.pet}. Si lo ves, comunícate al ${petData.phone}` 
-            });
-          } else {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = file.name;
-            a.click();
-            alert("¡Imagen descargada exitosamente!");
-          }
-          btn.innerHTML = textOriginal; 
-          btn.disabled = false;
-        }, 'image/png');
-      } catch (err) { 
-        alert("Error al generar la imagen: " + err.message); 
-        btn.innerHTML = textOriginal; 
-        btn.disabled = false; 
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: `¡SE BUSCA A ${petData.pet.toUpperCase()}!`,
+            text: `Por favor ayúdanos a encontrar a ${petData.pet}. Si lo ves, comunícate al ${fmtTel(petData.phone)}`
+          });
+        } else {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = file.name;
+          a.click();
+          alert("¡Imagen descargada exitosamente!");
+        }
+      } catch (err) {
+        if (!err || err.name !== 'AbortError') alert("No se pudo compartir la imagen: " + (err && err.message ? err.message : err));
+      } finally {
+        btn.innerHTML = textOriginal;
+        btn.disabled = false;
       }
     }
 
     // ==========================================
-    // FUNCIONES DE CONTROL DEL MODAL MÉDICO
+    // HISTORIAL MÉDICO PÚBLICO (sin diagnóstico ni receta)
     // ==========================================
-
     function abrirModalMedico() {
-      const modal = document.getElementById('modal-medico');
-      if (modal) {
-        modal.classList.remove('hidden');
-        const idPet = (petData && petData.id) ? petData.id : tagId;
-        cargarHistorialMedico(idPet);
-      }
+      const modal = $('modal-medico');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      if (historial === null) cargarHistorialMedico();
     }
 
     function cerrarModalMedico() {
-      const modal = document.getElementById('modal-medico');
-      if (modal) {
-        modal.classList.add('hidden');
+      const modal = $('modal-medico');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderHistorial() {
+      const lista = $('modal-medical-list');
+      if (!lista) return;
+      if (!historial || historial.length === 0) {
+        lista.innerHTML = `
+          <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
+            <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
+          </div>`;
+        return;
       }
-    }
-
-   async function cargarHistorialMedico(idMascota) {
-  const listContainer = document.getElementById('modal-medical-list');
-
-  // Si no hay ID, el semáforo se queda en estado neutro/sin historial
-  if (!idMascota) {
-    actualizarSemaforoSalud([]);
-    return;
-  }
-
-  // Muestra spinner de carga solo si el modal está abierto
-  if (listContainer) {
-    listContainer.innerHTML = `
-      <div class="text-center py-6">
-        <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
-        <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
-      </div>
-    `;
-  }
-
-  // Consulta a Supabase
-  const { data: records, error } = await db.rpc('obtener_historial_medico', { p_id: idMascota });
-
-  // Si no hay datos o falla la consulta
-  if (error || !records || records.length === 0) {
-    if (listContainer) {
-      listContainer.innerHTML = `
-        <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-          <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
-          <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
-        </div>
-      `;
-    }
-    // 💡 Actualiza el semáforo a "Sin historial médico"
-    actualizarSemaforoSalud([]);
-    return;
-  }
-
-  // Renderiza la lista si el contenedor existe
-  if (listContainer) {
-    let html = '';
-    records.forEach(rec => {
-      html += `
+      lista.innerHTML = historial.map(rec => `
         <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
           <div class="flex justify-between items-center mb-1.5">
             <span class="text-xs font-bold text-amber-950 uppercase">${esc(rec.vet_name)}</span>
-            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(rec.visit_date)}</span>
+            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(fmtFecha(rec.visit_date))}</span>
           </div>
-          <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong>${esc(rec.reason || 'Consulta general')}</p>
-          ${rec.diagnosis ? `<p class="text-xs text-slate-600 mb-1"><strong>Diagnóstico:</strong> ${esc(rec.diagnosis)}</p>` : ''}
-          ${rec.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2.5 rounded-xl border border-emerald-100 mt-1.5 leading-relaxed"><strong>Receta/Tratamiento:</strong> ${esc(rec.prescription)}</p>` : ''}
-        </div>
-      `;
-    });
-    listContainer.innerHTML = html;
-  }
+          <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${esc(rec.reason || 'Consulta general')}</p>
+          ${rec.next_due_date ? `<p class="text-xs text-emerald-800 mt-1"><strong>Próximo refuerzo:</strong> ${esc(fmtFecha(rec.next_due_date))}</p>` : ''}
+        </div>`).join('');
+    }
 
-  // 💡 Actualiza el semáforo con las fechas encontradas
-  actualizarSemaforoSalud(records);
-}
+    async function cargarHistorialMedico() {
+      const lista = $('modal-medical-list');
+      if (!tagId) { actualizarSemaforoSalud([]); return; }
 
-  let destinoPIN = ''; // Guarda la sección a la que debe ir después del PIN
+      if (lista) {
+        lista.innerHTML = `
+          <div class="text-center py-6">
+            <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
+            <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
+          </div>`;
+      }
 
-function abrirModalPIN(destino = '') { 
-  destinoPIN = destino; // Si viene del botón médico guarda '#seccion-medica', si es edición normal queda vacío
-  
-  if (typeof cerrarModalMedico === 'function') cerrarModalMedico();
-  
-  document.getElementById('pin-modal').classList.remove('hidden'); 
-  document.getElementById('modal-pin-input').value = ''; 
-  document.getElementById('modal-pin-input').focus(); 
-}
+      const { data: records, error } = await db.rpc('obtener_historial_medico', { p_id: tagId });
+      if (error) {
+        historial = null;
+        if (lista) lista.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">No se pudo cargar el historial. Intenta de nuevo.</p>`;
+        actualizarSemaforoSalud(null);
+        return;
+      }
+      historial = records || [];
+      renderHistorial();
+      actualizarSemaforoSalud(historial);
+    }
 
-function cerrarModalPIN() { 
-  document.getElementById('pin-modal').classList.add('hidden'); 
-  destinoPIN = ''; 
-}
+    // ==========================================
+    // PIN DEL DUEÑO
+    // ==========================================
+    function abrirModalPIN(destino = '') {
+      destinoPIN = destino;
+      cerrarModalMedico();
+      $('pin-modal').classList.remove('hidden');
+      $('modal-pin-input').value = '';
+      $('modal-pin-input').focus();
+    }
 
-async function validarPINModal() {
-  const input = document.getElementById('modal-pin-input').value.trim();
-  if (!petData) return;
-  const { data: estado, error } = await db.rpc('verificar_pin', { p_id: tagId, p_pin: input });
-  if (error) { alert("❌ No se pudo verificar el PIN. Intenta de nuevo."); return; }
-  if (estado === 'ok') {
-    sessionStorage.setItem(`pin_${tagId}`, input);
-    localStorage.setItem(`dueno_${tagId}`, '1');
-    window.location.href = `registro.html?id=${tagId}${destinoPIN}`;
-  } else if (estado === 'bloqueado') {
-    alert("⏳ Demasiados intentos. Espera 15 minutos o contacta a soporte.");
-  } else { alert("❌ PIN Incorrecto."); }
-}
+    function cerrarModalPIN() {
+      $('pin-modal').classList.add('hidden');
+      destinoPIN = '';
+    }
+
+    async function validarPINModal() {
+      const input = $('modal-pin-input').value.trim();
+      if (!petData) return;
+      const { data: estado, error } = await db.rpc('verificar_pin', { p_id: tagId, p_pin: input });
+      if (error) { alert("❌ No se pudo verificar el PIN. Intenta de nuevo."); return; }
+      if (estado === 'ok') {
+        sessionStorage.setItem(`pin_${tagId}`, input);
+        localStorage.setItem(`dueno_${tagId}`, '1');
+        window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destinoPIN}`;
+      } else if (estado === 'bloqueado') {
+        alert("⏳ Demasiados intentos. Espera 15 minutos o contacta a soporte.");
+      } else { alert("❌ PIN Incorrecto."); }
+    }
+
     function abrirFotoGrande() {
-      const fotoActual = document.getElementById('pet-photo').src;
-      document.getElementById('full-pet-photo').src = fotoActual;
-      document.getElementById('photo-modal').classList.remove('hidden');
+      $('full-pet-photo').src = $('pet-photo').src;
+      $('photo-modal').classList.remove('hidden');
     }
 
     function cerrarFotoGrande() {
-      document.getElementById('photo-modal').classList.add('hidden');
+      $('photo-modal').classList.add('hidden');
     }
 
-   cargarPerfil();
-const idPet = (typeof petData !== 'undefined' && petData && petData.id) ? petData.id : tagId;
-if (idPet) cargarHistorialMedico(idPet);
-    function actualizarSemaforoSalud(registrosMedicos) {
-  // Elementos de la Web
-  const badge = document.getElementById('vaccine-badge');
-  const dot = document.getElementById('badge-dot');
-  const text = document.getElementById('badge-text');
-  // Elemento del Carnet Descargable
-  const carnetStatus = document.getElementById('carnet-status-pill');
+    // ==========================================
+    // SEMÁFORO DE SALUD
+    // ==========================================
+    // Toma el último registro de cada motivo y gana la fecha de refuerzo más urgente.
+    // Sin historial, usa las fechas del carnet (próxima vacuna / desparasitación).
+    function calcularEstadoSalud(registros) {
+      if (registros === null) return { estado: 'error' };
+      registros = registros || [];
+      const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+      const vistos = new Set();
+      const fechas = [];
+      registros.forEach(r => {
+        const k = norm(r.reason);
+        if (vistos.has(k)) return;
+        vistos.add(k);
+        if (r.next_due_date) fechas.push(r.next_due_date);
+      });
+      if (registros.length === 0 && petData) {
+        [petData.next_vaccine, petData.next_deworming].forEach(f => { if (diasHasta(f) !== null) fechas.push(f); });
+      }
+      if (registros.length === 0 && fechas.length === 0) return { estado: 'sin' };
+      const dias = fechas.map(diasHasta).filter(d => d !== null);
+      if (dias.length === 0) return { estado: 'atendido' };
+      return { estado: 'fecha', dias: Math.min(...dias) };
+    }
 
-  if (!badge || !dot || !text) return;
+    function actualizarSemaforoSalud(registros) {
+      const badge = $('vaccine-badge');
+      const dot = $('badge-dot');
+      const text = $('badge-text');
+      const carnetStatus = $('carnet-status-pill');
+      if (!badge || !dot || !text) return;
 
-  // Variables para clases de Tailwind
-  let badgeClase, dotClase, textoEstado, carnetClase;
+      const e = calcularEstadoSalud(registros);
+      let badgeClase, dotClase, textoEstado, carnetClase;
 
-  if (!registrosMedicos || registrosMedicos.length === 0) {
-    badgeClase = "bg-slate-50 text-slate-700 border-slate-200";
-    dotClase = "bg-slate-500 hidden";
-    textoEstado = "Sin historial médico";
-    carnetClase = "bg-slate-500/80 text-white";
-  } else {
-    const registroConRefuerzo = registrosMedicos.find(reg => reg.next_due_date);
-
-    if (!registroConRefuerzo) {
-      badgeClase = "bg-emerald-50 text-emerald-700 border-emerald-200";
-      dotClase = "bg-emerald-500";
-      textoEstado = "Atendido 🟢";
-      carnetClase = "bg-emerald-500 text-white border border-emerald-400";
-    } else {
-      const fechaRefuerzo = new Date(registroConRefuerzo.next_due_date);
-      const hoy = new Date();
-      const diferenciaDias = Math.ceil((fechaRefuerzo - hoy) / (1000 * 3600 * 24));
-
-      if (diferenciaDias > 15) {
+      if (e.estado === 'error') {
+        badgeClase = "bg-slate-50 text-slate-700 border-slate-200";
+        dotClase = "bg-slate-500 hidden";
+        textoEstado = "Estado no disponible";
+        carnetClase = "bg-slate-500/80 text-white";
+      } else if (e.estado === 'sin') {
+        badgeClase = "bg-slate-50 text-slate-700 border-slate-200";
+        dotClase = "bg-slate-500 hidden";
+        textoEstado = "Sin historial médico";
+        carnetClase = "bg-slate-500/80 text-white";
+      } else if (e.estado === 'atendido') {
+        badgeClase = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        dotClase = "bg-emerald-500";
+        textoEstado = "Atendido 🟢";
+        carnetClase = "bg-emerald-500 text-white border border-emerald-400";
+      } else if (e.dias > 15) {
         badgeClase = "bg-emerald-50 text-emerald-700 border-emerald-200";
         dotClase = "bg-emerald-500";
         textoEstado = "Protección al día 🟢";
         carnetClase = "bg-emerald-500 text-white border border-emerald-400 shadow-lg shadow-emerald-500/30";
-      } else if (diferenciaDias >= 0 && diferenciaDias <= 15) {
+      } else if (e.dias >= 0) {
         badgeClase = "bg-amber-50 text-amber-700 border-amber-200";
         dotClase = "bg-amber-500";
-        textoEstado = `Refuerzo en ${diferenciaDias} días 🟡`;
+        textoEstado = e.dias === 0 ? "Refuerzo hoy 🟡" : `Refuerzo en ${e.dias} días 🟡`;
         carnetClase = "bg-amber-500 text-white border border-amber-400 shadow-lg shadow-amber-500/30";
       } else {
         badgeClase = "bg-rose-50 text-rose-700 border-rose-200";
@@ -948,21 +944,18 @@ if (idPet) cargarHistorialMedico(idPet);
         textoEstado = "Atención Vencida 🔴";
         carnetClase = "bg-rose-600 text-white border border-rose-400 shadow-lg shadow-rose-600/30 animate-pulse";
       }
+
+      badge.className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm ${badgeClase}`;
+      dot.className = `w-2.5 h-2.5 rounded-full animate-pulse ${dotClase}`;
+      text.textContent = textoEstado;
+
+      if (carnetStatus) {
+        carnetStatus.className = `text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md ${carnetClase}`;
+        carnetStatus.textContent = textoEstado.replace(/🟢|🟡|🔴/g, '').trim();
+      }
     }
-  }
 
-  // 1. Aplicar al semáforo de la Web
-  badge.className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm ${badgeClase}`;
-  dot.className = `w-2.5 h-2.5 rounded-full animate-pulse ${dotClase}`;
-  text.textContent = textoEstado;
-
-  // 2. Aplicar la pastilla visual dentro del Carnet Digital
-  if (carnetStatus) {
-    carnetStatus.className = `text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md ${carnetClase}`;
-    // Le quitamos el emoji para que en el carnet físico/PNG se vea más formal
-    carnetStatus.textContent = textoEstado.replace(/🟢|🟡|🔴/g, '').trim(); 
-  }
-}
+    cargarPerfil();
   </script>
 
   <!-- Pie de página con Soporte Técnico Helpet -->
@@ -970,11 +963,10 @@ if (idPet) cargarHistorialMedico(idPet);
     <p class="text-xs font-semibold text-slate-400 mb-2">
       ¿Tienes dudas o problemas con esta placa?
     </p>
-    
-    <!-- Botón de Soporte Oficial -->
-    <a id="btn-support-whatsapp" 
-       href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." 
-       target="_blank" 
+
+    <a id="btn-support-whatsapp"
+       href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica."
+       target="_blank" rel="noopener"
        class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2.5 rounded-full border border-emerald-200/80 transition-all shadow-sm">
       <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
       Contactar a Soporte Helpet
@@ -988,31 +980,30 @@ if (idPet) cargarHistorialMedico(idPet);
   <!-- MODAL FLOTANTE DE HISTORIAL MÉDICO -->
   <div id="modal-medico" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-300">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" style="font-family: 'Fredoka', sans-serif;">
-      
-     <!-- Cabecera -->
+
       <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-file-medical text-amber-500 text-lg"></i>
           <div>
-            <h3 class="text-sm font-bold text-slate-800">Historial Médico & Recetas</h3>
+            <h3 class="text-sm font-bold text-slate-800">Historial Médico & Vacunas</h3>
             <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Ficha Digital</span>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
-          <!-- Botón + Registrar (Solicita PIN) -->
-          <!-- En el modal de la ficha médica -->
-<button onclick="abrirModalPIN('#seccion-medica')" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1">
-  <i class="fa-solid fa-plus text-[10px]"></i> Registrar
-</button>
+          <!-- Botón + Registrar (solicita PIN) -->
+          <button onclick="abrirModalPIN('#seccion-medica')" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1">
+            <i class="fa-solid fa-plus text-[10px]"></i> Registrar
+          </button>
           <button onclick="cerrarModalMedico()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
       </div>
 
-      <!-- Lista dinámica donde JS insertará las consultas -->
       <div id="modal-medical-list" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
+
+      <p class="px-4 py-2 text-[10px] text-slate-400 border-t border-slate-100">🔒 Por privacidad, diagnósticos y recetas solo los ve el dueño.</p>
 
     </div>
   </div>
