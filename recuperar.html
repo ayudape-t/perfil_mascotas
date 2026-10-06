@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <title>Helpet - Restablecer PIN</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 font-sans">
+  <main class="bg-slate-50 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden my-6">
+    <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-center text-white">
+      <h1 class="text-xl font-extrabold"><i class="fa-solid fa-key mr-1"></i> Restablecer PIN</h1>
+      <p class="text-amber-100 text-xs mt-1">Helpet · Recuperación segura</p>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <section id="paso-form" class="space-y-3">
+        <p class="text-xs text-slate-500">Elige un PIN nuevo de 4 dígitos. Este enlace funciona una sola vez.</p>
+        <input type="password" id="pin1" maxlength="4" inputmode="numeric" placeholder="Nuevo PIN"
+          class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
+        <input type="password" id="pin2" maxlength="4" inputmode="numeric" placeholder="Repite el PIN"
+          class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
+        <button id="btn" type="button" onclick="cambiarPIN()"
+          class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg">Guardar nuevo PIN</button>
+      </section>
+
+      <section id="paso-ok" class="hidden text-center space-y-3">
+        <i class="fa-solid fa-circle-check text-emerald-500 text-4xl"></i>
+        <p class="text-sm font-bold text-slate-800">PIN actualizado para <span id="pet-nombre"></span></p>
+        <p class="text-xs text-slate-500">Ya puedes entrar al panel con tu nuevo PIN.</p>
+      </section>
+
+      <p id="msg" class="hidden text-center text-xs font-bold rounded-xl p-2.5 bg-rose-100 text-rose-800"></p>
+    </div>
+  </main>
+
+  <script>
+    const sb = supabase.createClient(
+      "https://cjxcqdgtchhtfowreuca.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o"
+    );
+    const token = new URLSearchParams(location.search).get('t') || '';
+    const $ = id => document.getElementById(id);
+
+    function error(texto) {
+      const el = $('msg');
+      el.textContent = texto;
+      el.classList.remove('hidden');
+    }
+
+    if (!token) { $('paso-form').classList.add('hidden'); error('Enlace incompleto. Pide uno nuevo al bot de Telegram con /recuperar.'); }
+
+    async function cambiarPIN() {
+      $('msg').classList.add('hidden');
+      const p1 = $('pin1').value.trim(), p2 = $('pin2').value.trim();
+      if (!/^[0-9]{4}$/.test(p1)) return error('El PIN debe tener 4 números.');
+      if (p1 !== p2) return error('Los PIN no coinciden.');
+
+      $('btn').disabled = true;
+      const { data, error: err } = await sb.rpc('canjear_token_pin', { p_token: token, p_nuevo_pin: p1 });
+      $('btn').disabled = false;
+
+      if (err || !data) return error('Error de conexión. Intenta de nuevo.');
+      if (data.estado === 'token_invalido') {
+        return error('El enlace venció o ya fue usado. Escribe /recuperar al bot para recibir uno nuevo.');
+      }
+      if (data.estado !== 'ok') return error('No se pudo cambiar el PIN.');
+
+      $('pet-nombre').textContent = data.pet || '';
+      $('paso-form').classList.add('hidden');
+      $('paso-ok').classList.remove('hidden');
+      history.replaceState(null, '', location.pathname); // quita el token de la barra de direcciones
+    }
+  </script>
+</body>
+</html>
