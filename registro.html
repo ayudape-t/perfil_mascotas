@@ -311,7 +311,22 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Próxima dosis / refuerzo (Opcional)</label>
             <input type="date" id="med-next" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
           </div>
-
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 mt-4">
+  <h3 class="text-sm font-bold text-slate-800"><i class="fa-solid fa-user-doctor text-amber-500 mr-1"></i> Código para el veterinario</h3>
+  <p class="text-[11px] text-slate-500">Vence en 24 h y permite 5 registros. El anterior deja de servir.</p>
+  <input type="password" id="vet-pin" maxlength="4" inputmode="numeric" placeholder="Tu PIN"
+    class="w-full text-center font-mono font-bold tracking-widest py-2.5 border-2 border-amber-300 rounded-xl outline-none text-sm">
+  <button type="button" id="btn-gen-vet" onclick="generarCodigoVet()"
+    class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs">Generar código</button>
+  <div id="vet-result" class="hidden text-center space-y-2">
+    <p id="vet-code" class="text-3xl font-mono font-black tracking-widest text-amber-600"></p>
+    <p id="vet-exp" class="text-[11px] text-slate-500"></p>
+    <a id="vet-wa" target="_blank" class="block py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs">
+      <i class="fa-brands fa-whatsapp mr-1"></i> Enviar al veterinario
+    </a>
+  </div>
+  <p id="vet-err" class="hidden text-center text-xs font-bold text-rose-700"></p>
+</div>
           <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial Médico
           </button>
@@ -676,5 +691,37 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarTelegram(); });
     inicializar();
   </script>
+  <script>
+  const _vetDb = supabase.createClient(
+    "https://cjxcqdgtchhtfowreuca.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o"
+  );
+  async function generarCodigoVet() {
+    const id = new URLSearchParams(location.search).get('id') || '';
+    const pin = document.getElementById('vet-pin').value.trim();
+    const err = document.getElementById('vet-err');
+    const res = document.getElementById('vet-result');
+    err.classList.add('hidden'); res.classList.add('hidden');
+    if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'Ingresa tu PIN de 4 dígitos.'; err.classList.remove('hidden'); return; }
+
+    const btn = document.getElementById('btn-gen-vet'); btn.disabled = true;
+    const { data, error } = await _vetDb.rpc('crear_codigo_vet', { p_id: id, p_pin: pin });
+    btn.disabled = false;
+
+    if (error || !data || data.estado !== 'ok') {
+      const m = { incorrecto: 'PIN incorrecto.', bloqueado: 'Demasiados intentos. Espera 15 minutos.' };
+      err.textContent = (data && m[data.estado]) || 'No se pudo generar el código.';
+      err.classList.remove('hidden');
+      return;
+    }
+    document.getElementById('vet-pin').value = '';
+    document.getElementById('vet-code').textContent = data.codigo;
+    document.getElementById('vet-exp').textContent = 'Vence: ' + new Date(data.expira_en).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' });
+    const link = new URL('vet.html?id=' + encodeURIComponent(id), location.href).href;
+    const texto = `Código para registrar la consulta de mi mascota: ${data.codigo} (vence en 24 h). Ingresa aquí: ${link}`;
+    document.getElementById('vet-wa').href = 'https://wa.me/?text=' + encodeURIComponent(texto);
+    res.classList.remove('hidden');
+  }
+</script>
 </body>
 </html>
