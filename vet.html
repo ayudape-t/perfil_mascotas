@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <title>Helpet - Registro Veterinario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 font-sans">
+  <main class="bg-slate-50 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden my-6">
+    <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-center text-white">
+      <h1 class="text-xl font-extrabold"><i class="fa-solid fa-stethoscope mr-1"></i> Registro Veterinario</h1>
+      <p class="text-amber-100 text-xs mt-1">Helpet · Historial médico</p>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <!-- Paso 1: código -->
+      <section id="paso-codigo" class="space-y-3">
+        <p class="text-xs text-slate-500">Ingresa el código temporal que te dio el dueño de la mascota.</p>
+        <input id="codigo" maxlength="7" autocomplete="off" placeholder="ABC-234"
+          class="w-full text-center text-2xl font-mono font-bold tracking-widest uppercase py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
+        <button id="btn-validar" type="button" onclick="validarCodigo()"
+          class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg">Validar código</button>
+      </section>
+
+      <!-- Paso 2: formulario -->
+      <section id="paso-form" class="hidden space-y-3">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-sm text-emerald-900">
+          <i class="fa-solid fa-paw mr-1"></i> Paciente: <b id="pac-nombre"></b>
+          <span id="pac-raza" class="text-emerald-700"></span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Fecha visita *</label>
+            <input type="date" id="f-fecha" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próxima cita</label>
+            <input type="date" id="f-proxima" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Veterinaria / Dr. *</label>
+          <input id="f-vet" maxlength="150" placeholder="Ej. Vet. San Martín" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Motivo / Tipo *</label>
+          <input id="f-motivo" maxlength="200" placeholder="Ej. Vacuna Quíntuple" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Diagnóstico</label>
+          <input id="f-diag" maxlength="500" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Receta / Tratamiento</label>
+          <textarea id="f-receta" rows="2" maxlength="1000" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
+        <button id="btn-guardar" type="button" onclick="guardarRegistro()"
+          class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
+        </button>
+      </section>
+
+      <p id="msg" class="hidden text-center text-xs font-bold rounded-xl p-2.5"></p>
+    </div>
+  </main>
+
+  <script>
+    const sb = supabase.createClient(
+      "https://cjxcqdgtchhtfowreuca.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o"
+    );
+    const petId = new URLSearchParams(location.search).get('id') || '';
+    let codigoOk = '';
+
+    const $ = id => document.getElementById(id);
+    const hoy = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    $('f-fecha').value = hoy();
+    $('f-fecha').max = hoy();
+
+    const ERRORES = {
+      sin_codigo: 'Este paciente no tiene un código activo. Pídele al dueño que genere uno.',
+      incorrecto: 'Código incorrecto.',
+      expirado: 'El código venció. Pídele al dueño uno nuevo.',
+      bloqueado: 'Demasiados intentos. Espera 15 minutos.',
+      limite: 'Este código ya alcanzó su límite de 5 registros. Pide uno nuevo.',
+      datos_invalidos: 'Revisa los datos: fecha (no futura), veterinaria y motivo son obligatorios; la próxima cita no puede ser anterior a la visita.'
+    };
+
+    function msg(texto, ok) {
+      const el = $('msg');
+      el.textContent = texto;
+      el.className = 'text-center text-xs font-bold rounded-xl p-2.5 ' +
+        (ok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800');
+    }
+
+    async function validarCodigo() {
+      if (!petId) return msg('Falta el ID de la placa en el enlace (?id=...).', false);
+      const cod = $('codigo').value.trim();
+      if (cod.replace(/[^A-Za-z0-9]/g, '').length < 6) return msg('El código tiene 6 caracteres.', false);
+      const btn = $('btn-validar'); btn.disabled = true;
+      const { data, error } = await sb.rpc('vet_validar_codigo', { p_id: petId, p_codigo: cod });
+      btn.disabled = false;
+      if (error || !data) return msg('Error de conexión. Intenta de nuevo.', false);
+      if (data.estado !== 'ok') return msg(ERRORES[data.estado] || 'No se pudo validar.', false);
+      codigoOk = cod;
+      $('pac-nombre').textContent = data.mascota || '';
+      $('pac-raza').textContent = data.raza ? ' · ' + data.raza : '';
+      $('paso-codigo').classList.add('hidden');
+      $('paso-form').classList.remove('hidden');
+      $('msg').classList.add('hidden');
+    }
+
+    async function guardarRegistro() {
+      const btn = $('btn-guardar'); btn.disabled = true;
+      const v = id => $(id).value.trim() || null;
+      const { data, error } = await sb.rpc('vet_agregar_registro', {
+        p_id: petId, p_codigo: codigoOk,
+        p_fecha: v('f-fecha'), p_vet: $('f-vet').value.trim(), p_motivo: $('f-motivo').value.trim(),
+        p_diagnostico: v('f-diag'), p_receta: v('f-receta'), p_proxima: v('f-proxima')
+      });
+      btn.disabled = false;
+      if (error || !data) return msg('Error de conexión. Intenta de nuevo.', false);
+      if (data.estado !== 'ok') return msg(ERRORES[data.estado] || 'No se pudo guardar.', false);
+      msg(`✅ Registro guardado. Te quedan ${data.restantes} con este código.`, true);
+      ['f-motivo', 'f-diag', 'f-receta', 'f-proxima'].forEach(id => $(id).value = '');
+    }
+  </script>
+</body>
+</html>
