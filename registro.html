@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" type="image/jpeg" href="logo.jpg">
-<link rel="apple-touch-icon" href="logo.jpg">
-<!-- Vista previa de imagen para redes y Android (Open Graph) -->
-<meta property="og:image" content="logo.jpg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Control - Placa Inteligente</title>
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -25,18 +26,18 @@
 <body class="paw-dark-body min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-x-hidden">
 
   <main class="card-bones-pattern rounded-3xl shadow-2xl overflow-hidden max-w-sm w-full border border-slate-200/80 my-6">
-    
+
     <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-center text-white relative">
       <h1 id="form-title" class="text-xl font-extrabold">Configurar Placa</h1>
       <p id="form-subtitle" class="text-amber-100 text-xs mt-1">Perfil General y Ficha Médica</p>
     </div>
 
     <form id="pet-form" class="p-6 space-y-4" onsubmit="return false;">
-      
+
       <!-- INTERRUPTOR ESTADO PÉRDIDA -->
       <div id="lost-toggle-box" class="hidden bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200 text-center space-y-3 shadow-sm">
         <label class="block text-xs font-bold text-slate-600 uppercase">Estado de la Mascota</label>
-        
+
         <button id="btn-toggle-lost" type="button" onclick="toggleMascotaPerdida()" class="w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-emerald-100 text-emerald-800 border border-emerald-300">
           <i class="fa-solid fa-house-chimney text-base"></i>
           <span>Segura en Casa</span>
@@ -73,52 +74,47 @@
         </div>
       </div>
 
-<!-- TARJETA ACORDEÓN DE ESCANEOS CON VISTA PREVIA -->
-<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden my-3" style="font-family: 'Fredoka', sans-serif;">
-  
-  <!-- CABECERA: ÚLTIMO ESCANEO + BOTÓN MAPS -->
-  <div onclick="toggleHistorialEscaneos()" class="p-3.5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors cursor-pointer select-none flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
-        <i class="fa-solid fa-location-dot"></i>
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-bold text-slate-800">Última ubicación</span>
-          <span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-md uppercase">Reciente</span>
+      <!-- TARJETA ACORDEÓN DE ESCANEOS CON VISTA PREVIA -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden my-3" style="font-family: 'Fredoka', sans-serif;">
+
+        <div onclick="toggleHistorialEscaneos()" class="p-3.5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors cursor-pointer select-none flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
+              <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-800">Última ubicación</span>
+                <span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-md uppercase">Reciente</span>
+              </div>
+              <p id="preview-ultimo-escaneo" class="text-[11px] text-slate-500 font-medium">Cargando...</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <a id="btn-ultimo-maps" href="#" target="_blank" rel="noopener" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-xl transition-all flex items-center gap-1 hidden shadow-sm">
+              <i class="fa-solid fa-map-location-dot"></i> Maps
+            </a>
+            <button type="button" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600">
+              <i id="flecha-escaneos" class="fa-solid fa-chevron-down text-xs transition-transform duration-300"></i>
+            </button>
+          </div>
         </div>
-        <p id="preview-ultimo-escaneo" class="text-[11px] text-slate-500 font-medium">Cargando...</p>
+
+        <div id="desplegable-escaneos" class="hidden border-t border-slate-100 p-3 bg-white space-y-2 max-h-52 overflow-y-auto">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Historial anterior</p>
+          <div id="escaneos-lista-anteriores" class="space-y-2"></div>
+        </div>
+
       </div>
-    </div>
 
-    <div class="flex items-center gap-1.5">
-      <!-- Botón Maps para el último escaneo -->
-      <a id="btn-ultimo-maps" href="#" target="_blank" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-xl transition-all flex items-center gap-1 hidden shadow-sm">
-        <i class="fa-solid fa-map-location-dot"></i> Maps
-      </a>
-      <!-- Flecha desplegable -->
-      <button type="button" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600">
-        <i id="flecha-escaneos" class="fa-solid fa-chevron-down text-xs transition-transform duration-300"></i>
-      </button>
-    </div>
-  </div>
+      <!-- AVISOS POR TELEGRAM -->
+      <div id="telegram-box" class="hidden bg-white/90 p-4 rounded-2xl border border-sky-200 space-y-2 shadow-sm">
+        <h2 class="text-xs font-extrabold text-sky-600 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-brands fa-telegram"></i> Avisos por Telegram</h2>
+        <p id="telegram-estado" class="text-xs text-slate-600">Recibe un mensaje cuando escaneen la placa y cuando toque vacuna o control.</p>
+        <button type="button" id="btn-telegram" onclick="accionTelegram()" class="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl text-xs transition-all">Vincular Telegram</button>
+      </div>
 
-  <!-- DESPLEGABLE CON EL RESTO DE HISTORIAL -->
-  <div id="desplegable-escaneos" class="hidden border-t border-slate-100 p-3 bg-white space-y-2 max-h-52 overflow-y-auto">
-    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Historial anterior</p>
-    
-    <!-- Contenedor dinámico -->
-    <div id="escaneos-lista-anteriores" class="space-y-2">
-      <!-- Se llena dinámicamente con JS -->
-    </div>
-  </div>
-
-</div>
-<div id="telegram-box" class="hidden bg-white/90 p-4 rounded-2xl border border-sky-200 space-y-2 shadow-sm">
-  <h2 class="text-xs font-extrabold text-sky-600 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-brands fa-telegram"></i> Avisos por Telegram</h2>
-  <p id="telegram-estado" class="text-xs text-slate-600">Recibe un mensaje cuando escaneen la placa y cuando toque vacuna o control.</p>
-  <button type="button" id="btn-telegram" onclick="accionTelegram()" class="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl text-xs transition-all">Vincular Telegram</button>
-</div>
       <!-- SECCIÓN: DATOS BÁSICOS -->
       <div class="border-b border-slate-200/80 pb-4">
         <h2 class="text-xs font-extrabold text-amber-600 uppercase tracking-wider flex items-center gap-1.5 mb-3">
@@ -149,7 +145,7 @@
         <div class="grid grid-cols-2 gap-2 mb-3">
           <div>
             <label for="input-weight" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Peso (kg)</label>
-            <input type="text" id="input-weight" placeholder="Ej. 4.5 kg" class="w-full px-3 py-2.5 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none text-xs text-slate-800">
+            <input type="text" id="input-weight" inputmode="decimal" placeholder="Ej. 4.5" class="w-full px-3 py-2.5 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none text-xs text-slate-800">
           </div>
           <div>
             <label for="input-age" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Edad</label>
@@ -192,19 +188,48 @@
             </label>
           </div>
         </div>
-<div id="activation-box" class="hidden mb-3">
-  <label for="input-codigo" class="block text-xs font-bold text-amber-600 uppercase mb-1"><i class="fa-solid fa-ticket mr-1"></i> Código de activación *</label>
-  <input type="text" id="input-codigo" maxlength="9" placeholder="Ej. NAF3-NU2K" autocapitalize="characters" class="w-full px-4 py-3 bg-white rounded-xl border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-mono tracking-widest text-center font-bold text-slate-800">
-  <p class="text-[10px] text-slate-400 mt-1">Lo encuentras en la tarjeta dentro del empaque de tu placa.</p>
-</div>
+
+        <!-- CÓDIGO DE ACTIVACIÓN + CONSENTIMIENTO (solo placas nuevas) -->
+        <div id="activation-box" class="hidden mb-3">
+          <label for="input-codigo" class="block text-xs font-bold text-amber-600 uppercase mb-1"><i class="fa-solid fa-ticket mr-1"></i> Código de activación *</label>
+          <input type="text" id="input-codigo" maxlength="9" placeholder="Ej. NAF3-NU2K" autocapitalize="characters" class="w-full px-4 py-3 bg-white rounded-xl border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-mono tracking-widest text-center font-bold text-slate-800">
+          <p class="text-[10px] text-slate-400 mt-1">Lo encuentras en la tarjeta dentro del empaque de tu placa.</p>
+
+          <label class="flex items-start gap-2 mt-3 cursor-pointer">
+            <input type="checkbox" id="input-consent" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
+            <span class="text-[11px] text-slate-600">Acepto que mi nombre, mi teléfono y los datos que marque como públicos se muestren a quien escanee la placa, y que mis datos se usen solo para este servicio. *</span>
+          </label>
+        </div>
+
         <!-- PIN -->
         <div id="pin-creation-box" class="mb-1">
           <label for="input-pin" class="block text-xs font-bold text-amber-600 uppercase mb-1">
             <i class="fa-solid fa-key mr-1"></i> Crea tu PIN de 4 dígitos *
           </label>
-          <input type="password" id="input-pin" maxlength="4" placeholder="Ej. 1234" pattern="[0-9]{4}" class="w-full px-4 py-3 bg-white rounded-xl border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-mono tracking-widest text-center font-bold text-slate-800">
+          <input type="password" id="input-pin" maxlength="4" inputmode="numeric" placeholder="Ej. 1234" pattern="[0-9]{4}" class="w-full px-4 py-3 bg-white rounded-xl border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-mono tracking-widest text-center font-bold text-slate-800">
           <p class="text-[10px] text-slate-400 mt-1">Este PIN te servirá para editar tus datos en el futuro.</p>
         </div>
+      </div>
+
+      <!-- SECCIÓN: PRIVACIDAD DEL PERFIL PÚBLICO -->
+      <div class="border-b border-slate-200/80 pb-4 pt-2">
+        <h2 class="text-xs font-extrabold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+          <i class="fa-solid fa-user-lock"></i> Privacidad del Perfil Público
+        </h2>
+        <p class="text-[11px] text-slate-500 mb-3">Quien escanee la placa siempre verá: nombre, foto, dueño, teléfono principal, alergias y datos físicos (raza, color, peso, edad). Lo demás lo decides tú:</p>
+
+        <label class="flex items-start gap-2 mb-2 cursor-pointer">
+          <input type="checkbox" id="input-mostrar-ficha" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
+          <span class="text-xs text-slate-700">Mostrar ficha médica (cuidados/medicación, dieta e historial de vacunas)</span>
+        </label>
+        <label class="flex items-start gap-2 mb-2 cursor-pointer">
+          <input type="checkbox" id="input-mostrar-vet" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
+          <span class="text-xs text-slate-700">Mostrar mi veterinaria (nombre y teléfono)</span>
+        </label>
+        <label class="flex items-start gap-2 cursor-pointer">
+          <input type="checkbox" id="input-mostrar-tel2" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
+          <span class="text-xs text-slate-700">Mostrar mi teléfono secundario</span>
+        </label>
       </div>
 
       <!-- SECCIÓN: FICHA MÉDICA Y SALUD -->
@@ -216,11 +241,11 @@
         <div class="grid grid-cols-2 gap-2 mb-3">
           <div>
             <label for="input-next-vaccine" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próxima Vacuna</label>
-            <input type="text" id="input-next-vaccine" placeholder="Ej. 15 de Octubre" class="w-full px-3 py-2 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-400 outline-none text-xs text-slate-800">
+            <input type="date" id="input-next-vaccine" class="w-full px-3 py-2 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-400 outline-none text-xs text-slate-800">
           </div>
           <div>
             <label for="input-next-deworming" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próx. Desparasitación</label>
-            <input type="text" id="input-next-deworming" placeholder="Ej. 01 de Noviembre" class="w-full px-3 py-2 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-400 outline-none text-xs text-slate-800">
+            <input type="date" id="input-next-deworming" class="w-full px-3 py-2 bg-white/90 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-400 outline-none text-xs text-slate-800">
           </div>
         </div>
 
@@ -247,49 +272,57 @@
           </div>
         </div>
       </div>
-     <!-- SECCIÓN: NUEVA CONSULTA / VACUNA (Sin etiquetas <form> para evitar conflictos) -->
-<div id="seccion-medica" class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4 mt-6" style="font-family: 'Fredoka', sans-serif;">
-  <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-    <i class="fa-solid fa-stethoscope text-amber-500 text-lg"></i>
-    <h3 class="text-sm font-bold text-slate-800">Agregar Atención Médica o Vacuna</h3>
-  </div>
 
-  <div id="form-medical-record" class="space-y-3">
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Visita</label>
-        <input type="date" id="med-date" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-amber-500">
+      <!-- SECCIÓN: NUEVA CONSULTA / VACUNA + HISTORIAL COMPLETO (solo dueño) -->
+      <div id="seccion-medica" class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4 mt-6" style="font-family: 'Fredoka', sans-serif;">
+        <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="fa-solid fa-stethoscope text-amber-500 text-lg"></i>
+          <h3 class="text-sm font-bold text-slate-800">Agregar Atención Médica o Vacuna</h3>
+        </div>
+
+        <div id="form-medical-record" class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Visita</label>
+              <input type="date" id="med-date" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-amber-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Veterinaria / Dr.</label>
+              <input type="text" id="med-vet" placeholder="Ej. Vet. San Francisco" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Motivo / Tipo de Visita</label>
+            <input type="text" id="med-reason" placeholder="Ej. Vacuna Quíntuple, Chequeo Anual" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Diagnóstico (Opcional)</label>
+            <input type="text" id="med-diagnosis" placeholder="Ej. Leve infección estomacal" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Receta / Tratamiento (Opcional)</label>
+            <textarea id="med-prescription" rows="2" placeholder="Ej. Amoxicilina 250mg cada 12h" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Próxima dosis / refuerzo (Opcional)</label>
+            <input type="date" id="med-next" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
+          </div>
+
+          <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial Médico
+          </button>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100">
+          <h4 class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-lock text-amber-500"></i> Historial completo (solo tú lo ves)</h4>
+          <div id="historial-privado" class="space-y-2 max-h-72 overflow-y-auto"><p class="text-xs text-slate-400">Cargando...</p></div>
+        </div>
       </div>
-      <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Veterinaria / Dr.</label>
-        <input type="text" id="med-vet" placeholder="Ej. Vet. San Francisco" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
-      </div>
-    </div>
 
-    <div>
-      <label class="block text-xs font-bold text-slate-700 mb-1">Motivo / Tipo de Visita</label>
-      <input type="text" id="med-reason" placeholder="Ej. Vacuna Quíntuple, Chequeo Anual" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
-    </div>
-
-    <div>
-      <label class="block text-xs font-bold text-slate-700 mb-1">Diagnóstico (Opcional)</label>
-      <input type="text" id="med-diagnosis" placeholder="Ej. Leve infección estomacal" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
-    </div>
-
-    <div>
-      <label class="block text-xs font-bold text-slate-700 mb-1">Receta / Tratamiento (Opcional)</label>
-      <textarea id="med-prescription" rows="2" placeholder="Ej. Amoxicilina 250mg cada 12h" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500"></textarea>
-    </div>
-    <div>
-  <label class="block text-xs font-bold text-slate-700 mb-1">Próxima dosis / refuerzo (Opcional)</label>
-  <input type="date" id="med-next" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
-</div>
-    <!-- BOTÓN CON ONCLICK DIRECTO -->
-    <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
-      <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial Médico
-    </button>
-  </div>
-</div>
       <button id="btn-save" type="button" onclick="guardarDatos()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all text-base mt-4 flex items-center justify-center">
         <i class="fa-solid fa-cloud-check mr-2"></i> <span>Guardar Cambios</span>
       </button>
@@ -302,288 +335,346 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o";
 
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const db = client;
-const $ = id => document.getElementById(id);
-const val = id => ($(id) || {}).value || '';
-let tagId = 'PET-001';
-let existingPhotoUrl = "";
-let savedPin = null;
-let isLostState = false;
-let pinSesion = '';
-const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
-const msgEstado = e => e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' : e === 'incorrecto' ? 'PIN incorrecto: vuelve a entrar desde el perfil.' : e === 'no_existe' ? 'Primero guarda los datos de la placa.' : e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' : e === 'codigo_incorrecto' ? 'El código de activación es incorrecto.' : e === 'placa_invalida' ? 'Esta placa no es válida o ya fue activada.' : 'Revisa los datos (' + e + ').';
-async function inicializar() {
-  tagId = new URLSearchParams(window.location.search).get('id') || '';
-  $('input-id').value = tagId;
-if (!tagId) { alert('Enlace de placa no válido.'); return; }
-  const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
-  if (existe) {
-    pinSesion = sessionStorage.getItem(`pin_${tagId}`) || '';
-    const { data: priv } = pinSesion
-      ? await client.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion })
-      : { data: null };
-    if (!priv || priv.estado !== 'ok') {
-      sessionStorage.removeItem(`pin_${tagId}`);
-      window.location.href = `index.html?id=${tagId}`;
-      return;
-    }
-    const data = priv.mascota;
-
-    $('form-title').innerText = "Editar Placa";
-    $('pin-creation-box').classList.add('hidden');
-    $('lost-toggle-box').classList.remove('hidden');
-
-    const campos = {
-      'input-pet': 'pet', 'input-breed': 'breed', 'input-color': 'color', 'input-weight': 'weight',
-      'input-age': 'age', 'input-description': 'description', 'input-owner': 'owner',
-      'input-phone': 'phone', 'input-phone-secondary': 'phone_secondary',
-      'input-lost-location': 'lost_location', 'input-lost-date': 'lost_date', 'input-lost-time': 'lost_time',
-      'input-next-vaccine': 'next_vaccine', 'input-next-deworming': 'next_deworming',
-      'input-allergies': 'allergies', 'input-medical': 'medical_notes', 'input-diet': 'diet',
-      'input-vet-name': 'vet_name', 'input-vet-phone': 'vet_phone'
+    const db = client;
+    const $ = id => document.getElementById(id);
+    const val = id => ($(id) || {}).value || '';
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmtFecha = iso => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+      return m ? `${m[3]}/${m[2]}/${m[1]}` : String(iso || '');
     };
-    for (const [idEl, col] of Object.entries(campos)) { if ($(idEl)) $(idEl).value = data[col] || ''; }
-    $('input-reward').checked = data.reward || false;
+    const soloFecha = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '') ? v : '';
+    let tagId = '';
+    let existingPhotoUrl = "";
+    let savedPin = null;
+    let isLostState = false;
+    let pinSesion = '';
+    const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
+    const msgEstado = e =>
+      e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' :
+      e === 'incorrecto' ? 'PIN incorrecto: vuelve a entrar desde el perfil.' :
+      e === 'no_existe' ? 'Primero guarda los datos de la placa.' :
+      e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' :
+      e === 'codigo_incorrecto' ? 'El código de activación es incorrecto.' :
+      e === 'placa_invalida' ? 'Esta placa no es válida o ya fue activada.' :
+      e === 'telefono_invalido' ? 'Revisa los teléfonos: usa solo números, con código de país (ej. 51987654321).' :
+      'Revisa los datos (' + e + ').';
 
-    savedPin = pinSesion;
-    isLostState = data.is_lost || false;
-    actualizarBotonAlarmaUI();
+    async function inicializar() {
+      tagId = new URLSearchParams(window.location.search).get('id') || '';
+      $('input-id').value = tagId;
+      if (!tagId) { alert('Enlace de placa no válido.'); return; }
 
-    if (data.photo) {
-      existingPhotoUrl = data.photo;
-      const p = $('preview-photo');
-      p.src = data.photo;
-      p.classList.remove('hidden');
-      $('placeholder-icon').classList.add('hidden');
-    }
-  }
-  if (!existe) {
-  const { data: est } = await client.rpc('estado_placa', { p_id: tagId });
-  if (est !== 'sin_activar') { window.location.href = `index.html?id=${encodeURIComponent(tagId)}`; return; }
-  $('activation-box').classList.remove('hidden');
-}
-  if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); refrescarTelegram(); }
-await cargarHistorialEscaneos();
-}
+      const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
+      if (existe) {
+        pinSesion = sessionStorage.getItem(`pin_${tagId}`) || '';
+        const { data: priv } = pinSesion
+          ? await client.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion })
+          : { data: null };
+        if (!priv || priv.estado !== 'ok') {
+          sessionStorage.removeItem(`pin_${tagId}`);
+          window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
+          return;
+        }
+        const data = priv.mascota;
 
-function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
+        $('form-title').innerText = "Editar Placa";
+        $('pin-creation-box').classList.add('hidden');
+        $('lost-toggle-box').classList.remove('hidden');
 
-function actualizarBotonAlarmaUI() {
-  const btn = $('btn-toggle-lost');
-  const box = $('lost-details-box');
-  const base = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ";
-  if (isLostState) {
-    btn.className = base + "bg-red-600 text-white shadow-lg shadow-red-600/30 animate-pulse";
-    btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i> <span>¡ALARMA ACTIVADA: MASCOTA PERDIDA!</span>`;
-    if (box) box.classList.remove('hidden');
-  } else {
-    btn.className = base + "bg-emerald-100 text-emerald-800 border border-emerald-300";
-    btn.innerHTML = `<i class="fa-solid fa-house-chimney text-base"></i> <span>Estado: Segura en Casa</span>`;
-    if (box) box.classList.add('hidden');
-  }
-}
+        const campos = {
+          'input-pet': 'pet', 'input-breed': 'breed', 'input-color': 'color', 'input-weight': 'weight',
+          'input-age': 'age', 'input-description': 'description', 'input-owner': 'owner',
+          'input-phone': 'phone', 'input-phone-secondary': 'phone_secondary',
+          'input-lost-location': 'lost_location', 'input-lost-date': 'lost_date', 'input-lost-time': 'lost_time',
+          'input-allergies': 'allergies', 'input-medical': 'medical_notes', 'input-diet': 'diet',
+          'input-vet-name': 'vet_name', 'input-vet-phone': 'vet_phone'
+        };
+        for (const [idEl, col] of Object.entries(campos)) { if ($(idEl)) $(idEl).value = data[col] || ''; }
+        // Las fechas antiguas escritas como texto ("15 de Octubre") no se pueden convertir: quedan vacías
+        $('input-next-vaccine').value = soloFecha(data.next_vaccine);
+        $('input-next-deworming').value = soloFecha(data.next_deworming);
+        $('input-reward').checked = data.reward || false;
+        $('input-mostrar-ficha').checked = !!data.mostrar_ficha;
+        $('input-mostrar-vet').checked = !!data.mostrar_vet;
+        $('input-mostrar-tel2').checked = !!data.mostrar_tel2;
 
-$('input-photo').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const p = $('preview-photo');
-    p.src = ev.target.result;
-    p.classList.remove('hidden');
-    $('placeholder-icon').classList.add('hidden');
-  };
-  reader.readAsDataURL(file);
-});
-async function comprimirImagen(file, maxLado = 900, calidad = 0.82) {
-  if (!file.type.startsWith('image/')) return file;
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise((ok, fail) => {
-      const i = new Image();
-      i.onload = () => ok(i);
-      i.onerror = fail;
-      i.src = url;
-    });
-    const escala = Math.min(1, maxLado / Math.max(img.naturalWidth, img.naturalHeight));
-    const w = Math.round(img.naturalWidth * escala);
-    const h = Math.round(img.naturalHeight * escala);
-    const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, w, h);
-    ctx.drawImage(img, 0, 0, w, h);
-    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', calidad));
-    return blob && blob.size < file.size ? new File([blob], 'foto.jpg', { type: 'image/jpeg' }) : file;
-  } catch (e) {
-    return file;
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
-async function guardarDatos() {
-  const btn = $('btn-save');
-  const pet = val('input-pet').trim();
-  const owner = val('input-owner').trim();
-  const phone = normalizarTel(val('input-phone'));
-  const finalPin = savedPin ? savedPin : val('input-pin').trim();
-  const photoInput = $('input-photo');
+        savedPin = pinSesion;
+        isLostState = data.is_lost || false;
+        actualizarBotonAlarmaUI();
 
-  if (!pet || !owner || !phone || !finalPin) { alert("Por favor completa los campos requeridos (*)."); return; }
-  if (!savedPin && (finalPin.length !== 4 || isNaN(finalPin))) { alert("El PIN debe ser de 4 números."); return; }
-
-  btn.disabled = true;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...`;
-  let photoPublicUrl = existingPhotoUrl || "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=500&q=80";
-
-  try {
-    if (photoInput.files && photoInput.files[0]) {
-  const file = await comprimirImagen(photoInput.files[0]);
-  if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
-    throw new Error('Formato de imagen no compatible. Usa una foto JPG o PNG.');
-  }
-  const fileName = `${tagId}_${Date.now()}.${file.name.split('.').pop().toLowerCase()}`;
-  const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false, contentType: file.type });
-  if (uploadError) throw new Error('No se pudo subir la foto: ' + uploadError.message);
-  photoPublicUrl = client.storage.from('pet-photos').getPublicUrl(fileName).data.publicUrl;
-}
-    const v = id => val(id).trim();
-    const { data: res, error: dbError } = await client.rpc('guardar_mascota', {
-      p_id: tagId, p_pin: finalPin, p_codigo: val('input-codigo').trim() || null,
-      p_datos: {
-        pet, owner, phone,
-        breed: v('input-breed'), color: v('input-color'),
-        weight: v('input-weight').replace(/\s*kg$/i, ''), age: v('input-age'),
-        description: v('input-description'), phone_secondary: normalizarTel(v('input-phone-secondary')),
-        is_lost: isLostState, lost_location: v('input-lost-location'),
-        lost_date: v('input-lost-date'), lost_time: v('input-lost-time'),
-        reward: $('input-reward').checked, photo: photoPublicUrl,
-        next_vaccine: v('input-next-vaccine'), next_deworming: v('input-next-deworming'),
-        allergies: v('input-allergies'), medical_notes: v('input-medical'), diet: v('input-diet'),
-        vet_name: v('input-vet-name'), vet_phone: v('input-vet-phone')
+        if (data.photo) {
+          existingPhotoUrl = data.photo;
+          const p = $('preview-photo');
+          p.src = data.photo;
+          p.classList.remove('hidden');
+          $('placeholder-icon').classList.add('hidden');
+        }
+      } else {
+        const { data: est } = await client.rpc('estado_placa', { p_id: tagId });
+        if (est !== 'sin_activar') { window.location.href = `index.html?id=${encodeURIComponent(tagId)}`; return; }
+        $('activation-box').classList.remove('hidden');
       }
+      if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); refrescarTelegram(); }
+      await cargarHistorialPrivado();
+      await cargarHistorialEscaneos();
+    }
+
+    function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
+
+    function actualizarBotonAlarmaUI() {
+      const btn = $('btn-toggle-lost');
+      const box = $('lost-details-box');
+      const base = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ";
+      if (isLostState) {
+        btn.className = base + "bg-red-600 text-white shadow-lg shadow-red-600/30 animate-pulse";
+        btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i> <span>¡ALARMA ACTIVADA: MASCOTA PERDIDA!</span>`;
+        if (box) box.classList.remove('hidden');
+      } else {
+        btn.className = base + "bg-emerald-100 text-emerald-800 border border-emerald-300";
+        btn.innerHTML = `<i class="fa-solid fa-house-chimney text-base"></i> <span>Estado: Segura en Casa</span>`;
+        if (box) box.classList.add('hidden');
+      }
+    }
+
+    $('input-photo').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const p = $('preview-photo');
+        p.src = ev.target.result;
+        p.classList.remove('hidden');
+        $('placeholder-icon').classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
     });
-    if (dbError) throw dbError;
-    if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
 
-    sessionStorage.setItem(`pin_${tagId}`, finalPin);
-    window.location.href = `index.html?id=${tagId}`;
-  } catch (err) {
-    alert("Error al guardar: " + err.message);
-    btn.disabled = false;
-    btn.innerHTML = `<i class="fa-solid fa-cloud-check mr-2"></i> Guardar Cambios`;
-  }
-}
+    async function comprimirImagen(file, maxLado = 900, calidad = 0.82) {
+      if (!file.type.startsWith('image/')) return file;
+      const url = URL.createObjectURL(file);
+      try {
+        const img = await new Promise((ok, fail) => {
+          const i = new Image();
+          i.onload = () => ok(i);
+          i.onerror = fail;
+          i.src = url;
+        });
+        const escala = Math.min(1, maxLado / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.round(img.naturalWidth * escala);
+        const h = Math.round(img.naturalHeight * escala);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', calidad));
+        return blob && blob.size < file.size ? new File([blob], 'foto.jpg', { type: 'image/jpeg' }) : file;
+      } catch (e) {
+        return file;
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
 
-window.guardarRegistroMedico = async function () {
-  const btn = $('btn-save-med');
-  const textOriginal = btn ? btn.innerHTML : '';
-  const visitDate = val('med-date'), vetName = val('med-vet'), reason = val('med-reason');
+    async function guardarDatos() {
+      const btn = $('btn-save');
+      const pet = val('input-pet').trim();
+      const owner = val('input-owner').trim();
+      const phone = normalizarTel(val('input-phone'));
+      const finalPin = savedPin ? savedPin : val('input-pin').trim();
+      const photoInput = $('input-photo');
+      const esNueva = !$('activation-box').classList.contains('hidden');
 
-  if (!visitDate || !vetName || !reason) {
-    alert("⚠️ Por favor completa la fecha, el nombre de la veterinaria y el motivo.");
-    return;
-  }
-  if (btn) { btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`; btn.disabled = true; }
+      if (!pet || !owner || !phone || !finalPin) { alert("Por favor completa los campos requeridos (*)."); return; }
+      if (phone.length < 8 || phone.length > 15) { alert("Revisa el teléfono principal: usa solo números, con código de país (ej. 51987654321)."); return; }
+      if (!savedPin && !/^[0-9]{4}$/.test(finalPin)) { alert("El PIN debe ser de 4 números."); return; }
+      if (esNueva && !$('input-consent').checked) { alert("Para activar la placa debes aceptar el uso de tus datos."); return; }
 
-  try {
-    const { data, error } = await db.rpc('agregar_registro_medico', {
-      p_id: tagId, p_pin: pinSesion, p_fecha: visitDate, p_vet: vetName, p_motivo: reason,
-      p_diagnostico: val('med-diagnosis') || null,
-      p_receta: val('med-prescription') || null,
-      p_proxima: val('med-next') || null
-    });
-    if (error) throw error;
-    if (data.estado !== 'ok') throw new Error(msgEstado(data.estado));
-    alert("✅ ¡Registro médico guardado con éxito!");
-    ['med-date', 'med-vet', 'med-reason', 'med-diagnosis', 'med-prescription', 'med-next'].forEach(id => { if ($(id)) $(id).value = ''; });
-  } catch (err) {
-    alert("❌ Error al guardar: " + err.message);
-  } finally {
-    if (btn) { btn.innerHTML = textOriginal; btn.disabled = false; }
-  }
-};
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...`;
+      let photoPublicUrl = existingPhotoUrl;
 
-function toggleHistorialEscaneos() {
-  const c = $('desplegable-escaneos'), f = $('flecha-escaneos');
-  if (!c) return;
-  const abierto = !c.classList.contains('hidden');
-  c.classList.toggle('hidden', abierto);
-  if (f) f.classList.toggle('rotate-180', !abierto);
-}
+      try {
+        if (photoInput.files && photoInput.files[0]) {
+          const file = await comprimirImagen(photoInput.files[0]);
+          const ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }[file.type];
+          if (!ext) throw new Error('Formato de imagen no compatible. Usa una foto JPG o PNG.');
+          if (file.size > 1048576) throw new Error('La foto pesa más de 1 MB. Elige otra o recórtala.');
+          const fileName = `${tagId}_${Date.now()}.${ext}`;
+          const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false, contentType: file.type });
+          if (uploadError) throw new Error('No se pudo subir la foto: ' + uploadError.message);
+          photoPublicUrl = client.storage.from('pet-photos').getPublicUrl(fileName).data.publicUrl;
+        }
+        const v = id => val(id).trim();
+        const { data: res, error: dbError } = await client.rpc('guardar_mascota', {
+          p_id: tagId, p_pin: finalPin, p_codigo: val('input-codigo').trim() || null,
+          p_datos: {
+            pet, owner, phone,
+            breed: v('input-breed'), color: v('input-color'),
+            weight: v('input-weight').replace(/\s*kg$/i, ''), age: v('input-age'),
+            description: v('input-description'), phone_secondary: normalizarTel(v('input-phone-secondary')),
+            is_lost: isLostState, lost_location: v('input-lost-location'),
+            lost_date: v('input-lost-date'), lost_time: v('input-lost-time'),
+            reward: $('input-reward').checked, photo: photoPublicUrl,
+            next_vaccine: v('input-next-vaccine'), next_deworming: v('input-next-deworming'),
+            allergies: v('input-allergies'), medical_notes: v('input-medical'), diet: v('input-diet'),
+            vet_name: v('input-vet-name'), vet_phone: v('input-vet-phone'),
+            mostrar_ficha: $('input-mostrar-ficha').checked,
+            mostrar_vet: $('input-mostrar-vet').checked,
+            mostrar_tel2: $('input-mostrar-tel2').checked
+          }
+        });
+        if (dbError) throw dbError;
+        if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
 
-async function cargarHistorialEscaneos() {
-  const previewTxt = $('preview-ultimo-escaneo'), btnMaps = $('btn-ultimo-maps'), lista = $('escaneos-lista-anteriores');
-  const fmt = f => f ? new Date(f).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente';
-  const url = s => `https://maps.google.com/?q=${Number(s.latitude)},${Number(s.longitude)}`;
+        sessionStorage.setItem(`pin_${tagId}`, finalPin);
+        window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
+      } catch (err) {
+        alert("Error al guardar: " + err.message);
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-cloud-check mr-2"></i> Guardar Cambios`;
+      }
+    }
 
-  let escaneos = [];
-  if (pinSesion) {
-    const { data: res } = await db.rpc('obtener_escaneos', { p_id: tagId, p_pin: pinSesion });
-    if (res && res.estado === 'ok') escaneos = res.escaneos || [];
-  }
+    window.guardarRegistroMedico = async function () {
+      const btn = $('btn-save-med');
+      const textOriginal = btn ? btn.innerHTML : '';
+      const visitDate = val('med-date'), vetName = val('med-vet'), reason = val('med-reason');
 
-  if (escaneos.length === 0) {
-    previewTxt.textContent = 'Sin registros de ubicación aún.';
-    btnMaps.classList.add('hidden');
-    lista.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
-    return;
-  }
+      if (!visitDate || !vetName || !reason) {
+        alert("⚠️ Por favor completa la fecha, el nombre de la veterinaria y el motivo.");
+        return;
+      }
+      if (btn) { btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`; btn.disabled = true; }
 
-  const [ultimo, ...anteriores] = escaneos;
-  previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fmt(ultimo.created_at)}`;
-  btnMaps.href = url(ultimo);
-  btnMaps.classList.remove('hidden');
+      try {
+        const { data, error } = await db.rpc('agregar_registro_medico', {
+          p_id: tagId, p_pin: pinSesion, p_fecha: visitDate, p_vet: vetName, p_motivo: reason,
+          p_diagnostico: val('med-diagnosis') || null,
+          p_receta: val('med-prescription') || null,
+          p_proxima: val('med-next') || null
+        });
+        if (error) throw error;
+        if (data.estado !== 'ok') throw new Error(msgEstado(data.estado));
+        alert("✅ ¡Registro médico guardado con éxito!");
+        ['med-date', 'med-vet', 'med-reason', 'med-diagnosis', 'med-prescription', 'med-next'].forEach(id => { if ($(id)) $(id).value = ''; });
+        await cargarHistorialPrivado();
+      } catch (err) {
+        alert("❌ Error al guardar: " + err.message);
+      } finally {
+        if (btn) { btn.innerHTML = textOriginal; btn.disabled = false; }
+      }
+    };
 
-  lista.innerHTML = anteriores.length
-    ? anteriores.map((s, i) => `
-      <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
-          <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
-        </div>
-        <a href="${url(s)}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
-          <i class="fa-solid fa-map-location-dot"></i> Maps
-        </a>
-      </div>`).join('')
-    : `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
-}
-const BOT_TELEGRAM = 'Ayudapetbot';
-let telegramVinculado = false;
+    // Historial completo (con diagnóstico y receta): solo el dueño, con su PIN
+    async function cargarHistorialPrivado() {
+      const box = $('historial-privado');
+      if (!box) return;
+      if (!pinSesion) {
+        box.innerHTML = `<p class="text-xs text-slate-400 italic">Guarda los datos de la placa para empezar tu historial.</p>`;
+        return;
+      }
+      const { data: res, error } = await db.rpc('obtener_historial_medico_privado', { p_id: tagId, p_pin: pinSesion });
+      if (error || !res || res.estado !== 'ok') {
+        box.innerHTML = `<p class="text-xs text-slate-500">No se pudo cargar el historial.</p>`;
+        return;
+      }
+      const regs = res.registros || [];
+      box.innerHTML = regs.length ? regs.map(r => `
+        <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-100 text-left">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs font-bold text-amber-950 uppercase">${esc(r.vet_name)}</span>
+            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(fmtFecha(r.visit_date))}</span>
+          </div>
+          <p class="text-xs text-slate-700 font-medium"><strong>Motivo:</strong> ${esc(r.reason || 'Consulta general')}</p>
+          ${r.diagnosis ? `<p class="text-xs text-slate-600 mt-1"><strong>Diagnóstico:</strong> ${esc(r.diagnosis)}</p>` : ''}
+          ${r.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2 rounded-xl border border-emerald-100 mt-1.5"><strong>Receta/Tratamiento:</strong> ${esc(r.prescription)}</p>` : ''}
+          ${r.next_due_date ? `<p class="text-xs text-emerald-800 mt-1"><strong>Próximo refuerzo:</strong> ${esc(fmtFecha(r.next_due_date))}</p>` : ''}
+        </div>`).join('') : `<p class="text-xs text-slate-400 italic">Sin registros aún.</p>`;
+    }
 
-async function refrescarTelegram() {
-  if (!pinSesion) return;
-  const { data } = await db.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion });
-  if (!data || data.estado !== 'ok') return;
-  telegramVinculado = !!data.telegram_vinculado;
-  $('telegram-box').classList.remove('hidden');
-  $('telegram-estado').textContent = telegramVinculado
-    ? '✅ Vinculado: recibirás avisos de escaneos y recordatorios en Telegram.'
-    : 'Recibe un mensaje cuando escaneen la placa y cuando toque vacuna o control.';
-  $('btn-telegram').textContent = telegramVinculado ? 'Desvincular Telegram' : 'Vincular Telegram';
-}
+    function toggleHistorialEscaneos() {
+      const c = $('desplegable-escaneos'), f = $('flecha-escaneos');
+      if (!c) return;
+      const abierto = !c.classList.contains('hidden');
+      c.classList.toggle('hidden', abierto);
+      if (f) f.classList.toggle('rotate-180', !abierto);
+    }
 
-async function accionTelegram() {
-  if (telegramVinculado) {
-    if (!confirm('¿Dejar de recibir avisos en Telegram?')) return;
-    await db.rpc('desvincular_telegram', { p_id: tagId, p_pin: pinSesion });
-    return refrescarTelegram();
-  }
-  const w = window.open('', '_blank');
-  const { data, error } = await db.rpc('crear_vinculo_telegram', { p_id: tagId, p_pin: pinSesion });
-  if (error || !data || data.estado !== 'ok') {
-    if (w) w.close();
-    alert('No se pudo crear el enlace. Vuelve a entrar con tu PIN.');
-    return;
-  }
-  const url = `https://t.me/${BOT_TELEGRAM}?start=${data.token}`;
-  if (w) w.location.href = url; else window.location.href = url;
-}
+    async function cargarHistorialEscaneos() {
+      const previewTxt = $('preview-ultimo-escaneo'), btnMaps = $('btn-ultimo-maps'), lista = $('escaneos-lista-anteriores');
+      const fmt = f => f ? new Date(f).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente';
+      const url = s => `https://maps.google.com/?q=${Number(s.latitude)},${Number(s.longitude)}`;
 
-document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarTelegram(); });
-inicializar();
+      let escaneos = [];
+      if (pinSesion) {
+        const { data: res } = await db.rpc('obtener_escaneos', { p_id: tagId, p_pin: pinSesion });
+        if (res && res.estado === 'ok') escaneos = res.escaneos || [];
+      }
+
+      if (escaneos.length === 0) {
+        previewTxt.textContent = 'Sin registros de ubicación aún.';
+        btnMaps.classList.add('hidden');
+        lista.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
+        return;
+      }
+
+      const [ultimo, ...anteriores] = escaneos;
+      previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fmt(ultimo.created_at)}`;
+      btnMaps.href = url(ultimo);
+      btnMaps.classList.remove('hidden');
+
+      lista.innerHTML = anteriores.length
+        ? anteriores.map((s, i) => `
+          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
+            <div>
+              <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
+              <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
+            </div>
+            <a href="${url(s)}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+              <i class="fa-solid fa-map-location-dot"></i> Maps
+            </a>
+          </div>`).join('')
+        : `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
+    }
+
+    const BOT_TELEGRAM = 'Ayudapetbot';
+    let telegramVinculado = false;
+
+    async function refrescarTelegram() {
+      if (!pinSesion) return;
+      const { data } = await db.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion });
+      if (!data || data.estado !== 'ok') return;
+      telegramVinculado = !!data.telegram_vinculado;
+      $('telegram-box').classList.remove('hidden');
+      $('telegram-estado').textContent = telegramVinculado
+        ? '✅ Vinculado: recibirás avisos de escaneos y recordatorios en Telegram.'
+        : 'Recibe un mensaje cuando escaneen la placa y cuando toque vacuna o control.';
+      $('btn-telegram').textContent = telegramVinculado ? 'Desvincular Telegram' : 'Vincular Telegram';
+    }
+
+    async function accionTelegram() {
+      if (telegramVinculado) {
+        if (!confirm('¿Dejar de recibir avisos en Telegram?')) return;
+        await db.rpc('desvincular_telegram', { p_id: tagId, p_pin: pinSesion });
+        return refrescarTelegram();
+      }
+      const w = window.open('', '_blank');
+      const { data, error } = await db.rpc('crear_vinculo_telegram', { p_id: tagId, p_pin: pinSesion });
+      if (error || !data || data.estado !== 'ok') {
+        if (w) w.close();
+        alert('No se pudo crear el enlace. Vuelve a entrar con tu PIN.');
+        return;
+      }
+      const url = `https://t.me/${BOT_TELEGRAM}?start=${data.token}`;
+      if (w) w.location.href = url; else window.location.href = url;
+    }
+
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarTelegram(); });
+    inicializar();
   </script>
 </body>
 </html>
