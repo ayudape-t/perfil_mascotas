@@ -17,16 +17,34 @@
     </div>
 
     <div class="p-6 space-y-4">
-      <!-- Paso 1: código -->
       <section id="paso-codigo" class="space-y-3">
         <p class="text-xs text-slate-500">Ingresa el código temporal que te dio el dueño de la mascota.</p>
         <input id="codigo" maxlength="7" autocomplete="off" placeholder="ABC-234"
           class="w-full text-center text-2xl font-mono font-bold tracking-widest uppercase py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
         <button id="btn-validar" type="button" onclick="validarCodigo()"
           class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg">Validar código</button>
+
+        <div class="relative my-2 flex items-center">
+          <div class="flex-grow border-t border-slate-300"></div>
+          <span class="mx-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">¿No tienes código?</span>
+          <div class="flex-grow border-t border-slate-300"></div>
+        </div>
+
+        <input id="vet-nombre" maxlength="100" placeholder="Tu nombre o veterinaria"
+          class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
+        <button id="btn-solicitar" type="button" onclick="solicitarAutorizacion()"
+          class="w-full py-2.5 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 font-bold rounded-2xl text-sm">
+          <i class="fa-brands fa-telegram mr-1"></i> Solicitar autorización al dueño
+        </button>
       </section>
 
-      <!-- Paso 2: formulario -->
+      <section id="paso-espera" class="hidden text-center space-y-3">
+        <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-2xl"></i>
+        <p class="text-sm font-bold text-slate-700">Esperando la respuesta del dueño…</p>
+        <p class="text-xs text-slate-500">Le enviamos la solicitud por Telegram. Tiene 10 minutos para responder.</p>
+        <button type="button" onclick="cancelarEspera()" class="text-xs text-slate-500 underline">Cancelar</button>
+      </section>
+
       <section id="paso-form" class="hidden space-y-3">
         <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-sm text-emerald-900">
           <i class="fa-solid fa-paw mr-1"></i> Paciente: <b id="pac-nombre"></b>
@@ -76,6 +94,7 @@
     );
     const petId = new URLSearchParams(location.search).get('id') || '';
     let codigoOk = '';
+    let espera = null; // { timer, id, token, hasta }
 
     const $ = id => document.getElementById(id);
     const hoy = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -83,12 +102,19 @@
     $('f-fecha').max = hoy();
 
     const ERRORES = {
-      sin_codigo: 'Este paciente no tiene un código activo. Pídele al dueño que genere uno.',
+      sin_codigo: 'Este paciente no tiene un código activo. Pídele al dueño que genere uno o solicita autorización.',
       incorrecto: 'Código incorrecto.',
-      expirado: 'El código venció. Pídele al dueño uno nuevo.',
+      expirado: 'El código venció. Pídele al dueño uno nuevo o solicita autorización.',
       bloqueado: 'Demasiados intentos. Espera 15 minutos.',
       limite: 'Este código ya alcanzó su límite de 5 registros. Pide uno nuevo.',
       datos_invalidos: 'Revisa los datos: fecha (no futura), veterinaria y motivo son obligatorios; la próxima cita no puede ser anterior a la visita.'
+    };
+    const ERRORES_SOLICITUD = {
+      sin_telegram: 'El dueño no tiene Telegram vinculado. Pídele el código directamente.',
+      espera: 'Ya enviaste una solicitud hace un momento. Espera un par de minutos.',
+      limite: 'Demasiadas solicitudes. Pídele el código directamente al dueño.',
+      no_existe: 'No se encontró la placa. Revisa el enlace.',
+      datos_invalidos: 'Escribe tu nombre o el de tu veterinaria.'
     };
 
     function msg(texto, ok) {
@@ -98,9 +124,9 @@
         (ok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800');
     }
 
-    async function validarCodigo() {
+    async function validarCodigo(codigoManual) {
       if (!petId) return msg('Falta el ID de la placa en el enlace (?id=...).', false);
-      const cod = $('codigo').value.trim();
+      const cod = (typeof codigoManual === 'string' ? codigoManual : $('codigo').value).trim();
       if (cod.replace(/[^A-Za-z0-9]/g, '').length < 6) return msg('El código tiene 6 caracteres.', false);
       const btn = $('btn-validar'); btn.disabled = true;
       const { data, error } = await sb.rpc('vet_validar_codigo', { p_id: petId, p_codigo: cod });
@@ -111,9 +137,48 @@
       $('pac-nombre').textContent = data.mascota || '';
       $('pac-raza').textContent = data.raza ? ' · ' + data.raza : '';
       $('paso-codigo').classList.add('hidden');
+      $('paso-espera').classList.add('hidden');
       $('paso-form').classList.remove('hidden');
       $('msg').classList.add('hidden');
     }
+
+    // ---- Solicitar autorización al dueño (llega a su Telegram) ----
+    async function solicitarAutorizacion() {
+      if (!petId) return msg('Falta el ID de la placa en el enlace (?id=...).', false);
+      const nombre = $('vet-nombre').value.trim();
+      if (!nombre) return msg(ERRORES_SOLICITUD.datos_invalidos, false);
+      $('btn-solicitar').disabled = true;
+      const { data, error } = await sb.rpc('solicitar_autorizacion_vet', { p_id: petId, p_vet: nombre });
+      $('btn-solicitar').disabled = false;
+      if (error || !data) return msg('Error de conexión. Intenta de nuevo.', false);
+      if (data.estado !== 'ok') return msg(ERRORES_SOLICITUD[data.estado] || 'No se pudo enviar la solicitud.', false);
+
+      $('f-vet').value = nombre;
+      espera = { id: data.solicitud, token: data.token, hasta: Date.now() + 10 * 60 * 1000, timer: null };
+      $('paso-codigo').classList.add('hidden');
+      $('paso-espera').classList.remove('hidden');
+      $('msg').classList.add('hidden');
+      consultarSolicitud();
+    }
+
+    // Consulta cada 5 s, solo mientras se espera la respuesta (máx. 10 min)
+    async function consultarSolicitud() {
+      if (!espera) return;
+      const { data } = await sb.rpc('estado_solicitud_vet', { p_id: espera.id, p_token: espera.token });
+      const estado = data && data.estado;
+      if (estado === 'aceptada' && data.codigo) { terminarEspera(); return validarCodigo(data.codigo); }
+      if (estado === 'rechazada') { terminarEspera(true); return msg('El dueño rechazó la solicitud.', false); }
+      if (estado === 'expirada' || estado === 'no_existe' || Date.now() > espera.hasta) {
+        terminarEspera(true); return msg('La solicitud venció sin respuesta. Puedes enviarla de nuevo.', false);
+      }
+      espera.timer = setTimeout(consultarSolicitud, 5000);
+    }
+    function terminarEspera(volver) {
+      if (espera && espera.timer) clearTimeout(espera.timer);
+      espera = null;
+      if (volver) { $('paso-espera').classList.add('hidden'); $('paso-codigo').classList.remove('hidden'); }
+    }
+    function cancelarEspera() { terminarEspera(true); $('msg').classList.add('hidden'); }
 
     async function guardarRegistro() {
       const btn = $('btn-guardar'); btn.disabled = true;
@@ -126,7 +191,7 @@
       btn.disabled = false;
       if (error || !data) return msg('Error de conexión. Intenta de nuevo.', false);
       if (data.estado !== 'ok') return msg(ERRORES[data.estado] || 'No se pudo guardar.', false);
-      msg(`✅ Registro guardado. Te quedan ${data.restantes} con este código.`, true);
+      msg(`✅ Registro guardado. Te quedan ${data.restantes} con esta autorización.`, true);
       ['f-motivo', 'f-diag', 'f-receta', 'f-proxima'].forEach(id => $(id).value = '');
     }
   </script>
