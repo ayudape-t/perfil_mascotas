@@ -318,6 +318,10 @@
     class="w-full text-center font-mono font-bold tracking-widest py-2.5 border-2 border-amber-300 rounded-xl outline-none text-sm">
   <button type="button" id="btn-gen-vet" onclick="generarCodigoVet()"
     class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs">Generar código</button>
+            <button type="button" onclick="revocarCodigoVet()"
+  class="w-full py-2 bg-white text-rose-600 border-2 border-rose-300 font-bold rounded-xl text-xs">
+  Revocar autorización del veterinario
+</button>
   <div id="vet-result" class="hidden text-center space-y-2">
     <p id="vet-code" class="text-3xl font-mono font-black tracking-widest text-amber-600"></p>
     <p id="vet-exp" class="text-[11px] text-slate-500"></p>
@@ -696,6 +700,20 @@
     "https://cjxcqdgtchhtfowreuca.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o"
   );
+    async function revocarCodigoVet() {
+  const id = new URLSearchParams(location.search).get('id') || '';
+  const pin = document.getElementById('vet-pin').value.trim();
+  const err = document.getElementById('vet-err');
+  document.getElementById('vet-result').classList.add('hidden');
+  if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'Ingresa tu PIN de 4 dígitos.'; err.classList.remove('hidden'); return; }
+  const { data } = await _vetDb.rpc('revocar_codigo_vet', { p_id: id, p_pin: pin });
+  const m = { incorrecto: 'PIN incorrecto.', bloqueado: 'Demasiados intentos. Espera 15 minutos.' };
+  document.getElementById('vet-pin').value = '';
+  err.textContent = data && data.estado === 'ok'
+    ? (data.revocado ? '🔒 Autorización revocada.' : 'No había una autorización vigente.')
+    : ((data && m[data.estado]) || 'No se pudo revocar.');
+  err.classList.remove('hidden');
+}
   async function generarCodigoVet() {
     const id = new URLSearchParams(location.search).get('id') || '';
     const pin = document.getElementById('vet-pin').value.trim();
