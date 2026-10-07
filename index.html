@@ -295,8 +295,9 @@
       </div>
       <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" placeholder="••••" pattern="[0-9]{4}" class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
       <button onclick="validarPINModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all">Ingresar</button>
-      <button type="button" onclick="recuperarPIN()" class="text-xs text-amber-600 hover:underline font-semibold block mx-auto pt-1">¿Olvidaste tu PIN? Contactar Soporte</button>
-    </div>
+<a href="https://t.me/Ayudapetbot?start=recuperar" target="_blank" rel="noopener" class="text-xs text-amber-600 hover:underline font-semibold block mx-auto pt-1">
+  <i class="fa-brands fa-telegram mr-1"></i> ¿Olvidaste tu PIN? contactar con soporte
+</a>    </div>
   </div>
 
   <!-- MODAL AFICHE "¡SE BUSCA!" -->
@@ -363,7 +364,17 @@
       </div>
     </div>
   </div>
-
+  <div id="ubicacion-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 border border-slate-100">
+    <div class="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto text-2xl"><i class="fa-solid fa-location-dot"></i></div>
+    <div>
+      <h3 class="text-lg font-bold text-slate-900">Esta mascota está perdida</h3>
+      <p class="text-xs text-slate-500 mt-1">Si compartes tu ubicación, avisaremos al dueño de dónde fue escaneada para que pueda encontrarla. Se usa una sola vez; no te seguimos.</p>
+    </div>
+    <button type="button" onclick="responderUbicacion(true)" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg">Compartir mi ubicación</button>
+    <button type="button" onclick="responderUbicacion(false)" class="text-xs text-slate-500 hover:underline font-semibold block mx-auto">Ahora no</button>
+  </div>
+</div>
   <!-- MODAL FOTO EN GRANDE -->
   <div id="photo-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer" onclick="cerrarFotoGrande()">
     <div class="relative max-w-sm w-full text-center" onclick="event.stopPropagation()">
@@ -520,7 +531,7 @@
           if (techSheet) techSheet.classList.remove('hidden');
           if (healthZone) healthZone.classList.remove('hidden');
           // El historial de vacunas solo se ofrece si el dueño activó "mostrar ficha médica"
-          if (btnMedical && data.mostrar_ficha) btnMedical.classList.remove('hidden');
+          if (btnMedical) btnMedical.classList.remove('hidden');
 
           if (lostAlertBanner) lostAlertBanner.classList.add('hidden');
           if (btnAfiche) btnAfiche.classList.add('hidden');
@@ -569,18 +580,44 @@
           if (statusIndicator) {
             statusIndicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
           }
-
+          pedirUbicacionSiPerdida();
           cargarHistorialMedico();
         }
       } catch (err) { console.error("Error al cargar:", err); }
     }
 
-    async function guardarEscaneoSilencioso(lat, lon) {
-      const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
-      if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
-      else await avisarEscaneo(lat, lon);
-    }
+   async function guardarEscaneoSilencioso(lat, lon) {
+  const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
+  if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
+  else await avisarEscaneo(lat, lon, lat == null);
+}
 
+async function avisarEscaneo(lat, lon, denegada = false) {
+  if (!tagId || localStorage.getItem(`dueno_${tagId}`)) return;
+  const clave = lat != null ? `avisado_gps_${tagId}` : denegada ? `avisado_den_${tagId}` : `avisado_${tagId}`;
+  if (sessionStorage.getItem(clave)) return;
+  sessionStorage.setItem(clave, '1');
+  try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon, denegada } }); } catch (e) {}
+}
+
+// Solo mascota perdida y solo visitantes (no el dueño): explica y luego pide el permiso
+function pedirUbicacionSiPerdida() {
+  if (!petData || !petData.is_lost || localStorage.getItem(`dueno_${tagId}`)) return;
+  if (sessionStorage.getItem(`ubic_${tagId}`)) return;
+  if (!navigator.geolocation) { guardarEscaneoSilencioso(null, null); return; }
+  $('ubicacion-modal').classList.remove('hidden');
+}
+
+function responderUbicacion(acepta) {
+  sessionStorage.setItem(`ubic_${tagId}`, '1');
+  $('ubicacion-modal').classList.add('hidden');
+  if (!acepta) { guardarEscaneoSilencioso(null, null); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => guardarEscaneoSilencioso(pos.coords.latitude, pos.coords.longitude),
+    () => guardarEscaneoSilencioso(null, null),
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 0 }
+  );
+}
     // El permiso de ubicación se pide solo al tocar el botón (y el texto avisa a quién se envía)
     function enviarUbicacionGPS() {
       if (!petData) return;
@@ -636,15 +673,6 @@
       u.searchParams.set('id', tagId);
       new QRCode(box, { text: u.toString(), width: tam, height: tam, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
     }
-
-    async function avisarEscaneo(lat, lon) {
-      if (!tagId || localStorage.getItem(`dueno_${tagId}`)) return;
-      const clave = lat != null ? `avisado_gps_${tagId}` : `avisado_${tagId}`;
-      if (sessionStorage.getItem(clave)) return;
-      sessionStorage.setItem(clave, '1');
-      try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon } }); } catch (e) {}
-    }
-
     async function descargarCarnetDigital() {
       const carnet = $('carnet-digital');
       if (!carnet || !petData) return;
