@@ -211,27 +211,6 @@
         </div>
       </div>
 
-      <!-- SECCIÓN: PRIVACIDAD DEL PERFIL PÚBLICO -->
-      <div class="border-b border-slate-200/80 pb-4 pt-2">
-        <h2 class="text-xs font-extrabold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-          <i class="fa-solid fa-user-lock"></i> Privacidad del Perfil Público
-        </h2>
-        <p class="text-[11px] text-slate-500 mb-3">Quien escanee la placa siempre verá: nombre, foto, dueño, teléfono principal, alergias y datos físicos (raza, color, peso, edad). Lo demás lo decides tú:</p>
-
-        <label class="flex items-start gap-2 mb-2 cursor-pointer">
-          <input type="checkbox" id="input-mostrar-ficha" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
-          <span class="text-xs text-slate-700">Mostrar ficha médica (cuidados/medicación, dieta e historial de vacunas)</span>
-        </label>
-        <label class="flex items-start gap-2 mb-2 cursor-pointer">
-          <input type="checkbox" id="input-mostrar-vet" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
-          <span class="text-xs text-slate-700">Mostrar mi veterinaria (nombre y teléfono)</span>
-        </label>
-        <label class="flex items-start gap-2 cursor-pointer">
-          <input type="checkbox" id="input-mostrar-tel2" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
-          <span class="text-xs text-slate-700">Mostrar mi teléfono secundario</span>
-        </label>
-      </div>
-
       <!-- SECCIÓN: FICHA MÉDICA Y SALUD -->
       <div class="border-b border-slate-200/80 pb-3 pt-2">
         <h2 class="text-xs font-extrabold text-rose-600 uppercase tracking-wider flex items-center gap-1.5 mb-3">
@@ -414,9 +393,6 @@
         $('input-next-vaccine').value = soloFecha(data.next_vaccine);
         $('input-next-deworming').value = soloFecha(data.next_deworming);
         $('input-reward').checked = data.reward || false;
-        $('input-mostrar-ficha').checked = !!data.mostrar_ficha;
-        $('input-mostrar-vet').checked = !!data.mostrar_vet;
-        $('input-mostrar-tel2').checked = !!data.mostrar_tel2;
 
         savedPin = pinSesion;
         isLostState = data.is_lost || false;
@@ -541,9 +517,6 @@
             next_vaccine: v('input-next-vaccine'), next_deworming: v('input-next-deworming'),
             allergies: v('input-allergies'), medical_notes: v('input-medical'), diet: v('input-diet'),
             vet_name: v('input-vet-name'), vet_phone: v('input-vet-phone'),
-            mostrar_ficha: $('input-mostrar-ficha').checked,
-            mostrar_vet: $('input-mostrar-vet').checked,
-            mostrar_tel2: $('input-mostrar-tel2').checked
           }
         });
         if (dbError) throw dbError;
@@ -624,42 +597,41 @@
     }
 
     async function cargarHistorialEscaneos() {
-      const previewTxt = $('preview-ultimo-escaneo'), btnMaps = $('btn-ultimo-maps'), lista = $('escaneos-lista-anteriores');
-      const fmt = f => f ? new Date(f).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente';
-      const url = s => `https://maps.google.com/?q=${Number(s.latitude)},${Number(s.longitude)}`;
+  const previewTxt = $('preview-ultimo-escaneo'), btnMaps = $('btn-ultimo-maps'), lista = $('escaneos-lista-anteriores');
+  const fmt = f => f ? new Date(f).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente';
+  const url = s => `https://maps.google.com/?q=${Number(s.latitude)},${Number(s.longitude)}`;
 
-      let escaneos = [];
-      if (pinSesion) {
-        const { data: res } = await db.rpc('obtener_escaneos', { p_id: tagId, p_pin: pinSesion });
-        if (res && res.estado === 'ok') escaneos = res.escaneos || [];
-      }
+  let escaneos = [];
+  if (pinSesion) {
+    const { data: res } = await db.rpc('obtener_escaneos', { p_id: tagId, p_pin: pinSesion });
+    if (res && res.estado === 'ok') escaneos = res.escaneos || [];
+  }
 
-      if (escaneos.length === 0) {
-        previewTxt.textContent = 'Sin registros de ubicación aún.';
-        btnMaps.classList.add('hidden');
-        lista.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
-        return;
-      }
+  if (escaneos.length === 0) {
+    previewTxt.textContent = 'Sin registros de ubicación aún.';
+    btnMaps.classList.add('hidden');
+    lista.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
+    return;
+  }
 
-      const [ultimo, ...anteriores] = escaneos;
-      previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fmt(ultimo.created_at)}`;
-      btnMaps.href = url(ultimo);
-      btnMaps.classList.remove('hidden');
+  const [ultimo, ...anteriores] = escaneos;
+  previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fmt(ultimo.created_at)}${ultimo.con_ubicacion ? '' : ' · sin ubicación'}`;
+  if (ultimo.con_ubicacion) { btnMaps.href = url(ultimo); btnMaps.classList.remove('hidden'); }
+  else btnMaps.classList.add('hidden');
 
-      lista.innerHTML = anteriores.length
-        ? anteriores.map((s, i) => `
-          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
-            <div>
-              <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
-              <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
-            </div>
-            <a href="${url(s)}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
-              <i class="fa-solid fa-map-location-dot"></i> Maps
-            </a>
-          </div>`).join('')
-        : `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
-    }
-
+  lista.innerHTML = anteriores.length
+    ? anteriores.map((s, i) => `
+      <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
+        <div>
+          <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
+          <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
+        </div>
+        ${s.con_ubicacion
+          ? `<a href="${url(s)}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Maps</a>`
+          : `<span class="text-[10px] font-bold text-slate-400">Sin ubicación</span>`}
+      </div>`).join('')
+    : `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
+}
     const BOT_TELEGRAM = 'Ayudapetbot';
     let telegramVinculado = false;
 
