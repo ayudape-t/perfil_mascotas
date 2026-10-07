@@ -434,146 +434,155 @@
       card.classList.remove('hidden');
     }
 
-    async function cargarPerfil() {
-      tagId = new URLSearchParams(window.location.search).get('id') || '';
+   async function cargarPerfil() {
+  tagId = new URLSearchParams(window.location.search).get('id') || '';
 
-      try {
-        const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
+  try {
+    const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
 
-        if (error) {
-          mostrarTarjetaPlaca('Sin conexión', 'No se pudo cargar el perfil. Revisa tu internet e intenta de nuevo.');
-          return;
-        }
-        if (!data) {
-          const { data: est } = tagId ? await db.rpc('estado_placa', { p_id: tagId }) : { data: 'invalida' };
-          if (est === 'sin_activar') {
-            $('link-register').href = `registro.html?id=${encodeURIComponent(tagId)}`;
-            $('unregistered-card').classList.remove('hidden');
-          } else {
-            mostrarTarjetaPlaca('Placa no válida', 'Este código no corresponde a una placa Helpet. Revisa el enlace o escribe a soporte.');
-          }
-          return;
-        }
+    if (error) {
+      mostrarTarjetaPlaca('Sin conexión', 'No se pudo cargar el perfil. Revisa tu internet e intenta de nuevo.');
+      return;
+    }
+    if (!data) {
+      const { data: est } = tagId ? await db.rpc('estado_placa', { p_id: tagId }) : { data: 'invalida' };
+      if (est === 'sin_activar') {
+        $('link-register').href = `registro.html?id=${encodeURIComponent(tagId)}`;
+        $('unregistered-card').classList.remove('hidden');
+      } else {
+        mostrarTarjetaPlaca('Placa no válida', 'Este código no corresponde a una placa Helpet. Revisa el enlace o escribe a soporte.');
+      }
+      return;
+    }
 
-        petData = data;
-        petData.phone = soloDigitos(data.phone);
-        if (petData.phone.length === 9 && petData.phone[0] === '9') petData.phone = '51' + petData.phone;
+    petData = data;
+    petData.phone = soloDigitos(data.phone);
+    if (petData.phone.length === 9 && petData.phone[0] === '9') petData.phone = '51' + petData.phone;
 
-        $('app-container').classList.remove('hidden');
-        avisarEscaneo();
-        $('pet-name').textContent = (data.pet || '').toUpperCase();
-        $('owner-name').textContent = data.owner || '';
+    $('app-container').classList.remove('hidden');
+    avisarEscaneo();
+    $('pet-name').textContent = (data.pet \vert{}\vert{} '').toUpperCase();$('owner-name').textContent = data.owner || '';
 
-       // ==========================================
-        // CONTROL DE PRIVACIDAD / MODO PERDIDO VS SEGURO
-        // ==========================================
-        const isLost = data.is_lost || false;
+    // ==========================================
+    // CONTROL DE PRIVACIDAD / MODO PERDIDO VS SEGURO
+    // ==========================================
+    const isLost = data.is_lost || false;
 
-        const techSheet = $('pet-tech-sheet');
-        const btnMedical = $('btn-medical-history');
-        const healthZone = $('health-zone');
-        const healthCard = $('health-card');
-        const medicalCard = $('medical-card');
-        const lostAlertBanner = $('lost-alert-banner');
-        const btnAfiche = $('btn-afiche');
-        const subStatusEl = $('sub-status');
-        const badge = $('header-status-badge');
-        const statusIndicator = $('status-indicator');
+    const techSheet = $('pet-tech-sheet');
+    const btnMedical = $('btn-medical-history');
+    const healthZone = $('health-zone');
+    const healthCard = $('health-card');
+    const medicalCard = $('medical-card');
+    const lostAlertBanner = $('lost-alert-banner');
+    const btnAfiche = $('btn-afiche');
+    const subStatusEl = $('sub-status');
+    const badge = $('header-status-badge');
+    const statusIndicator = $('status-indicator');
 
-        if (data.photo) $('pet-photo').src = data.photo;
+    if (data.photo) $('pet-photo').src = data.photo;
 
-        // Botones de contacto principales
-        const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
-        $('btn-whatsapp').href = `https://wa.me/${petData.phone}?text=${mensajeWA}`;
-        $('btn-call').href = `tel:+${petData.phone}`;
+    // Botones de contacto principales
+    const mensajeWA = encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`);
+    $('btn-whatsapp').href = `https://wa.me/${petData.phone}?text=${mensajeWA}`;
+    $('btn-call').href = `tel:+${petData.phone}`;
 
-        // Contacto secundario (solo llega si el dueño lo hizo público)
-        const tel2 = soloDigitos(data.phone_secondary);
-        if (tel2) {
-          const btnSec = $('btn-call-secondary');
-          btnSec.href = `tel:+${tel2}`;
-          btnSec.classList.remove('hidden');
-        }
+    // Contacto secundario
+    const tel2 = soloDigitos(data.phone_secondary);
+    if (tel2) {
+      const btnSec = $('btn-call-secondary');
+      if (btnSec) {
+        btnSec.href = `tel:+${tel2}`;
+        btnSec.classList.remove('hidden');
+      }
+    }
 
-        if (isLost) {
-          // 🔴 MODO PERDIDO: Ocultamos Ficha Técnica y todas las Fichas Médicas/Salud
-          if (techSheet) techSheet.classList.add('hidden');
-          if (btnMedical) btnMedical.classList.add('hidden');
-          if (healthZone) healthZone.classList.add('hidden');
-          if (healthCard) healthCard.classList.add('hidden');
-          if (medicalCard) medicalCard.classList.add('hidden');
+    if (isLost) {
+      // 🔴 MODO PERDIDO
+      if (techSheet) techSheet.classList.add('hidden');
+      if (btnMedical) btnMedical.classList.add('hidden');
+      if (healthZone) healthZone.classList.add('hidden');
+      if (healthCard) healthCard.classList.add('hidden');
+      if (medicalCard) medicalCard.classList.add('hidden');
 
-          if (lostAlertBanner) lostAlertBanner.classList.remove('hidden');
-          $('btn-gps').classList.remove('hidden');$('gps-note').classList.remove('hidden');
-          if (btnAfiche) btnAfiche.classList.remove('hidden');
+      if (lostAlertBanner) lostAlertBanner.classList.remove('hidden');
+      if ($('btn-gps'))$('btn-gps').classList.remove('hidden');
+      if ($('gps-note'))$('gps-note').classList.remove('hidden');
+      if (btnAfiche) btnAfiche.classList.remove('hidden');
 
-          if (badge) {
-            badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
-            badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
-          }
-          if (subStatusEl) {
-            subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
-            subStatusEl.textContent = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
-          }
-          if (statusIndicator) {
-            statusIndicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
-          }
+      if (badge) {
+        badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
+        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
+      }
+      if (subStatusEl) {
+        subStatusEl.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
+        subStatusEl.textContent = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
+      }
+      if (statusIndicator) {
+        statusIndicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
+      }
 
-          // Lanza la alerta nativa de ubicación que querías
-          pedirUbicacionSiPerdida();
+      // Petición nativa del navegador
+      pedirUbicacionSiPerdida();
 
-        } else {
-          // 🟢 MODO SEGURO: Mostramos todo
-          if (techSheet) techSheet.classList.remove('hidden');
-          if (healthZone) healthZone.classList.remove('hidden');
-          if (btnMedical) btnMedical.classList.remove('hidden');
+    } else {
+      // 🟢 MODO SEGURO
+      if (techSheet) techSheet.classList.remove('hidden');
+      if (healthZone) healthZone.classList.remove('hidden');
+      if (btnMedical) btnMedical.classList.remove('hidden');
 
-          if (lostAlertBanner) lostAlertBanner.classList.add('hidden');
-          if (btnAfiche) btnAfiche.classList.add('hidden');
+      if (lostAlertBanner) lostAlertBanner.classList.add('hidden');
+      if (btnAfiche) btnAfiche.classList.add('hidden');
 
-          $('pet-breed').textContent = data.breed \vert{}\vert{} 'No especificada';$('pet-color').textContent = data.color || 'No especificado';
-          $('pet-weight').textContent = fmtPeso(data.weight) \vert{}\vert{} 'No especificado';$('pet-age').textContent = data.age || 'No especificada';
+      if ($('pet-breed'))$('pet-breed').textContent = data.breed || 'No especificada';
+      if ($('pet-color'))$('pet-color').textContent = data.color || 'No especificado';
+      if ($('pet-weight'))$('pet-weight').textContent = fmtPeso(data.weight) || 'No especificado';
+      if ($('pet-age'))$('pet-age').textContent = data.age || 'No especificada';
 
-          // Carnet Digital de Salud
-          let tieneControlSalud = false;
-          if (data.next_vaccine) {
-            $('row-vaccine').classList.remove('hidden');$('txt-vaccine').textContent = fmtFecha(data.next_vaccine);
-            tieneControlSalud = true;
-          }
-          if (data.next_deworming) {
-            $('row-deworming').classList.remove('hidden');$('txt-deworming').textContent = fmtFecha(data.next_deworming);
-            tieneControlSalud = true;
-          }
-          if (tieneControlSalud && healthCard) healthCard.classList.remove('hidden');
+      // Carnet Digital de Salud
+      let tieneControlSalud = false;
+      if (data.next_vaccine) {
+        if ($('row-vaccine'))$('row-vaccine').classList.remove('hidden');
+        if ($('txt-vaccine'))$('txt-vaccine').textContent = fmtFecha(data.next_vaccine);
+        tieneControlSalud = true;
+      }
+      if (data.next_deworming) {
+        if ($('row-deworming'))$('row-deworming').classList.remove('hidden');
+        if ($('txt-deworming'))$('txt-deworming').textContent = fmtFecha(data.next_deworming);
+        tieneControlSalud = true;
+      }
+      if (tieneControlSalud && healthCard) healthCard.classList.remove('hidden');
 
-          // Ficha médica básica
-          let tieneDatosMedicos = false;
-          if (data.allergies) { $('row-allergies').classList.remove('hidden');$('txt-allergies').textContent = data.allergies; tieneDatosMedicos = true; }
-          if (data.medical_notes) { $('row-medical').classList.remove('hidden');$('txt-medical').textContent = data.medical_notes; tieneDatosMedicos = true; }
-          if (data.diet) { $('row-diet').classList.remove('hidden');$('txt-diet').textContent = data.diet; tieneDatosMedicos = true; }
-          const telVet = soloDigitos(data.vet_phone);
-          if (telVet) {
-            $('row-vet').classList.remove('hidden');$('btn-vet-call').href = `tel:+${telVet}`;
-            if (data.vet_name) $('txt-vet-name').textContent = `Llamar a ${data.vet_name}`;
-            tieneDatosMedicos = true;
-          }
-          if (tieneDatosMedicos && medicalCard) medicalCard.classList.remove('hidden');
+      // Ficha médica básica
+      let tieneDatosMedicos = false;
+      if (data.allergies) { if ($('row-allergies'))$('row-allergies').classList.remove('hidden'); if ($('txt-allergies'))$('txt-allergies').textContent = data.allergies; tieneDatosMedicos = true; }
+      if (data.medical_notes) { if ($('row-medical'))$('row-medical').classList.remove('hidden'); if ($('txt-medical'))$('txt-medical').textContent = data.medical_notes; tieneDatosMedicos = true; }
+      if (data.diet) { if ($('row-diet'))$('row-diet').classList.remove('hidden'); if ($('txt-diet'))$('txt-diet').textContent = data.diet; tieneDatosMedicos = true; }
+      
+      const telVet = soloDigitos(data.vet_phone);
+      if (telVet) {
+        if ($('row-vet'))$('row-vet').classList.remove('hidden');
+        if ($('btn-vet-call'))$('btn-vet-call').href = `tel:+${telVet}`;
+        if (data.vet_name && $('txt-vet-name'))$('txt-vet-name').textContent = `Llamar a ${data.vet_name}`;
+        tieneDatosMedicos = true;
+      }
+      if (tieneDatosMedicos && medicalCard) medicalCard.classList.remove('hidden');
 
-          if (badge) {
-            badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
-            badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
-          }
-          if (subStatusEl) {
-            subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
-            subStatusEl.textContent = (data.description && data.description.trim() !== '') ? data.description : "Mascota Feliz & Amada 🐾";
-          }
-          if (statusIndicator) {
-            statusIndicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
-          }
-          
-          cargarHistorialMedico();
-        }
-      } catch (err) { console.error("Error al cargar:", err); }
+      if (badge) {
+        badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
+        badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
+      }
+      if (subStatusEl) {
+        subStatusEl.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
+        subStatusEl.textContent = (data.description && data.description.trim() !== '') ? data.description : "Mascota Feliz & Amada 🐾";
+      }
+      if (statusIndicator) {
+        statusIndicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
+      }
+      
+      cargarHistorialMedico();
+    }
+  } catch (err) { console.error("Error al cargar:", err); }
+}
     }
   async function guardarEscaneoSilencioso(lat, lon, denegada = lat == null) {
   const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
