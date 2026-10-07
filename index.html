@@ -364,16 +364,18 @@
       </div>
     </div>
   </div>
-  <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 border border-slate-100">
-    <div class="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto text-2xl"><i class="fa-solid fa-location-dot"></i></div>
-    <div>
-      <h3 class="text-lg font-bold text-slate-900">Esta mascota está perdida</h3>
-      <p class="text-xs text-slate-500 mt-1">Si compartes tu ubicación, avisaremos al dueño de dónde fue escaneada para que pueda encontrarla. Se usa una sola vez; no te seguimos.</p>
+ <!-- MODAL PETICIÓN DE UBICACIÓN -->
+  <div id="location-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 border border-slate-100 relative">
+      <div class="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto text-2xl"><i class="fa-solid fa-location-dot"></i></div>
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">Esta mascota está perdida</h3>
+        <p class="text-xs text-slate-500 mt-1">Si compartes tu ubicación, avisaremos al dueño de dónde fue escaneada para que pueda encontrarla. Se usa una sola vez; no te seguimos.</p>
+      </div>
+      <button type="button" id="btn-share-loc" onclick="responderUbicacion(true)" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">Compartir mi ubicación</button>
+      <button type="button" onclick="responderUbicacion(false)" class="text-xs text-slate-500 hover:underline font-semibold block mx-auto">Ahora no</button>
     </div>
-    <button type="button" onclick="responderUbicacion(true)" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg">Compartir mi ubicación</button>
-    <button type="button" onclick="responderUbicacion(false)" class="text-xs text-slate-500 hover:underline font-semibold block mx-auto">Ahora no</button>
   </div>
-</div>
   <!-- MODAL FOTO EN GRANDE -->
   <div id="photo-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer" onclick="cerrarFotoGrande()">
     <div class="relative max-w-sm w-full text-center" onclick="event.stopPropagation()">
@@ -592,19 +594,53 @@ $('gps-note').classList.remove('hidden');;
   else await avisarEscaneo(lat, lon, denegada);
 }
 
-// Mascota perdida + visitante (no el dueño): pide el permiso del navegador apenas carga la ficha
+// Mascota perdida + visitante (no el dueño): Muestra el modal en lugar de pedir permiso directo
 function pedirUbicacionSiPerdida() {
   if (!petData || !petData.is_lost || localStorage.getItem(`dueno_${tagId}`)) return;
   if (sessionStorage.getItem(`ubic_${tagId}`)) return;
-  sessionStorage.setItem(`ubic_${tagId}`, '1');
-  if (!navigator.geolocation) { guardarEscaneoSilencioso(null, null); return; }
+  
+  // Muestra nuestro modal personalizado de ubicación
+  $('location-modal').classList.remove('hidden');
+}
+    async function responderUbicacion(permitir) {
+  const modal = $('location-modal');
+  sessionStorage.setItem(`ubic_${tagId}`, '1'); // Marca que ya respondimos en esta sesión
+
+  if (!permitir) {
+    modal.classList.add('hidden');
+    guardarEscaneoSilencioso(null, null, true); // Guarda en base de datos como denegada
+    return;
+  }
+
+  // Estado de carga en el botón
+  const btn = $('btn-share-loc');
+  const textoOriginal = btn.innerHTML;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Obteniendo...`;
+  btn.disabled = true;
+
+  if (!navigator.geolocation) {
+    modal.classList.add('hidden');
+    guardarEscaneoSilencioso(null, null);
+    return;
+  }
+
+  // Pide permiso al navegador y captura coordenadas
   navigator.geolocation.getCurrentPosition(
-    pos => guardarEscaneoSilencioso(pos.coords.latitude, pos.coords.longitude),
-    err => guardarEscaneoSilencioso(null, null, err && err.code === 1),
+    async (pos) => {
+      await guardarEscaneoSilencioso(pos.coords.latitude, pos.coords.longitude);
+      modal.classList.add('hidden');
+      btn.innerHTML = textoOriginal;
+      btn.disabled = false;
+    },
+    async (err) => {
+      await guardarEscaneoSilencioso(null, null, err && err.code === 1);
+      modal.classList.add('hidden');
+      btn.innerHTML = textoOriginal;
+      btn.disabled = false;
+    },
     { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
   );
 }
-
 async function avisarEscaneo(lat, lon, denegada = false) {
   if (!tagId || localStorage.getItem(`dueno_${tagId}`)) return;
   const clave = lat != null ? `avisado_gps_${tagId}` : denegada ? `avisado_den_${tagId}` : `avisado_${tagId}`;
