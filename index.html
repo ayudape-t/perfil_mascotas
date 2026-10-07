@@ -464,7 +464,7 @@
         $('pet-name').textContent = (data.pet || '').toUpperCase();
         $('owner-name').textContent = data.owner || '';
 
-        // ==========================================
+       // ==========================================
         // CONTROL DE PRIVACIDAD / MODO PERDIDO VS SEGURO
         // ==========================================
         const isLost = data.is_lost || false;
@@ -496,7 +496,7 @@
         }
 
         if (isLost) {
-          // 🔴 MODO PERDIDO: solo contacto + emergencia
+          // 🔴 MODO PERDIDO: Ocultamos Ficha Técnica y todas las Fichas Médicas/Salud
           if (techSheet) techSheet.classList.add('hidden');
           if (btnMedical) btnMedical.classList.add('hidden');
           if (healthZone) healthZone.classList.add('hidden');
@@ -519,11 +519,11 @@
             statusIndicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
           }
 
-          // AQUÍ LANZAMOS EL PERMISO NATIVO DEL NAVEGADOR
+          // Lanza la alerta nativa de ubicación que querías
           pedirUbicacionSiPerdida();
 
         } else {
-          // 🟢 MODO SEGURO
+          // 🟢 MODO SEGURO: Mostramos todo
           if (techSheet) techSheet.classList.remove('hidden');
           if (healthZone) healthZone.classList.remove('hidden');
           if (btnMedical) btnMedical.classList.remove('hidden');
@@ -534,7 +534,7 @@
           $('pet-breed').textContent = data.breed \vert{}\vert{} 'No especificada';$('pet-color').textContent = data.color || 'No especificado';
           $('pet-weight').textContent = fmtPeso(data.weight) \vert{}\vert{} 'No especificado';$('pet-age').textContent = data.age || 'No especificada';
 
-          // Carnet Digital de Salud (próximas fechas)
+          // Carnet Digital de Salud
           let tieneControlSalud = false;
           if (data.next_vaccine) {
             $('row-vaccine').classList.remove('hidden');$('txt-vaccine').textContent = fmtFecha(data.next_vaccine);
@@ -570,10 +570,11 @@
           if (statusIndicator) {
             statusIndicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
           }
-
+          
           cargarHistorialMedico();
         }
       } catch (err) { console.error("Error al cargar:", err); }
+    }
     }
 
   async function guardarEscaneoSilencioso(lat, lon, denegada = lat == null) {
