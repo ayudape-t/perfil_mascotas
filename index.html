@@ -366,16 +366,7 @@
   </div>
  <!-- MODAL PETICIÓN DE UBICACIÓN -->
   <div id="location-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 border border-slate-100 relative">
-      <div class="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto text-2xl"><i class="fa-solid fa-location-dot"></i></div>
-      <div>
-        <h3 class="text-lg font-bold text-slate-900">Esta mascota está perdida</h3>
-        <p class="text-xs text-slate-500 mt-1">Si compartes tu ubicación, avisaremos al dueño de dónde fue escaneada para que pueda encontrarla. Se usa una sola vez; no te seguimos.</p>
-      </div>
-      <button type="button" id="btn-share-loc" onclick="responderUbicacion(true)" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">Compartir mi ubicación</button>
-      <button type="button" onclick="responderUbicacion(false)" class="text-xs text-slate-500 hover:underline font-semibold block mx-auto">Ahora no</button>
-    </div>
-  </div>
+   
   <!-- MODAL FOTO EN GRANDE -->
   <div id="photo-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer" onclick="cerrarFotoGrande()">
     <div class="relative max-w-sm w-full text-center" onclick="event.stopPropagation()">
@@ -512,8 +503,8 @@
           if (healthCard) healthCard.classList.add('hidden');
           if (medicalCard) medicalCard.classList.add('hidden');
 
-          if (lostAlertBanner) lostAlertBanner.classList.remove('hidden')$('btn-gps').classList.remove('hidden');
-$('gps-note').classList.remove('hidden');;
+          if (lostAlertBanner) lostAlertBanner.classList.remove('hidden');
+          $('btn-gps').classList.remove('hidden');$('gps-note').classList.remove('hidden');
           if (btnAfiche) btnAfiche.classList.remove('hidden');
 
           if (badge) {
@@ -528,44 +519,41 @@ $('gps-note').classList.remove('hidden');;
             statusIndicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
           }
 
+          // AQUÍ LANZAMOS EL PERMISO NATIVO DEL NAVEGADOR
+          pedirUbicacionSiPerdida();
+
         } else {
           // 🟢 MODO SEGURO
           if (techSheet) techSheet.classList.remove('hidden');
           if (healthZone) healthZone.classList.remove('hidden');
-          // El historial de vacunas solo se ofrece si el dueño activó "mostrar ficha médica"
           if (btnMedical) btnMedical.classList.remove('hidden');
 
           if (lostAlertBanner) lostAlertBanner.classList.add('hidden');
           if (btnAfiche) btnAfiche.classList.add('hidden');
 
-          $('pet-breed').textContent = data.breed || 'No especificada';
-          $('pet-color').textContent = data.color || 'No especificado';
-          $('pet-weight').textContent = fmtPeso(data.weight) || 'No especificado';
-          $('pet-age').textContent = data.age || 'No especificada';
+          $('pet-breed').textContent = data.breed \vert{}\vert{} 'No especificada';$('pet-color').textContent = data.color || 'No especificado';
+          $('pet-weight').textContent = fmtPeso(data.weight) \vert{}\vert{} 'No especificado';$('pet-age').textContent = data.age || 'No especificada';
 
           // Carnet Digital de Salud (próximas fechas)
           let tieneControlSalud = false;
           if (data.next_vaccine) {
-            $('row-vaccine').classList.remove('hidden');
-            $('txt-vaccine').textContent = fmtFecha(data.next_vaccine);
+            $('row-vaccine').classList.remove('hidden');$('txt-vaccine').textContent = fmtFecha(data.next_vaccine);
             tieneControlSalud = true;
           }
           if (data.next_deworming) {
-            $('row-deworming').classList.remove('hidden');
-            $('txt-deworming').textContent = fmtFecha(data.next_deworming);
+            $('row-deworming').classList.remove('hidden');$('txt-deworming').textContent = fmtFecha(data.next_deworming);
             tieneControlSalud = true;
           }
           if (tieneControlSalud && healthCard) healthCard.classList.remove('hidden');
 
-          // Ficha médica básica (alergias siempre; notas, dieta y vet solo si el dueño lo activó)
+          // Ficha médica básica
           let tieneDatosMedicos = false;
-          if (data.allergies) { $('row-allergies').classList.remove('hidden'); $('txt-allergies').textContent = data.allergies; tieneDatosMedicos = true; }
-          if (data.medical_notes) { $('row-medical').classList.remove('hidden'); $('txt-medical').textContent = data.medical_notes; tieneDatosMedicos = true; }
-          if (data.diet) { $('row-diet').classList.remove('hidden'); $('txt-diet').textContent = data.diet; tieneDatosMedicos = true; }
+          if (data.allergies) { $('row-allergies').classList.remove('hidden');$('txt-allergies').textContent = data.allergies; tieneDatosMedicos = true; }
+          if (data.medical_notes) { $('row-medical').classList.remove('hidden');$('txt-medical').textContent = data.medical_notes; tieneDatosMedicos = true; }
+          if (data.diet) { $('row-diet').classList.remove('hidden');$('txt-diet').textContent = data.diet; tieneDatosMedicos = true; }
           const telVet = soloDigitos(data.vet_phone);
           if (telVet) {
-            $('row-vet').classList.remove('hidden');
-            $('btn-vet-call').href = `tel:+${telVet}`;
+            $('row-vet').classList.remove('hidden');$('btn-vet-call').href = `tel:+${telVet}`;
             if (data.vet_name) $('txt-vet-name').textContent = `Llamar a ${data.vet_name}`;
             tieneDatosMedicos = true;
           }
@@ -582,7 +570,7 @@ $('gps-note').classList.remove('hidden');;
           if (statusIndicator) {
             statusIndicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
           }
-          pedirUbicacionSiPerdida();
+
           cargarHistorialMedico();
         }
       } catch (err) { console.error("Error al cargar:", err); }
