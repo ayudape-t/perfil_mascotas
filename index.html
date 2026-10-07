@@ -583,7 +583,6 @@
     }
   } catch (err) { console.error("Error al cargar:", err); }
 }
-    }
   async function guardarEscaneoSilencioso(lat, lon, denegada = lat == null) {
   const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
   if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
