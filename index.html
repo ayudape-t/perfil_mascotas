@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+  // Android: si la ficha se abre en el navegador de Xiaomi o en el visor de una app, la reabre en Chrome
+  (function () {
+    var ua = navigator.userAgent, q = location.search;
+    if (!/Android/i.test(ua) || /[?&]nochrome=1/.test(q) || sessionStorage.getItem('a_chrome')) return;
+    if (!/; wv\)|MiuiBrowser|FBAN|FBAV|Instagram|Line\/|GSA\/|UCBrowser|HeyTapBrowser|VivoBrowser|MicroMessenger|Telegram/i.test(ua)) return;
+    sessionStorage.setItem('a_chrome', '1');
+    window.__redirigiendo = true;
+    var fallback = encodeURIComponent(location.href + (q ? '&' : '?') + 'nochrome=1');
+    location.replace('intent://' + location.host + location.pathname + q +
+      '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + fallback + ';end');
+  })();
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0b0f19">
@@ -418,6 +431,7 @@
     }
 
     async function cargarPerfil() {
+      if (window.__redirigiendo) return;
       tagId = new URLSearchParams(window.location.search).get('id') || '';
 
       try {
