@@ -365,7 +365,7 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o";
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let petData = null;
+    let petData = null; let ubicacionObtenida = null;
     let tagId = '';
     let historial = null;
     let posterBlobPromise = null;
@@ -556,47 +556,56 @@
 
     // Mascota perdida + visitante (no el dueño): el navegador pide el permiso apenas carga la ficha.
     // El perfil ya está visible; aceptar o rechazar no bloquea nada.
-    function pedirUbicacionSiPerdida() {
-      if (!petData || !petData.is_lost || localStorage.getItem(`dueno_${tagId}`)) return;
-      if (sessionStorage.getItem(`ubic_${tagId}`)) return;
-      sessionStorage.setItem(`ubic_${tagId}`, '1');
-      if (!navigator.geolocation) { guardarEscaneoSilencioso(null, null); return; }
-      navigator.geolocation.getCurrentPosition(
-        pos => guardarEscaneoSilencioso(pos.coords.latitude, pos.coords.longitude),
-        err => guardarEscaneoSilencioso(null, null, err && err.code === 1),
-        { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
-      );
-    }
+   function pedirUbicacionSiPerdida() {
+  if (!petData || !petData.is_lost || esDueno()) return;
+  if (sessionStorage.getItem(`ubic_${tagId}`)) return;
+  sessionStorage.setItem(`ubic_${tagId}`, '1');
+  if (!navigator.geolocation) { guardarEscaneoSilencioso(null, null); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      ubicacionObtenida = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      guardarEscaneoSilencioso(ubicacionObtenida.lat, ubicacionObtenida.lon);
+    },
+    err => guardarEscaneoSilencioso(null, null, err && err.code === 1),
+    { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
+  );
+}
 
     // Botón «Encontré a esta mascota» (solo visible en modo perdido): ubicación + WhatsApp
-    function enviarUbicacionGPS() {
-      if (!petData) return;
-      const btn = $('btn-gps');
-      const textoOriginal = btn.innerHTML;
-      const restaurar = () => { btn.innerHTML = textoOriginal; btn.disabled = false; };
+   function abrirWhatsApp(ubic) {
+  const base = `¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}.`;
+  const texto = ubic ? `${base} Mi ubicación GPS actual es: https://maps.google.com/?q=${ubic.lat},${ubic.lon}` : base;
+  window.location.href = `https://wa.me/${petData.phone}?text=${encodeURIComponent(texto)}`;
+}
 
-      if (!navigator.geolocation) { alert("Tu navegador no soporta geolocalización."); return; }
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Obteniendo ubicación...`;
-      btn.disabled = true;
+async function enviarUbicacionGPS() {
+  if (!petData) return;
+  // Si aceptó al entrar, la ubicación ya está guardada y avisada: abre WhatsApp al instante
+  if (ubicacionObtenida) { abrirWhatsApp(ubicacionObtenida); return; }
 
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-          // Espera el registro y el aviso (máx. 4 s) para que no se corten al abrir WhatsApp
-          await Promise.race([guardarEscaneoSilencioso(lat, lon), new Promise(r => setTimeout(r, 4000))]);
-          restaurar();
-          const mensaje = encodeURIComponent(`¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}. Mi ubicación GPS actual es: ${mapUrl}`);
-          window.location.href = `https://wa.me/${petData.phone}?text=${mensaje}`;
-        },
-        () => {
-          restaurar();
-          alert("Para enviar tu ubicación, permite el acceso a la ubicación en tu navegador.");
-        },
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
-      );
-    }
+  const btn = $('btn-gps');
+  const original = btn.innerHTML;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Abriendo WhatsApp...`;
+  btn.disabled = true;
+
+  // Intenta obtenerla sin molestar; si no se puede, abre WhatsApp igual (sin ubicación)
+  const ubic = await new Promise(resolve => {
+    if (!navigator.geolocation) return resolve(null);
+    const t = setTimeout(() => resolve(null), 8000);
+    navigator.geolocation.getCurrentPosition(
+      p => { clearTimeout(t); resolve({ lat: p.coords.latitude, lon: p.coords.longitude }); },
+      () => { clearTimeout(t); resolve(null); },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    );
+  });
+  if (ubic) {
+    ubicacionObtenida = ubic;
+    await Promise.race([guardarEscaneoSilencioso(ubic.lat, ubic.lon), new Promise(r => setTimeout(r, 2000))]);
+  }
+  btn.innerHTML = original;
+  btn.disabled = false;
+  abrirWhatsApp(ubic);
+}
 
     async function compartirPerfil() {
       const shareData = {
