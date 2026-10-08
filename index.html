@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script>
-  // Android: si la ficha se abre en el navegador de Xiaomi o en el visor de una app, la reabre en Chrome
-  (function () {
-    var ua = navigator.userAgent, q = location.search;
-    if (!/Android/i.test(ua) || /[?&]nochrome=1/.test(q) || sessionStorage.getItem('a_chrome')) return;
-    if (!/; wv\)|MiuiBrowser|FBAN|FBAV|Instagram|Line\/|GSA\/|UCBrowser|HeyTapBrowser|VivoBrowser|MicroMessenger|Telegram/i.test(ua)) return;
-    sessionStorage.setItem('a_chrome', '1');
-    window.__redirigiendo = true;
-    var fallback = encodeURIComponent(location.href + (q ? '&' : '?') + 'nochrome=1');
-    location.replace('intent://' + location.host + location.pathname + q +
-      '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + fallback + ';end');
-  })();
-</script>
   <meta charset="UTF-8">
+  <script>
+    // Android: si la ficha se abre en el navegador de Xiaomi o en el visor de una app, la reabre en Chrome
+    (function () {
+      var ua = navigator.userAgent, q = location.search;
+      if (!/Android/i.test(ua) || /[?&]nochrome=1/.test(q) || sessionStorage.getItem('a_chrome')) return;
+      if (!/; wv\)|MiuiBrowser|FBAN|FBAV|Instagram|Line\/|GSA\/|UCBrowser|HeyTapBrowser|VivoBrowser|MicroMessenger|Telegram/i.test(ua)) return;
+      sessionStorage.setItem('a_chrome', '1');
+      window.__redirigiendo = true;
+      var fallback = encodeURIComponent(location.href + (q ? '&' : '?') + 'nochrome=1');
+      location.replace('intent://' + location.host + location.pathname + q +
+        '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + fallback + ';end');
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -62,6 +62,9 @@
   </style>
 </head>
 <body class="paw-dark-body min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-x-hidden">
+
+  <!-- Indicador mínimo mientras carga / mientras el navegador pregunta por la ubicación -->
+  <div id="cargando" class="text-white/70 text-4xl"><i class="fa-solid fa-paw fa-beat"></i></div>
 
   <!-- Placa No Registrada / No válida / Sin conexión -->
   <div id="unregistered-card" class="hidden card-bones-pattern rounded-3xl shadow-2xl p-8 max-w-sm w-full border border-slate-200 text-center space-y-4">
@@ -378,13 +381,17 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o";
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let petData = null; let ubicacionObtenida = null;
+    let petData = null;
     let tagId = '';
     let historial = null;
     let posterBlobPromise = null;
     let destinoPIN = '';
+    let ubicacionObtenida = null;
 
     const $ = id => document.getElementById(id);
+    // Dispositivo del dueño (entró con su PIN): sin avisos ni permiso de ubicación.
+    // Para probar como visitante desde tu propio celular, abre la ficha con &visitante=1
+    const esDueno = () => !!localStorage.getItem(`dueno_${tagId}`) && !new URLSearchParams(window.location.search).has('visitante');
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const soloDigitos = v => String(v || '').replace(/\D/g, '');
     const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
@@ -430,6 +437,12 @@
       card.classList.remove('hidden');
     }
 
+    // Muestra la ficha (y el banner rojo si la mascota está perdida)
+    function mostrarPerfil() {
+      $('app-container').classList.remove('hidden');
+      if (petData && petData.is_lost) $('lost-alert-banner').classList.remove('hidden');
+    }
+
     async function cargarPerfil() {
       if (window.__redirigiendo) return;
       tagId = new URLSearchParams(window.location.search).get('id') || '';
@@ -456,8 +469,7 @@
         petData.phone = soloDigitos(data.phone);
         if (petData.phone.length === 9 && petData.phone[0] === '9') petData.phone = '51' + petData.phone;
 
-        // El perfil se muestra de inmediato; el permiso de ubicación (si aplica) lo pide el navegador encima
-        $('app-container').classList.remove('hidden');
+        // Mascota perdida: la ficha se muestra DESPUÉS de que el navegador pregunte por la ubicación
         avisarEscaneo();
         $('pet-name').textContent = (data.pet || '').toUpperCase();
         $('owner-name').textContent = data.owner || '';
@@ -483,7 +495,6 @@
           ['pet-tech-sheet', 'health-zone', 'btn-medical-history', 'health-card', 'medical-card']
             .forEach(id => $(id).classList.add('hidden'));
 
-          $('lost-alert-banner').classList.remove('hidden');
           $('btn-gps').classList.remove('hidden');
           $('gps-note').classList.remove('hidden');
           $('btn-afiche').classList.remove('hidden');
@@ -494,7 +505,7 @@
           subStatus.textContent = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
           indicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
 
-          pedirUbicacionSiPerdida();
+          await pedirUbicacionSiPerdida(); // el navegador pregunta ANTES de mostrar la ficha
 
         } else {
           // 🟢 MODO SEGURO EN CASA: sin botón de ubicación ni afiche
@@ -546,7 +557,13 @@
 
           cargarHistorialMedico();
         }
-      } catch (err) { console.error("Error al cargar:", err); }
+        mostrarPerfil();
+      } catch (err) {
+        console.error("Error al cargar:", err);
+        if (petData) mostrarPerfil();
+      } finally {
+        $('cargando').classList.add('hidden');
+      }
     }
 
     // ==========================================
@@ -554,7 +571,7 @@
     // ==========================================
     // Aviso de escaneo (1 por visita). lat == null: sin ubicación; denegada: el visitante no autorizó.
     async function avisarEscaneo(lat, lon, denegada = false) {
-      if (!tagId || localStorage.getItem(`dueno_${tagId}`)) return;
+      if (!tagId || esDueno()) return;
       const clave = lat != null ? `avisado_gps_${tagId}` : denegada ? `avisado_den_${tagId}` : `avisado_${tagId}`;
       if (sessionStorage.getItem(clave)) return;
       sessionStorage.setItem(clave, '1');
@@ -568,58 +585,76 @@
       else await avisarEscaneo(lat, lon, denegada);
     }
 
-    // Mascota perdida + visitante (no el dueño): el navegador pide el permiso apenas carga la ficha.
-    // El perfil ya está visible; aceptar o rechazar no bloquea nada.
-   function pedirUbicacionSiPerdida() {
-  if (!petData || !petData.is_lost || esDueno()) return;
-  if (sessionStorage.getItem(`ubic_${tagId}`)) return;
-  sessionStorage.setItem(`ubic_${tagId}`, '1');
-  if (!navigator.geolocation) { guardarEscaneoSilencioso(null, null); return; }
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      ubicacionObtenida = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-      guardarEscaneoSilencioso(ubicacionObtenida.lat, ubicacionObtenida.lon);
-    },
-    err => guardarEscaneoSilencioso(null, null, err && err.code === 1),
-    { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
-  );
-}
+    // Mascota perdida + visitante (no el dueño): el navegador pregunta por la ubicación y,
+    // en cuanto el visitante acepta o rechaza, se muestra la ficha. Si el navegador no va a preguntar
+    // (ya permitido o bloqueado), la ficha se muestra de inmediato.
+    async function pedirUbicacionSiPerdida() {
+      if (!petData || !petData.is_lost || esDueno()) return;
+      if (sessionStorage.getItem(`ubic_${tagId}`)) return;
+      sessionStorage.setItem(`ubic_${tagId}`, '1');
+      if (!navigator.geolocation) { guardarEscaneoSilencioso(null, null); return; }
 
-    // Botón «Encontré a esta mascota» (solo visible en modo perdido): ubicación + WhatsApp
-   function abrirWhatsApp(ubic) {
-  const base = `¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}.`;
-  const texto = ubic ? `${base} Mi ubicación GPS actual es: https://maps.google.com/?q=${ubic.lat},${ubic.lon}` : base;
-  window.location.href = `https://wa.me/${petData.phone}?text=${encodeURIComponent(texto)}`;
-}
+      let permiso = null;
+      try { permiso = await navigator.permissions.query({ name: 'geolocation' }); } catch (e) {}
+      const preguntara = !permiso || permiso.state === 'prompt';
 
-async function enviarUbicacionGPS() {
-  if (!petData) return;
-  // Si aceptó al entrar, la ubicación ya está guardada y avisada: abre WhatsApp al instante
-  if (ubicacionObtenida) { abrirWhatsApp(ubicacionObtenida); return; }
+      return new Promise(resolve => {
+        if (!preguntara) resolve();
+        else {
+          if (permiso) permiso.onchange = () => resolve();   // respondió: permitir o bloquear
+          setTimeout(resolve, 12000);                        // respaldo: nunca se deja sin ficha a quien encontró la mascota
+        }
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            ubicacionObtenida = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+            resolve();
+            guardarEscaneoSilencioso(ubicacionObtenida.lat, ubicacionObtenida.lon);
+          },
+          err => {
+            resolve();
+            guardarEscaneoSilencioso(null, null, err && err.code === 1);
+          },
+          { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
+        );
+      });
+    }
 
-  const btn = $('btn-gps');
-  const original = btn.innerHTML;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Abriendo WhatsApp...`;
-  btn.disabled = true;
+    // Abre WhatsApp con el mensaje (con la ubicación si se tiene)
+    function abrirWhatsApp(ubic) {
+      const base = `¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}.`;
+      const texto = ubic ? `${base} Mi ubicación GPS actual es: https://maps.google.com/?q=${ubic.lat},${ubic.lon}` : base;
+      window.location.href = `https://wa.me/${petData.phone}?text=${encodeURIComponent(texto)}`;
+    }
 
-  // Intenta obtenerla sin molestar; si no se puede, abre WhatsApp igual (sin ubicación)
-  const ubic = await new Promise(resolve => {
-    if (!navigator.geolocation) return resolve(null);
-    const t = setTimeout(() => resolve(null), 8000);
-    navigator.geolocation.getCurrentPosition(
-      p => { clearTimeout(t); resolve({ lat: p.coords.latitude, lon: p.coords.longitude }); },
-      () => { clearTimeout(t); resolve(null); },
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
-    );
-  });
-  if (ubic) {
-    ubicacionObtenida = ubic;
-    await Promise.race([guardarEscaneoSilencioso(ubic.lat, ubic.lon), new Promise(r => setTimeout(r, 2000))]);
-  }
-  btn.innerHTML = original;
-  btn.disabled = false;
-  abrirWhatsApp(ubic);
-}
+    // Botón «Encontré a esta mascota» (solo visible en modo perdido): siempre termina en WhatsApp
+    async function enviarUbicacionGPS() {
+      if (!petData) return;
+      // Si aceptó al entrar, la ubicación ya está guardada y avisada: abre WhatsApp al instante
+      if (ubicacionObtenida) { abrirWhatsApp(ubicacionObtenida); return; }
+
+      const btn = $('btn-gps');
+      const original = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Abriendo WhatsApp...`;
+      btn.disabled = true;
+
+      // Intenta obtenerla sin molestar; si no se puede, abre WhatsApp igual (sin ubicación)
+      const ubic = await new Promise(resolve => {
+        if (!navigator.geolocation) return resolve(null);
+        const t = setTimeout(() => resolve(null), 8000);
+        navigator.geolocation.getCurrentPosition(
+          p => { clearTimeout(t); resolve({ lat: p.coords.latitude, lon: p.coords.longitude }); },
+          () => { clearTimeout(t); resolve(null); },
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+        );
+      });
+      if (ubic) {
+        ubicacionObtenida = ubic;
+        await Promise.race([guardarEscaneoSilencioso(ubic.lat, ubic.lon), new Promise(r => setTimeout(r, 2000))]);
+      }
+      btn.innerHTML = original;
+      btn.disabled = false;
+      abrirWhatsApp(ubic);
+    }
 
     async function compartirPerfil() {
       const shareData = {
