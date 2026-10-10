@@ -27,7 +27,7 @@
 
   <main class="card-bones-pattern rounded-3xl shadow-2xl overflow-hidden max-w-sm w-full border border-slate-200/80 my-6">
 
-    <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-center text-white relative">
+    <div class="bg-gradient-to-r from-amber-700 to-amber-800 p-5 text-center text-white relative">
       <h1 id="form-title" class="text-xl font-extrabold">Configurar Placa</h1>
       <p id="form-subtitle" class="text-amber-100 text-xs mt-1">Perfil General y Ficha Médica</p>
     </div>
@@ -77,7 +77,7 @@
       <!-- TARJETA ACORDEÓN DE ESCANEOS CON VISTA PREVIA -->
       <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden my-3" style="font-family: 'Fredoka', sans-serif;">
 
-        <div onclick="toggleHistorialEscaneos()" class="p-3.5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors cursor-pointer select-none flex items-center justify-between">
+        <div role="button" tabindex="0" aria-expanded="false" aria-controls="desplegable-escaneos" onclick="toggleHistorialEscaneos()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleHistorialEscaneos();}" class="p-3.5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors cursor-pointer select-none flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
               <i class="fa-solid fa-location-dot"></i>
@@ -95,14 +95,14 @@
             <a id="btn-ultimo-maps" href="#" target="_blank" rel="noopener" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-xl transition-all flex items-center gap-1 hidden shadow-sm">
               <i class="fa-solid fa-map-location-dot"></i> Maps
             </a>
-            <button type="button" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600">
+            <button type="button" aria-label="Mostrar u ocultar escaneos" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-slate-600">
               <i id="flecha-escaneos" class="fa-solid fa-chevron-down text-xs transition-transform duration-300"></i>
             </button>
           </div>
         </div>
 
         <div id="desplegable-escaneos" class="hidden border-t border-slate-100 p-3 bg-white space-y-2 max-h-52 overflow-y-auto">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Historial anterior</p>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-1">Historial anterior</p>
           <div id="escaneos-lista-anteriores" class="space-y-2"></div>
         </div>
 
@@ -110,19 +110,19 @@
 
       <!-- AVISOS POR TELEGRAM -->
       <div id="telegram-box" class="hidden bg-white/90 p-4 rounded-2xl border border-sky-200 space-y-2 shadow-sm">
-        <h2 class="text-xs font-extrabold text-sky-600 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-brands fa-telegram"></i> Avisos por Telegram</h2>
+        <h2 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-brands fa-telegram"></i> Avisos por Telegram</h2>
         <p id="telegram-estado" class="text-xs text-slate-600">Recibe un mensaje cuando escaneen la placa y cuando toque vacuna o control.</p>
-        <button type="button" id="btn-telegram" onclick="accionTelegram()" class="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl text-xs transition-all">Vincular Telegram</button>
+        <button type="button" id="btn-telegram" onclick="accionTelegram()" class="w-full py-2.5 bg-sky-700 hover:bg-sky-800 text-white font-bold rounded-xl text-xs transition-all">Vincular Telegram</button>
       </div>
 
       <!-- SECCIÓN: DATOS BÁSICOS -->
       <div class="border-b border-slate-200/80 pb-4">
-        <h2 class="text-xs font-extrabold text-amber-600 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+        <h2 class="text-xs font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1.5 mb-3">
           <i class="fa-solid fa-id-card"></i> Datos Básicos
         </h2>
 
         <div class="mb-3">
-          <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Código de Placa</label>
+          <label for="input-id" class="block text-xs font-bold text-slate-500 uppercase mb-1">Código de Placa</label>
           <input type="text" id="input-id" readonly class="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl font-mono text-sm font-bold text-slate-500 cursor-not-allowed">
         </div>
 
@@ -191,23 +191,23 @@
 
         <!-- CÓDIGO DE ACTIVACIÓN + CONSENTIMIENTO (solo placas nuevas) -->
         <div id="activation-box" class="hidden mb-3">
-          <label for="input-codigo" class="block text-xs font-bold text-amber-600 uppercase mb-1"><i class="fa-solid fa-ticket mr-1"></i> Código de activación *</label>
+          <label for="input-codigo" class="block text-xs font-bold text-amber-700 uppercase mb-1"><i class="fa-solid fa-ticket mr-1"></i> Código de activación *</label>
           <input type="text" id="input-codigo" maxlength="9" placeholder="Ej. NAF3-NU2K" autocapitalize="characters" class="w-full px-4 py-3 bg-white rounded-xl border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-mono tracking-widest text-center font-bold text-slate-800">
-          <p class="text-[10px] text-slate-400 mt-1">Lo encuentras en la tarjeta dentro del empaque de tu placa.</p>
+          <p class="text-[10px] text-slate-500 mt-1">Lo encuentras en la tarjeta dentro del empaque de tu placa.</p>
 
           <label class="flex items-start gap-2 mt-3 cursor-pointer">
             <input type="checkbox" id="input-consent" class="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0">
-            <span class="text-[11px] text-slate-600">Acepto que mi nombre, mi teléfono y los datos que marque como públicos se muestren a quien escanee la placa, y que mis datos se usen solo para este servicio. *</span>
+            <span class="text-[11px] text-slate-600">Acepto que mi nombre, mi teléfono y los datos que marque como públicos se muestren a quien escanee la placa, y que mis datos se usen solo para este servicio. He leído y acepto la <a href="privacidad.html" target="_blank" rel="noopener" class="underline font-bold">Política de Privacidad</a> y los <a href="terminos.html" target="_blank" rel="noopener" class="underline font-bold">Términos</a>. *</span>
           </label>
         </div>
 
         <!-- PIN -->
         <div id="pin-creation-box" class="mb-1">
-          <label for="input-pin" class="block text-xs font-bold text-amber-600 uppercase mb-1">
+          <label for="input-pin" class="block text-xs font-bold text-amber-700 uppercase mb-1">
             <i class="fa-solid fa-key mr-1"></i> Crea tu PIN de 4 dígitos *
           </label>
           <input type="password" id="input-pin" maxlength="4" inputmode="numeric" placeholder="Ej. 1234" pattern="[0-9]{4}" class="w-full px-4 py-3 bg-white rounded-xl border-2 border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-mono tracking-widest text-center font-bold text-slate-800">
-          <p class="text-[10px] text-slate-400 mt-1">Este PIN te servirá para editar tus datos en el futuro.</p>
+          <p class="text-[10px] text-slate-500 mt-1">Este PIN te servirá para editar tus datos en el futuro.</p>
         </div>
       </div>
 
@@ -262,38 +262,38 @@
         <div id="form-medical-record" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Visita</label>
+              <label for="med-date" class="block text-xs font-bold text-slate-700 mb-1">Fecha de Visita</label>
               <input type="date" id="med-date" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-amber-500">
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Veterinaria / Dr.</label>
+              <label for="med-vet" class="block text-xs font-bold text-slate-700 mb-1">Veterinaria / Dr.</label>
               <input type="text" id="med-vet" placeholder="Ej. Vet. San Francisco" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Motivo / Tipo de Visita</label>
+            <label for="med-reason" class="block text-xs font-bold text-slate-700 mb-1">Motivo / Tipo de Visita</label>
             <input type="text" id="med-reason" placeholder="Ej. Vacuna Quíntuple, Chequeo Anual" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Diagnóstico (Opcional)</label>
+            <label for="med-diagnosis" class="block text-xs font-bold text-slate-700 mb-1">Diagnóstico (Opcional)</label>
             <input type="text" id="med-diagnosis" placeholder="Ej. Leve infección estomacal" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Receta / Tratamiento (Opcional)</label>
+            <label for="med-prescription" class="block text-xs font-bold text-slate-700 mb-1">Receta / Tratamiento (Opcional)</label>
             <textarea id="med-prescription" rows="2" placeholder="Ej. Amoxicilina 250mg cada 12h" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500"></textarea>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Próxima dosis / refuerzo (Opcional)</label>
+            <label for="med-next" class="block text-xs font-bold text-slate-700 mb-1">Próxima dosis / refuerzo (Opcional)</label>
             <input type="date" id="med-next" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-amber-500">
           </div>
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 mt-4">
   <h3 class="text-sm font-bold text-slate-800"><i class="fa-solid fa-user-doctor text-amber-500 mr-1"></i> Código para el veterinario</h3>
   <p class="text-[11px] text-slate-500">Vence en 24 h y permite 5 registros. El anterior deja de servir.</p>
-  <input type="password" id="vet-pin" maxlength="4" inputmode="numeric" placeholder="Tu PIN"
+  <input type="password" id="vet-pin" aria-label="Tu PIN" maxlength="4" inputmode="numeric" placeholder="Tu PIN"
     class="w-full text-center font-mono font-bold tracking-widest py-2.5 border-2 border-amber-300 rounded-xl outline-none text-sm">
   <button type="button" id="btn-gen-vet" onclick="generarCodigoVet()"
     class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs">Generar código</button>
@@ -302,26 +302,26 @@
   Revocar autorización del veterinario
 </button>
   <div id="vet-result" class="hidden text-center space-y-2">
-    <p id="vet-code" class="text-3xl font-mono font-black tracking-widest text-amber-600"></p>
+    <p id="vet-code" class="text-3xl font-mono font-black tracking-widest text-amber-700"></p>
     <p id="vet-exp" class="text-[11px] text-slate-500"></p>
-    <a id="vet-wa" target="_blank" class="block py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs">
+    <a id="vet-wa" target="_blank" class="block py-2 bg-emerald-700 text-white font-bold rounded-xl text-xs">
       <i class="fa-brands fa-whatsapp mr-1"></i> Enviar al veterinario
     </a>
   </div>
   <p id="vet-err" class="hidden text-center text-xs font-bold text-rose-700"></p>
 </div>
-          <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
+          <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 text-xs transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial Médico
           </button>
         </div>
 
         <div class="pt-3 border-t border-slate-100">
           <h4 class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-lock text-amber-500"></i> Historial completo (solo tú lo ves)</h4>
-          <div id="historial-privado" class="space-y-2 max-h-72 overflow-y-auto"><p class="text-xs text-slate-400">Cargando...</p></div>
+          <div id="historial-privado" class="space-y-2 max-h-72 overflow-y-auto"><p class="text-xs text-slate-500">Cargando...</p></div>
         </div>
       </div>
 
-      <button id="btn-save" type="button" onclick="guardarDatos()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all text-base mt-4 flex items-center justify-center">
+      <button id="btn-save" type="button" onclick="guardarDatos()" class="w-full py-3.5 bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all text-base mt-4 flex items-center justify-center">
         <i class="fa-solid fa-cloud-check mr-2"></i> <span>Guardar Cambios</span>
       </button>
 
@@ -566,7 +566,7 @@
       const box = $('historial-privado');
       if (!box) return;
       if (!pinSesion) {
-        box.innerHTML = `<p class="text-xs text-slate-400 italic">Guarda los datos de la placa para empezar tu historial.</p>`;
+        box.innerHTML = `<p class="text-xs text-slate-500 italic">Guarda los datos de la placa para empezar tu historial.</p>`;
         return;
       }
       const { data: res, error } = await db.rpc('obtener_historial_medico_privado', { p_id: tagId, p_pin: pinSesion });
@@ -585,7 +585,7 @@
           ${r.diagnosis ? `<p class="text-xs text-slate-600 mt-1"><strong>Diagnóstico:</strong> ${esc(r.diagnosis)}</p>` : ''}
           ${r.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2 rounded-xl border border-emerald-100 mt-1.5"><strong>Receta/Tratamiento:</strong> ${esc(r.prescription)}</p>` : ''}
           ${r.next_due_date ? `<p class="text-xs text-emerald-800 mt-1"><strong>Próximo refuerzo:</strong> ${esc(fmtFecha(r.next_due_date))}</p>` : ''}
-        </div>`).join('') : `<p class="text-xs text-slate-400 italic">Sin registros aún.</p>`;
+        </div>`).join('') : `<p class="text-xs text-slate-500 italic">Sin registros aún.</p>`;
     }
 
     function toggleHistorialEscaneos() {
@@ -594,6 +594,7 @@
       const abierto = !c.classList.contains('hidden');
       c.classList.toggle('hidden', abierto);
       if (f) f.classList.toggle('rotate-180', !abierto);
+      const hdr = document.querySelector('[aria-controls="desplegable-escaneos"]'); if (hdr) hdr.setAttribute('aria-expanded', String(!abierto));
     }
 
     async function cargarHistorialEscaneos() {
@@ -610,7 +611,7 @@
   if (escaneos.length === 0) {
     previewTxt.textContent = 'Sin registros de ubicación aún.';
     btnMaps.classList.add('hidden');
-    lista.innerHTML = `<p class="text-slate-400 italic text-xs py-1">Sin historial disponible.</p>`;
+    lista.innerHTML = `<p class="text-slate-500 italic text-xs py-1">Sin historial disponible.</p>`;
     return;
   }
 
@@ -624,13 +625,13 @@
       <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
         <div>
           <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
-          <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
+          <p class="text-[10px] text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
         </div>
         ${s.con_ubicacion
           ? `<a href="${url(s)}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Maps</a>`
-          : `<span class="text-[10px] font-bold text-slate-400">Sin ubicación</span>`}
+          : `<span class="text-[10px] font-bold text-slate-500">Sin ubicación</span>`}
       </div>`).join('')
-    : `<p class="text-slate-400 italic text-xs py-1">No hay escaneos anteriores.</p>`;
+    : `<p class="text-slate-500 italic text-xs py-1">No hay escaneos anteriores.</p>`;
 }
     const BOT_TELEGRAM = 'Ayudapetbot';
     let telegramVinculado = false;
@@ -713,5 +714,9 @@
     res.classList.remove('hidden');
   }
 </script>
+  <footer class="w-full max-w-sm mx-auto my-4 bg-white/90 rounded-2xl px-4 py-3 text-center text-xs text-slate-700">
+    <nav aria-label="Documentos legales" class="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] font-semibold"><a href="privacidad.html" class="text-amber-800 underline">Privacidad</a><a href="terminos.html" class="text-amber-800 underline">Términos</a><a href="cookies.html" class="text-amber-800 underline">Cookies</a><a href="reembolso.html" class="text-amber-800 underline">Reembolsos</a><a href="reclamaciones.html" class="text-amber-800 underline">Reclamaciones</a></nav>
+    <p class="mt-2 text-[10px] text-slate-500">© 2026 Helpet</p>
+  </footer>
 </body>
 </html>
