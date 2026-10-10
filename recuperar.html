@@ -10,9 +10,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 font-sans">
+<body class="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
   <main class="bg-slate-50 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden my-6">
-    <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-center text-white">
+    <div class="bg-gradient-to-r from-amber-700 to-amber-800 p-5 text-center text-white">
       <h1 class="text-xl font-extrabold"><i class="fa-solid fa-key mr-1"></i> Restablecer PIN</h1>
       <p class="text-amber-100 text-xs mt-1">Helpet · Recuperación segura</p>
     </div>
@@ -20,12 +20,12 @@
     <div class="p-6 space-y-4">
       <section id="paso-form" class="space-y-3">
         <p class="text-xs text-slate-500">Elige un PIN nuevo de 4 dígitos. Este enlace funciona una sola vez.</p>
-        <input type="password" id="pin1" maxlength="4" inputmode="numeric" placeholder="Nuevo PIN"
+        <input type="password" id="pin1" aria-label="Nuevo PIN" maxlength="4" inputmode="numeric" placeholder="Nuevo PIN"
           class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
-        <input type="password" id="pin2" maxlength="4" inputmode="numeric" placeholder="Repite el PIN"
+        <input type="password" id="pin2" aria-label="Repite el PIN" maxlength="4" inputmode="numeric" placeholder="Repite el PIN"
           class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
         <button id="btn" type="button" onclick="cambiarPIN()"
-          class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg">Guardar nuevo PIN</button>
+          class="w-full py-3 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-2xl shadow-lg">Guardar nuevo PIN</button>
       </section>
 
       <section id="paso-ok" class="hidden text-center space-y-3">
@@ -76,5 +76,9 @@
       history.replaceState(null, '', location.pathname); // quita el token de la barra de direcciones
     }
   </script>
+  <footer class="w-full max-w-sm mx-auto my-4 bg-white/90 rounded-2xl px-4 py-3 text-center text-xs text-slate-700">
+    <nav aria-label="Documentos legales" class="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] font-semibold"><a href="privacidad.html" class="text-amber-800 underline">Privacidad</a><a href="terminos.html" class="text-amber-800 underline">Términos</a><a href="cookies.html" class="text-amber-800 underline">Cookies</a><a href="reembolso.html" class="text-amber-800 underline">Reembolsos</a><a href="reclamaciones.html" class="text-amber-800 underline">Reclamaciones</a></nav>
+    <p class="mt-2 text-[10px] text-slate-500">© 2026 Helpet</p>
+  </footer>
 </body>
 </html>

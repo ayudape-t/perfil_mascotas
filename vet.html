@@ -9,9 +9,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 font-sans">
+<body class="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
   <main class="bg-slate-50 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden my-6">
-    <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-center text-white">
+    <div class="bg-gradient-to-r from-amber-700 to-amber-800 p-5 text-center text-white">
       <h1 class="text-xl font-extrabold"><i class="fa-solid fa-stethoscope mr-1"></i> Registro Veterinario</h1>
       <p class="text-amber-100 text-xs mt-1">Helpet · Historial médico</p>
     </div>
@@ -19,18 +19,18 @@
     <div class="p-6 space-y-4">
       <section id="paso-codigo" class="space-y-3">
         <p class="text-xs text-slate-500">Ingresa el código temporal que te dio el dueño de la mascota.</p>
-        <input id="codigo" maxlength="7" autocomplete="off" placeholder="ABC-234"
+        <input id="codigo" maxlength="7" autocomplete="off" aria-label="Código temporal de la mascota" placeholder="ABC-234"
           class="w-full text-center text-2xl font-mono font-bold tracking-widest uppercase py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
         <button id="btn-validar" type="button" onclick="validarCodigo()"
-          class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg">Validar código</button>
+          class="w-full py-3 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-2xl shadow-lg">Validar código</button>
 
         <div class="relative my-2 flex items-center">
           <div class="flex-grow border-t border-slate-300"></div>
-          <span class="mx-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">¿No tienes código?</span>
+          <span class="mx-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">¿No tienes código?</span>
           <div class="flex-grow border-t border-slate-300"></div>
         </div>
 
-        <input id="vet-nombre" maxlength="100" placeholder="Tu nombre o veterinaria"
+        <input id="vet-nombre" maxlength="100" aria-label="Tu nombre o veterinaria" placeholder="Tu nombre o veterinaria"
           class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
         <button id="btn-solicitar" type="button" onclick="solicitarAutorizacion()"
           class="w-full py-2.5 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 font-bold rounded-2xl text-sm">
@@ -53,32 +53,32 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Fecha visita *</label>
+            <label for="f-fecha" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Fecha visita *</label>
             <input type="date" id="f-fecha" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próxima cita</label>
+            <label for="f-proxima" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próxima cita</label>
             <input type="date" id="f-proxima" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
           </div>
         </div>
         <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Veterinaria / Dr. *</label>
+          <label for="f-vet" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Veterinaria / Dr. *</label>
           <input id="f-vet" maxlength="150" placeholder="Ej. Vet. San Martín" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
         </div>
         <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Motivo / Tipo *</label>
+          <label for="f-motivo" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Motivo / Tipo *</label>
           <input id="f-motivo" maxlength="200" placeholder="Ej. Vacuna Quíntuple" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
         </div>
         <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Diagnóstico</label>
+          <label for="f-diag" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Diagnóstico</label>
           <input id="f-diag" maxlength="500" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
         </div>
         <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Receta / Tratamiento</label>
+          <label for="f-receta" class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Receta / Tratamiento</label>
           <textarea id="f-receta" rows="2" maxlength="1000" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm"></textarea>
         </div>
         <button id="btn-guardar" type="button" onclick="guardarRegistro()"
-          class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2">
+          class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2">
           <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
         </button>
       </section>
@@ -195,5 +195,9 @@
       ['f-motivo', 'f-diag', 'f-receta', 'f-proxima'].forEach(id => $(id).value = '');
     }
   </script>
+  <footer class="w-full max-w-sm mx-auto my-4 bg-white/90 rounded-2xl px-4 py-3 text-center text-xs text-slate-700">
+    <nav aria-label="Documentos legales" class="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] font-semibold"><a href="privacidad.html" class="text-amber-800 underline">Privacidad</a><a href="terminos.html" class="text-amber-800 underline">Términos</a><a href="cookies.html" class="text-amber-800 underline">Cookies</a><a href="reembolso.html" class="text-amber-800 underline">Reembolsos</a><a href="reclamaciones.html" class="text-amber-800 underline">Reclamaciones</a></nav>
+    <p class="mt-2 text-[10px] text-slate-500">© 2026 Helpet</p>
+  </footer>
 </body>
 </html>

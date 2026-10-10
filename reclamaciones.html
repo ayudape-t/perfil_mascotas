@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- BORRADOR: reemplaza todo lo marcado en [CORCHETES]. El formulario debe conectarse a [CORREO] o a un servicio de correo antes de publicar. Haz revisar el texto por un abogado. -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libro de Reclamaciones - Helpet</title>
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="stylesheet" href="legal.css">
+</head>
+<body>
+  <header><a href="index.html">Helpet</a></header>
+  <nav aria-label="Documentos legales">
+    <a href="privacidad.html">Privacidad</a>
+    <a href="terminos.html">Términos</a>
+    <a href="cookies.html">Cookies</a>
+    <a href="reembolso.html">Reembolsos</a>
+    <a href="reclamaciones.html" aria-current="page">Reclamaciones</a>
+  </nav>
+
+  <main>
+    <h1>Libro de Reclamaciones virtual</h1>
+    <p>Proveedor: <span class="placeholder">[RAZÓN SOCIAL]</span> · RUC <span class="placeholder">[RUC]</span> · <span class="placeholder">[DOMICILIO]</span></p>
+
+    <div class="aviso">
+      <p><strong>Reclamo</strong>: disconformidad con el producto o el servicio.<br>
+      <strong>Queja</strong>: malestar por la atención o un hecho que no es un producto ni un servicio.</p>
+    </div>
+
+    <h2>Formulario</h2>
+    <form action="mailto:[CORREO]" method="post" enctype="text/plain">
+      <p><label for="nombre">Nombre completo</label><br>
+      <input id="nombre" name="nombre" type="text" required autocomplete="name" class="campo"></p>
+
+      <p><label for="doc-tipo">Tipo de documento</label><br>
+      <select id="doc-tipo" name="tipo_documento" required class="campo">
+        <option value="">Elige una opción</option>
+        <option value="DNI">DNI</option>
+        <option value="CE">Carné de extranjería</option>
+        <option value="PAS">Pasaporte</option>
+      </select></p>
+
+      <p><label for="doc-num">Número de documento</label><br>
+      <input id="doc-num" name="numero_documento" type="text" required inputmode="numeric" class="campo"></p>
+
+      <p><label for="correo">Correo electrónico</label><br>
+      <input id="correo" name="correo" type="email" required autocomplete="email" class="campo"></p>
+
+      <p><label for="telefono">Teléfono</label><br>
+      <input id="telefono" name="telefono" type="tel" autocomplete="tel" class="campo"></p>
+
+      <p><label for="domicilio">Domicilio</label><br>
+      <input id="domicilio" name="domicilio" type="text" autocomplete="street-address" class="campo"></p>
+
+      <p><label for="tipo">Tipo de solicitud</label><br>
+      <select id="tipo" name="tipo" required class="campo">
+        <option value="">Elige una opción</option>
+        <option value="Reclamo">Reclamo</option>
+        <option value="Queja">Queja</option>
+      </select></p>
+
+      <p><label for="pedido">Número de pedido o placa (si aplica)</label><br>
+      <input id="pedido" name="pedido" type="text" class="campo"></p>
+
+      <p><label for="detalle">Detalle de lo ocurrido</label><br>
+      <textarea id="detalle" name="detalle" rows="5" required class="campo"></textarea></p>
+
+      <p><label for="pedido-cliente">Pedido concreto</label><br>
+      <textarea id="pedido-cliente" name="pedido_concreto" rows="3" required class="campo"></textarea></p>
+
+      <p><input id="acepto" name="acepto" type="checkbox" required>
+      <label for="acepto">Declaro que la información es verdadera y acepto que se use para atender este caso, según la <a href="privacidad.html">Política de Privacidad</a>.</label></p>
+
+      <button type="submit" class="boton">Enviar reclamo</button>
+    </form>
+
+    <h2>Plazos</h2>
+    <ul>
+      <li>Recibirás un número de hoja de reclamación por correo.</li>
+      <li>Te responderemos en un plazo máximo de <span class="placeholder">[30]</span> días calendario, por el mismo medio de contacto.</li>
+      <li>Puedes acudir al Indecopi si no quedas conforme con la respuesta.</li>
+    </ul>
+  </main>
+
+  <footer>
+    <p><span class="placeholder">[RAZÓN SOCIAL]</span> · RUC <span class="placeholder">[RUC]</span> · <span class="placeholder">[DOMICILIO]</span> · <span class="placeholder">[CORREO]</span></p>
+  </footer>
+</body>
+</html>
