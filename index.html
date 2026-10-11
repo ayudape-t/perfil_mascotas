@@ -95,11 +95,16 @@
     <span class="text-sm tracking-wide uppercase">¡AYUDA A PET! / MASCOTA PERDIDA</span>
   </div>
 
+  <!-- Corona: insignia Helpet con alas, apoyada sobre la tarjeta -->
+  <div id="corona-helpet" class="hidden relative z-30 w-[92%] max-w-[340px] mx-auto pointer-events-none select-none" style="margin-bottom:-46px">
+    <img src="helpet-alas.svg" alt="Helpet" width="340" height="138" decoding="async" class="w-full h-auto block" style="filter:drop-shadow(0 0 1.5px rgba(248,237,209,.95)) drop-shadow(0 6px 10px rgba(0,0,0,.4))">
+  </div>
+
   <!-- Tarjeta Principal del Perfil -->
   <main id="app-container" class="hidden card-bones-pattern rounded-3xl shadow-2xl overflow-hidden max-w-sm w-full border border-slate-200/80 transition-all my-4">
 
-    <div id="header-bg" class="relative h-48 w-full overflow-hidden flex items-start justify-center pt-3 border-b border-amber-200/50 bg-slate-900">
-      <img src="cabecera.jpeg" alt="Comunidad Mascotas" class="absolute inset-0 w-full h-full object-cover object-bottom">
+    <div id="header-bg" class="relative h-48 w-full overflow-hidden flex items-start justify-center pt-9 border-b border-amber-200/50 bg-slate-900">
+      <img src="cabecera-paisaje.jpg" alt="Paisaje andino" class="absolute inset-0 w-full h-full object-cover object-bottom">
       <div class="absolute inset-0 bg-gradient-to-b from-amber-950/30 via-transparent to-transparent"></div>
       <span id="header-status-badge" class="relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md">
         <i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica
@@ -451,6 +456,7 @@
     // Muestra la ficha (y el banner rojo si la mascota está perdida)
     function mostrarPerfil() {
       $('app-container').classList.remove('hidden');
+      $('corona-helpet').classList.remove('hidden');
       if (petData && petData.is_lost) $('lost-alert-banner').classList.remove('hidden');
     }
 
