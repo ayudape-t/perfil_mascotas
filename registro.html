@@ -390,10 +390,7 @@
             <summary><i class="fa-solid fa-user-doctor" style="color:#d97706"></i> Código para el veterinario <i class="fa-solid fa-chevron-down chev"></i></summary>
             <div class="sub-b">
               <p class="hint"><i class="fa-solid fa-clock"></i>Vence en 24 h y permite 5 registros. El anterior deja de servir.</p>
-              <div class="g2" style="grid-template-columns:1fr 1.3fr;align-items:center">
-                <input type="password" id="vet-pin" maxlength="4" inputmode="numeric" placeholder="Tu PIN" class="fld key center" aria-label="Tu PIN">
-                <button type="button" id="btn-gen-vet" onclick="generarCodigoVet()" class="btn btn-dark" style="padding:10px 8px;font-size:13px">Generar código</button>
-              </div>
+              <button type="button" id="btn-gen-vet" onclick="generarCodigoVet()" class="btn btn-dark"><i class="fa-solid fa-key"></i> Generar código</button>
               <div id="vet-result" class="hidden" style="text-align:center;display:grid;gap:6px">
                 <p id="vet-code" class="vet-code"></p>
                 <p id="vet-exp" class="hint"></p>
@@ -772,13 +769,13 @@
   );
     async function revocarCodigoVet() {
   const id = new URLSearchParams(location.search).get('id') || '';
-  const pin = document.getElementById('vet-pin').value.trim();
+  const pin = (typeof pinSesion !== 'undefined' && pinSesion) || '';
   const err = document.getElementById('vet-err');
   document.getElementById('vet-result').classList.add('hidden');
-  if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'Ingresa tu PIN de 4 dígitos.'; err.classList.remove('hidden'); return; }
+  if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'Vuelve a entrar con tu PIN desde el perfil.'; err.classList.remove('hidden'); return; }
+  if (!confirm('¿Revocar la autorización del veterinario?')) return;
   const { data } = await _vetDb.rpc('revocar_codigo_vet', { p_id: id, p_pin: pin });
   const m = { incorrecto: 'PIN incorrecto.', bloqueado: 'Demasiados intentos. Espera 15 minutos.' };
-  document.getElementById('vet-pin').value = '';
   err.textContent = data && data.estado === 'ok'
     ? (data.revocado ? '🔒 Autorización revocada.' : 'No había una autorización vigente.')
     : ((data && m[data.estado]) || 'No se pudo revocar.');
@@ -786,11 +783,11 @@
 }
   async function generarCodigoVet() {
     const id = new URLSearchParams(location.search).get('id') || '';
-    const pin = document.getElementById('vet-pin').value.trim();
+    const pin = (typeof pinSesion !== 'undefined' && pinSesion) || '';
     const err = document.getElementById('vet-err');
     const res = document.getElementById('vet-result');
     err.classList.add('hidden'); res.classList.add('hidden');
-    if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'Ingresa tu PIN de 4 dígitos.'; err.classList.remove('hidden'); return; }
+    if (!/^[0-9]{4}$/.test(pin)) { err.textContent = 'Vuelve a entrar con tu PIN desde el perfil.'; err.classList.remove('hidden'); return; }
 
     const btn = document.getElementById('btn-gen-vet'); btn.disabled = true;
     const { data, error } = await _vetDb.rpc('crear_codigo_vet', { p_id: id, p_pin: pin });
@@ -802,7 +799,6 @@
       err.classList.remove('hidden');
       return;
     }
-    document.getElementById('vet-pin').value = '';
     document.getElementById('vet-code').textContent = data.codigo;
     document.getElementById('vet-exp').textContent = 'Vence: ' + new Date(data.expira_en).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' });
     const link = new URL('vet.html?id=' + encodeURIComponent(id), location.href).href;
