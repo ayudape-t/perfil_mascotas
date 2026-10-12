@@ -16,7 +16,8 @@
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0f19">
+  <meta name="theme-color" content="#29170d">
+  <meta name="color-scheme" content="light">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
@@ -42,353 +43,487 @@
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
 
-  <!-- Fuentes: DynaPuff (Nombre) + Fredoka (Información y Dueño) -->
+  <!-- Fuentes: DynaPuff (nombre) + Fredoka (todo lo demás) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
-    .paw-dark-body {
-      background-color: #0b0f19;
-      background-image: url("fondo-textil.jpg");
+    /* Sin Tailwind: todo el estilo vive aquí (la ficha carga más rápido en el celular de quien escanea) */
+    *, *::before, *::after { box-sizing: border-box; }
+    :root { --cafe:#3b2420; --oxido:#b4452b; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#7c6a5d; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body {
+      margin: 0; min-height: 100vh; min-height: 100dvh; padding: 16px; position: relative; overflow-x: hidden;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta);
+      background-color: #29170d; background-image: url("fondo-textil.jpg");
+      -webkit-tap-highlight-color: transparent;
     }
-    .card-bones-pattern {
-      background-color: #f8fafc;
-      background-image: url("fondoinfo.jpeg");
+    img { max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+    .hidden { display: none !important; }
+
+    @keyframes pulso { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+    @keyframes ping { 75%, 100% { transform: scale(1.9); opacity: 0; } }
+    @keyframes aviso {
+      0%, 100% { box-shadow: 0 8px 20px -6px rgba(220,38,38,.55), 0 0 0 0 rgba(248,113,113,.6); }
+      50% { box-shadow: 0 8px 20px -6px rgba(220,38,38,.55), 0 0 0 7px rgba(248,113,113,0); }
     }
-    .poster-paws-bg {
-      background-color: #ffffff;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Cg fill='%23cbd5e1' opacity='0.45'%3E%3Cpath d='M30 18c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Cpath d='M80 68c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3C/g%3E%3C/svg%3E");
-    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+    .cargando { color: rgba(255,255,255,.7); font-size: 38px; }
+
+    /* ---------- Piezas reutilizables (mismo lenguaje visual que registro.html) ---------- */
+    .card { background: #fff; border: 1px solid var(--arena); border-radius: 20px; box-shadow: 0 1px 0 rgba(59,36,32,.05), 0 10px 22px -16px rgba(59,36,32,.5); overflow: hidden; }
+    .card-h { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: linear-gradient(to right, #fffaf0, #fff); border-bottom: 1px solid #f3eadb; }
+    .card-h h2 { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--cafe); flex: 1; }
+    .card-b { padding: 11px 12px 12px; display: grid; gap: 9px; }
+    .ttl { flex: 1; min-width: 0; }
+    .ttl small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); line-height: 1.1; }
+    .ttl b { display: block; margin-top: 2px; font-size: 15px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--oxido2); line-height: 1.2; overflow-wrap: anywhere; }
+    .pill { font-size: 9.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #f5ece0; color: var(--suave); white-space: nowrap; }
+    .pill.req { background: #ffe9d6; color: var(--oxido2); }
+    .ico { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 13px; flex: none; box-shadow: inset 0 -2px 0 rgba(0,0,0,.16); }
+    .ico.grande { width: 56px; height: 56px; border-radius: 18px; font-size: 24px; margin: 0 auto; }
+    .ico.amber { background: linear-gradient(135deg, #fbbf24, #d97706); }
+    .ico.sky { background: linear-gradient(135deg, #38bdf8, #0369a1); }
+    .ico.rose { background: linear-gradient(135deg, #fb7185, #be123c); }
+    .ico.green { background: linear-gradient(135deg, #34d399, #047857); }
+    .ico.blue { background: linear-gradient(135deg, #60a5fa, #1d4ed8); }
+    .hint { margin: 0; font-size: 10.5px; line-height: 1.3; color: #a09182; text-align: center; }
+    .hint i { color: #e0a24a; margin-right: 3px; }
+    .g2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
+    .fila { display: flex; gap: 8px; }
+    .fila > .btn { flex: 1 1 0; width: auto; min-width: 0; }
+    .fila > .btn-afiche { flex-grow: 1.4; }
+    .fld { width: 100%; padding: 10px 11px; border-radius: 12px; border: 1.5px solid var(--arena); background: #fffdf8; font: 400 16px/1.25 'Fredoka', system-ui, sans-serif; color: var(--tinta); outline: none; transition: border-color .15s, box-shadow .15s; }
+    .fld:focus { border-color: #e08a2c; box-shadow: 0 0 0 3px rgba(224,138,44,.2); background: #fff; }
+    .fld.center { text-align: center; font-family: ui-monospace, monospace; font-weight: 700; font-size: 24px; letter-spacing: .3em; }
+
+    /* Botones */
+    .btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 10px 12px; border: 0; border-radius: 14px; font: 600 14px/1.15 'Fredoka', system-ui, sans-serif; text-align: center; color: #fff; cursor: pointer; transition: transform .12s; }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .65; }
+    .btn i { font-size: 16px; }
+    .btn-wa { background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 6px 14px -6px rgba(5,150,105,.75); }
+    .btn-call { background: linear-gradient(135deg, #60a5fa, #1d4ed8); box-shadow: 0 6px 14px -6px rgba(29,78,216,.7); }
+    .btn-gps { padding: 12px; font-size: 14.5px; background: linear-gradient(135deg, #38bdf8, #0369a1); box-shadow: 0 8px 16px -6px rgba(3,105,161,.75); }
+    .btn-ambar { background: linear-gradient(135deg, #f59e0b, #c2410c); box-shadow: 0 6px 14px -6px rgba(194,65,12,.7); }
+    .btn-line { background: #fff; color: var(--cafe); border: 1.5px solid #e6d9c4; }
+    .btn-line i { color: #6366f1; }
+    .btn-afiche { background: #fff; color: #be123c; border: 1.5px solid #fda4af; font-size: 13px; }
+    .btn-afiche i { color: #e11d48; }
+    .btn-share { background: #fff; color: var(--cafe); border: 1.5px solid #e6d9c4; font-size: 13px; }
+    .btn-share i { color: var(--oxido); }
+    .btn-vet { background: #fff; color: #be123c; border: 1.5px solid #fda4af; padding: 8px 12px; font-size: 13px; }
+    .btn-vet i { color: #e11d48; }
+    .enlace { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--oxido); }
+
+    /* ---------- Placa sin registrar / sin conexión ---------- */
+    .vacio { width: 100%; max-width: 384px; padding: 26px 22px; border-radius: 28px; text-align: center; display: grid; gap: 12px; background-color: #fbf6e3; background-image: url("fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
+    .vacio h2 { margin: 0; font: 800 22px/1.15 'DynaPuff', 'Fredoka', sans-serif; color: var(--cafe); }
+    .vacio p { margin: 0; font-size: 13px; color: var(--suave); }
+
+    /* ---------- Aviso de mascota perdida ---------- */
+    .alerta { width: 100%; max-width: 384px; margin: 0 0 10px; padding: 9px 14px; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 10px; text-align: center; color: #fff; background: linear-gradient(135deg, #ef4444, #b91c1c); border: 2px solid #fca5a5; animation: aviso 1.8s ease-in-out infinite; }
+    .alerta i { font-size: 22px; color: #fde047; }
+    .alerta b { display: block; font-size: 15px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; line-height: 1.15; }
+    .alerta small { display: block; font-size: 12px; font-weight: 500; line-height: 1.2; opacity: .95; }
+
+    /* ---------- Corona Helpet (insignia con alas) ---------- */
+    #corona-helpet { position: relative; z-index: 30; width: 92%; max-width: 340px; margin: 0 auto -46px; pointer-events: none; user-select: none; -webkit-user-select: none; }
+    #corona-helpet img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 1.5px rgba(248,237,209,.95)) drop-shadow(0 6px 10px rgba(0,0,0,.4)); }
+
+    /* ---------- Tarjeta principal ---------- */
+    .shell { width: 100%; max-width: 384px; margin: 16px 0 4px; border-radius: 28px; overflow: hidden; position: relative; background-color: #fbf6e3; background-image: url("fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
+    .hero { position: relative; height: 142px; overflow: hidden; display: flex; align-items: flex-start; justify-content: center; padding-top: 36px; background: #3b2420; }
+    .hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+    .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(59,36,32,.3), transparent 50%); pointer-events: none; }
+    .sello { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; color: var(--cafe); background: rgba(255,255,255,.96); border: 1px solid rgba(252,211,77,.9); box-shadow: 0 4px 10px -2px rgba(59,36,32,.4); }
+    .sello i { color: #d97706; }
+    .sello.perdida { color: #fff; background: rgba(220,38,38,.97); border-color: #fca5a5; animation: pulso 1.6s ease-in-out infinite; }
+    .sello.perdida i { color: #fff; }
+
+    .foto { position: relative; z-index: 2; display: flex; justify-content: center; margin-top: -58px; }
+    .foto-box { position: relative; }
+    #pet-photo { display: block; width: 128px; height: 128px; border-radius: 50%; object-fit: cover; background: #fff1d6; border: 4px solid #fff; cursor: pointer; box-shadow: 0 0 0 2px rgba(180,69,43,.6), 0 14px 26px -8px rgba(59,36,32,.65); transition: transform .2s; }
+    #pet-photo:active { transform: scale(.97); }
+    .punto { position: absolute; right: 6px; bottom: 6px; width: 24px; height: 24px; border-radius: 50%; background: #10b981; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+    .punto.perdida { background: #dc2626; animation: ping 1.4s cubic-bezier(0,0,.2,1) infinite; }
+
+    #pet-name { margin: 8px 0 0; padding: 0 14px; text-align: center; font-family: 'DynaPuff', 'Fredoka', cursive; font-weight: 800; font-size: 30px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; color: var(--cafe); text-shadow: 0 2px 0 #fff, 0 4px 0 var(--arena), 0 7px 10px rgba(59,36,32,.22); overflow-wrap: anywhere; text-wrap: balance; }
+    #sub-status { margin: 5px 0 0; padding: 0 18px; text-align: center; font-size: 13px; font-weight: 500; letter-spacing: .01em; line-height: 1.3; color: var(--oxido); text-wrap: balance; }
+    #sub-status.perdida { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #dc2626; animation: pulso 1.6s ease-in-out infinite; }
+
+    .cuerpo { padding: 12px 12px 12px; display: grid; gap: 9px; }
+
+    /* Ficha técnica 2×2 */
+    .datos { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
+    .dato { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 7px 9px; background: #fff; border: 1px solid var(--arena); border-radius: 16px; box-shadow: 0 1px 0 rgba(59,36,32,.04), 0 8px 16px -14px rgba(59,36,32,.5); }
+    .dato .ico { width: 28px; height: 28px; border-radius: 9px; font-size: 12px; }
+    .dato > div { min-width: 0; }
+    .dato.ancho { grid-column: 1 / -1; }
+    .dato small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); line-height: 1.1; }
+    .dato b { display: block; margin-top: 1px; font-size: 14.5px; font-weight: 600; line-height: 1.15; color: var(--cafe); overflow-wrap: anywhere; }
+
+    /* Salud */
+    .sem { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .sem .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; animation: pulso 1.8s ease-in-out infinite; }
+    .sem-ok { background: #ecfdf5; color: #047857; border-color: #a7f3d0; } .sem-ok .dot { background: #10b981; }
+    .sem-warn { background: #fffbeb; color: #b45309; border-color: #fde68a; } .sem-warn .dot { background: #f59e0b; }
+    .sem-bad { background: #fff1f2; color: #be123c; border-color: #fecdd3; } .sem-bad .dot { background: #f43f5e; }
+    .sem-none { background: #f8f5f0; color: #6b5d52; border-color: #e6dccd; } .sem-none .dot { display: none; }
+    .fechas { display: grid; gap: 6px; }
+    .fecha { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 12px; background: #f1faf5; border: 1px solid #cdeedd; font-size: 12.5px; color: #14532d; }
+    .fecha i { width: 16px; text-align: center; color: #059669; }
+    .fecha span { flex: 1; font-weight: 500; }
+    .fecha b { font-weight: 600; color: #065f46; }
+
+    /* Ficha médica básica */
+    .med { display: flex; gap: 8px; padding: 7px 10px; border-radius: 12px; background: #fff7f7; border: 1px solid #fde0e0; font-size: 12.5px; line-height: 1.3; }
+    .med .em { flex: none; font-size: 15px; line-height: 1.25; }
+    .med small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #9f1239; }
+    .med p { margin: 0; color: #4a2a2a; overflow-wrap: anywhere; }
+
+    .dueno { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto; padding: 6px 10px; border: 0; background: none; font-size: 12px; font-weight: 500; color: var(--suave); cursor: pointer; }
+    .dueno:hover { color: var(--oxido); }
+
+    /* ---------- Carnet digital (se exporta como imagen) ---------- */
+    .carnet { position: relative; overflow: hidden; width: 350px; margin: 0 auto; padding: 24px; border-radius: 24px; color: #fff; font-family: 'Fredoka', sans-serif; background: linear-gradient(135deg, #f59e0b, #ea580c); }
+    .carnet-glow { position: absolute; right: -40px; bottom: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,.1); pointer-events: none; }
+    .carnet-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.2); }
+    .carnet-brand { display: flex; align-items: center; gap: 8px; }
+    .carnet-brand i { font-size: 24px; }
+    .carnet-brand span { font-size: 18px; font-weight: 700; letter-spacing: .05em; }
+    .cp { padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+    .cp-ok { background: #10b981; border: 1px solid #34d399; }
+    .cp-warn { background: #f59e0b; border: 1px solid #fbbf24; }
+    .cp-bad { background: #e11d48; border: 1px solid #fb7185; }
+    .cp-none { background: rgba(100,116,139,.8); border: 1px solid transparent; }
+    .carnet-pet { display: flex; align-items: center; gap: 16px; }
+    .carnet-pet img { flex: none; width: 80px; height: 80px; border-radius: 16px; object-fit: cover; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.5); }
+    .carnet-pet h2 { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.15; }
+    .carnet-pet p { margin: 2px 0 0; font-size: 12px; color: rgba(255,255,255,.85); }
+    .carnet-pet p.carnet-id { display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 8px; font: 11px ui-monospace, monospace; color: #fff; background: rgba(0,0,0,.2); }
+    .carnet-qr { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding: 12px; border-radius: 16px; text-align: left; color: #1e293b; background: #fff; }
+    .carnet-qr b { display: block; font-size: 10px; font-weight: 700; }
+    .carnet-qr span { display: block; margin-top: 2px; font-size: 10px; color: #64748b; }
+    #carnet-qrcode { padding: 6px; border-radius: 12px; background: #f1f5f9; }
+
+    /* ---------- Pie ---------- */
+    .pie { width: 100%; max-width: 384px; margin: 16px 0 4px; padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; text-align: center; font-size: 12px; color: #ead8b8; background: rgba(26,14,9,.68); border: 1px solid rgba(248,237,209,.14); border-radius: 20px; }
+    .pie .soporte { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; font-weight: 600; color: #a7f3d0; background: rgba(16,185,129,.16); border: 1px solid rgba(110,231,183,.45); }
+    .pie small { flex-basis: 100%; font-size: 10.5px; color: #a8917a; }
+
+    /* ---------- Ventanas (modales) ---------- */
+    .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20,10,6,.84); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+    .sheet { position: relative; width: 100%; max-width: 320px; padding: 22px 18px 18px; display: grid; gap: 12px; text-align: center; background: #fffdf8; border: 1px solid var(--arena); border-radius: 24px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
+    .sheet h3 { margin: 0; font-size: 17px; font-weight: 600; color: var(--cafe); }
+    .sheet p { margin: 3px 0 0; font-size: 12.5px; color: var(--suave); }
+    .x { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #f3eadb; color: var(--suave); font-size: 14px; cursor: pointer; }
+
+    #modal-medico { align-items: flex-end; padding: 0; }
+    .hoja { width: 100%; max-width: 440px; max-height: 86vh; max-height: 86dvh; display: flex; flex-direction: column; overflow: hidden; background: #fffdf8; border-radius: 26px 26px 0 0; box-shadow: 0 -20px 50px -20px rgba(0,0,0,.6); }
+    @media (min-width: 640px) { #modal-medico { align-items: center; padding: 16px; } .hoja { border-radius: 26px; } }
+    .hoja-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: linear-gradient(to right, #fffaf0, #fff); border-bottom: 1px solid #f3eadb; }
+    .hoja-h .ttl small { font-size: 9.5px; }
+    .hoja-h h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--cafe); line-height: 1.15; }
+    .hoja-h .btn { width: auto; padding: 7px 12px; font-size: 12.5px; border-radius: 12px; }
+    .hoja-h .x { position: static; flex: none; }
+    #modal-medical-list { flex: 1; overflow-y: auto; padding: 12px 14px; display: grid; gap: 8px; align-content: start; }
+    .hoja-vet { margin: 0 14px 12px; }
+    .hoja-nota { margin: 0; padding: 8px 14px 10px; border-top: 1px solid #f3eadb; font-size: 10.5px; color: #a09182; }
+    .rec { display: grid; gap: 4px; padding: 10px 12px; text-align: left; background: #fffaf0; border: 1px solid #f3e3c4; border-radius: 16px; }
+    .rec-h { display: flex; align-items: center; gap: 8px; }
+    .rec-h b { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 600; text-transform: uppercase; color: var(--cafe); overflow-wrap: anywhere; }
+    .rec p { margin: 0; font-size: 12.5px; color: #4a3b33; overflow-wrap: anywhere; }
+    .rec p i { width: 14px; margin-right: 3px; text-align: center; color: #d97706; }
+    .rec p.next { font-weight: 500; color: #047857; }
+    .rec p.next i { color: #059669; }
+    .lista-vacia { padding: 22px 12px; text-align: center; font-size: 12.5px; color: var(--suave); background: #fffaf0; border: 1.5px dashed #ecd9b6; border-radius: 16px; }
+    .lista-vacia i { display: block; margin-bottom: 4px; font-size: 22px; color: #e0b66a; }
+    .lista-vacia b { display: block; font-weight: 600; color: var(--cafe); }
+
+    #photo-modal { background: rgba(0,0,0,.9); cursor: pointer; }
+    .foto-grande { position: relative; width: 100%; max-width: 384px; text-align: center; cursor: default; }
+    .foto-grande .x { top: -42px; right: 0; width: 38px; height: 38px; background: rgba(40,28,24,.85); color: #fff; font-size: 18px; }
+    .foto-grande img { display: block; width: 100%; max-height: 80vh; object-fit: contain; border-radius: 24px; border: 2px solid rgba(255,255,255,.2); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
+
+    /* ---------- Afiche «¡SE BUSCA!» (se exporta como imagen: solo CSS simple) ---------- */
+    #afiche-modal { flex-direction: column; justify-content: flex-start; overflow-y: auto; background: rgba(20,10,6,.92); }
+    #afiche-modal > :first-child { margin-top: auto; }
+    #afiche-modal > :last-child { margin-bottom: auto; }
+    .barra { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 14px; }
+    .barra .btn { width: auto; padding: 9px 14px; font-size: 13px; border-radius: 12px; }
+    .btn-img { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 6px 14px -6px rgba(4,120,87,.7); }
+    .btn-gris { background: #4b3a33; }
+    .poster { flex: none; position: relative; width: 100%; max-width: 384px; padding: 24px; overflow: hidden; text-align: center; color: #0f172a; font-family: 'Fredoka', system-ui, sans-serif; background-color: #fff; border: 4px solid #dc2626; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Cg fill='%23cbd5e1' opacity='0.45'%3E%3Cpath d='M30 18c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Cpath d='M80 68c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3C/g%3E%3C/svg%3E"); }
+    .poster-titulo { margin: 0 0 14px; font: 900 38px/1.1 'Arial Black', Impact, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: #fbbf24; -webkit-text-stroke: 2px #dc2626; text-shadow: 0 4px 0 #b91c1c; }
+    .poster-foto { width: 208px; height: 256px; margin: 0 auto 14px; overflow: hidden; background: #f1f5f9; border: 4px solid #dc2626; border-radius: 24px; box-shadow: 0 12px 24px -10px rgba(0,0,0,.35); }
+    .poster-foto img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .poster-txt { padding: 0 6px; font-size: 14px; font-weight: 600; line-height: 1.55; color: #1e293b; }
+    .poster-txt p { margin: 0; }
+    #poster-pet-name { font-size: 16px; font-weight: 800; color: #0f172a; }
+    #poster-reward-text { margin-top: 6px; font-size: 14px; font-weight: 800; color: #dc2626; }
+    .poster-llama { margin-top: 8px !important; font-size: 12px; font-weight: 700; color: #475569; }
+    .poster-tel { display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 8px; padding: 12px 16px; background: #fbbf24; border: 4px solid #dc2626; border-radius: 999px; box-shadow: 0 10px 18px -8px rgba(0,0,0,.35); }
+    .poster-tel svg { flex: none; width: 28px; height: 28px; margin-right: 8px; color: #b91c1c; }
+    #poster-phone-num { font: 800 clamp(16px, 5.6vw, 22px) ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .02em; white-space: nowrap; color: #b91c1c; }
+    .poster-datos { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 4px; margin-top: 12px; padding: 8px; font-size: 11px; font-weight: 700; color: #334155; background: rgba(255,255,255,.92); border: 1px solid #fecaca; border-radius: 12px; }
+    .poster-datos small { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; color: #ef4444; }
+    .poster-qr { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
+    #poster-qr { padding: 4px; background: #fff; border: 1px solid #fecaca; border-radius: 8px; }
+    .poster-qr p { margin: 0; font-size: 10px; font-weight: 700; letter-spacing: .04em; line-height: 1.3; text-align: left; text-transform: uppercase; color: #64748b; }
+    .poster-qr small { font-size: 9px; color: #94a3b8; }
 
     @media print {
-      body * { visibility: hidden; }
-      #printable-poster, #printable-poster * { visibility: visible; }
-      #printable-poster { position: absolute; left: 0; top: 0; width: 100%; }
+      @page { margin: 10mm; }
+      html, body { background: #fff !important; }
+      /* Solo se imprime el afiche, grande y centrado en la hoja */
+      body { display: block !important; min-height: 0 !important; padding: 0 !important; overflow: visible !important; }
+      body > *:not(#afiche-modal) { display: none !important; }
+      #afiche-modal { position: static; display: block; padding: 0; overflow: visible; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
       .no-print { display: none !important; }
+      #printable-poster { zoom: var(--zoom-afiche, 1.25); width: 384px; max-width: none; margin: 0 auto; box-shadow: none; break-inside: avoid; }
     }
   </style>
 </head>
-<body class="paw-dark-body min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-x-hidden">
+<body>
 
   <!-- Indicador mínimo mientras carga / mientras el navegador pregunta por la ubicación -->
-  <div id="cargando" class="text-white/70 text-4xl"><i class="fa-solid fa-paw fa-beat"></i></div>
+  <div id="cargando" class="cargando" role="status" aria-label="Cargando"><i class="fa-solid fa-paw fa-beat"></i></div>
 
-  <!-- Placa No Registrada / No válida / Sin conexión -->
-  <div id="unregistered-card" class="hidden card-bones-pattern rounded-3xl shadow-2xl p-8 max-w-sm w-full border border-slate-200 text-center space-y-4">
-    <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-sm">
-      <i class="fa-solid fa-qrcode"></i>
-    </div>
-    <h2 class="text-2xl font-black text-slate-900">Placa No Registrada</h2>
-    <p class="text-xs text-slate-500">Esta placa Helpet aún no tiene asignada información de ninguna mascota.</p>
-    <a id="link-register" href="#" class="block w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all text-sm">
-      <i class="fa-solid fa-plus-circle mr-1.5"></i> Registrar esta Placa Ahora
-    </a>
-  </div>
+  <!-- Placa no registrada / no válida / sin conexión -->
+  <section id="unregistered-card" class="vacio hidden">
+    <div class="ico amber grande"><i class="fa-solid fa-qrcode"></i></div>
+    <h2>Placa sin registrar</h2>
+    <p>Esta placa aún no tiene una mascota asignada.</p>
+    <a id="link-register" href="#" class="btn btn-ambar"><i class="fa-solid fa-plus"></i> Registrar esta placa</a>
+  </section>
 
-  <!-- Banner Alerta Pérdida -->
-  <div id="lost-alert-banner" class="hidden w-full max-w-sm bg-red-600 text-white font-extrabold text-center py-3 px-4 rounded-2xl mb-3 shadow-lg shadow-red-600/40 animate-bounce flex items-center justify-center gap-2 border-2 border-red-400">
-    <i class="fa-solid fa-triangle-exclamation text-2xl text-yellow-300"></i>
-    <span class="text-sm tracking-wide uppercase">¡AYUDA A PET! / MASCOTA PERDIDA</span>
+  <!-- Aviso de pérdida -->
+  <div id="lost-alert-banner" class="alerta hidden" role="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span><b>¡Mascota perdida!</b><small>Ayúdame a volver a casa</small></span>
   </div>
 
   <!-- Corona: insignia Helpet con alas, apoyada sobre la tarjeta -->
-  <div id="corona-helpet" class="hidden relative z-30 w-[92%] max-w-[340px] mx-auto pointer-events-none select-none" style="margin-bottom:-46px">
-    <img src="helpet-alas.svg" alt="Helpet" width="340" height="138" decoding="async" class="w-full h-auto block" style="filter:drop-shadow(0 0 1.5px rgba(248,237,209,.95)) drop-shadow(0 6px 10px rgba(0,0,0,.4))">
+  <div id="corona-helpet" class="hidden">
+    <img src="helpet-alas.svg" alt="Helpet" width="340" height="138" decoding="async">
   </div>
 
-  <!-- Tarjeta Principal del Perfil -->
-  <main id="app-container" class="hidden card-bones-pattern rounded-3xl shadow-2xl overflow-hidden max-w-sm w-full border border-slate-200/80 transition-all my-4">
+  <!-- Tarjeta principal del perfil -->
+  <main id="app-container" class="shell hidden">
 
-    <div id="header-bg" class="relative h-48 w-full overflow-hidden flex items-start justify-center pt-9 border-b border-amber-200/50 bg-slate-900">
-      <img src="cabecera-paisaje.jpg" alt="Paisaje andino" class="absolute inset-0 w-full h-full object-cover object-bottom">
-      <div class="absolute inset-0 bg-gradient-to-b from-amber-950/30 via-transparent to-transparent"></div>
-      <span id="header-status-badge" class="relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md">
-        <i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica
-      </span>
+    <div id="header-bg" class="hero">
+      <img src="cabecera-paisaje.jpg" alt="" width="1036" height="518">
+      <span id="header-status-badge" class="sello"><i class="fa-solid fa-paw"></i> Perfil y ficha médica</span>
     </div>
 
-    <div class="relative -mt-16 text-center flex justify-center z-20">
-      <div class="relative">
-        <img id="pet-photo"
-             onclick="abrirFotoGrande()"
-             src="https://images.unsplash.com/photo-1543466835-00a7907e9de1"
-             alt="Foto Mascota"
-             class="w-40 h-40 rounded-full border-4 border-white shadow-xl object-cover bg-slate-200 cursor-pointer hover:scale-105 transition-transform">
-        <span id="status-indicator" class="absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md" title="Placa Activa"></span>
+    <div class="foto">
+      <div class="foto-box">
+        <img id="pet-photo" onclick="abrirFotoGrande()" width="128" height="128" alt="Foto de la mascota"
+             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fff1d6'/%3E%3Cg fill='%23e0a24a'%3E%3Cellipse cx='50' cy='65' rx='16' ry='13'/%3E%3Ccircle cx='30' cy='47' r='6.5'/%3E%3Ccircle cx='42' cy='35' r='6.5'/%3E%3Ccircle cx='58' cy='35' r='6.5'/%3E%3Ccircle cx='70' cy='47' r='6.5'/%3E%3C/g%3E%3C/svg%3E">
+        <span id="status-indicator" class="punto" title="Placa activa"></span>
       </div>
     </div>
 
-    <!-- Los bloques se reordenan con order-N (no hace falta moverlos de lugar) -->
-    <div class="p-6 pt-4 text-center flex flex-col gap-4">
+    <h1 id="pet-name"></h1>
+    <p id="sub-status">Mascota feliz y amada 🐾</p>
 
-      <div>
-        <h1 id="pet-name"
-            class="text-4xl font-extrabold uppercase text-slate-800 tracking-wider -mt-2 text-center"
-            style="font-family: 'DynaPuff', cursive; text-shadow: 2px 2px 0px #fff, 4px 4px 0px #cbd5e1, 6px 6px 10px rgba(0,0,0,0.15);">
-        </h1>
-        <p id="sub-status" class="text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2">Mascota Feliz & Amada 🐾</p>
+    <div class="cuerpo">
+
+      <!-- 1. Ficha técnica (se oculta en modo perdido) -->
+      <div id="pet-tech-sheet" class="datos">
+        <div class="dato"><span class="ico amber"><i class="fa-solid fa-dog"></i></span><div><small>Raza</small><b id="pet-breed">--</b></div></div>
+        <div class="dato"><span class="ico rose"><i class="fa-solid fa-palette"></i></span><div><small>Color</small><b id="pet-color">--</b></div></div>
+        <div class="dato"><span class="ico sky"><i class="fa-solid fa-weight-scale"></i></span><div><small>Peso</small><b id="pet-weight">--</b></div></div>
+        <div class="dato"><span class="ico green"><i class="fa-solid fa-cake-candles"></i></span><div><small>Edad</small><b id="pet-age">--</b></div></div>
       </div>
 
-      <!-- 1. Ficha Técnica (se oculta en modo perdido) -->
-      <div id="pet-tech-sheet" class="order-1 grid grid-cols-2 gap-2 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-slate-200/80 shadow-sm" style="font-family: 'Fredoka', sans-serif;">
-        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-dog text-amber-500 mr-1"></i> Raza</p>
-          <p id="pet-breed" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
+      <!-- 2. Dueño y contacto -->
+      <section id="contact-card" class="card">
+        <div class="card-h">
+          <span class="ico blue"><i class="fa-solid fa-user-shield"></i></span>
+          <div class="ttl"><small>Dueño / Responsable</small><b id="owner-name"></b></div>
         </div>
-        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-palette text-amber-500 mr-1"></i> Color</p>
-          <p id="pet-color" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
-        </div>
-        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-weight-scale text-amber-500 mr-1"></i> Peso</p>
-          <p id="pet-weight" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
-        </div>
-        <div class="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-center">
-          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1"><i class="fa-solid fa-cake-candles text-amber-500 mr-1"></i> Edad</p>
-          <p id="pet-age" class="text-xl font-black text-slate-800 truncate leading-none">--</p>
-        </div>
-      </div>
-
-      <!-- 2. Datos Dueño -->
-      <div class="order-2 bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 text-left shadow-sm">
-        <div class="flex items-center space-x-3 text-slate-700">
-          <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-sm">
-            <i class="fa-solid fa-user-shield"></i>
+        <div class="card-b">
+          <div class="g2">
+            <a id="btn-whatsapp" href="#" target="_blank" rel="noopener" class="btn btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+            <a id="btn-call" href="#" class="btn btn-call"><i class="fa-solid fa-phone"></i> Llamar</a>
           </div>
+          <!-- Contacto de emergencia (aparece si la mascota tiene teléfono secundario) -->
+          <a id="btn-call-secondary" href="#" class="btn btn-line hidden"><i class="fa-solid fa-phone-volume"></i> Contacto de emergencia</a>
+          <!-- Enviar ubicación: SOLO en modo perdida -->
+          <button id="btn-gps" type="button" onclick="enviarUbicacionGPS()" class="btn btn-gps hidden"><i class="fa-solid fa-location-crosshairs"></i> <span>¡La encontré! Enviar mi ubicación</span></button>
+          <p id="gps-note" class="hint hidden"><i class="fa-solid fa-circle-info"></i>Compartirás tu ubicación con el dueño por WhatsApp.</p>
+        </div>
+      </section>
+
+      <!-- 3. Difusión -->
+      <div class="fila">
+        <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="btn btn-afiche hidden"><i class="fa-solid fa-bullhorn"></i> Crear afiche</button>
+        <button id="btn-share-profile" type="button" onclick="compartirPerfil()" class="btn btn-share"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+      </div>
+
+      <!-- 4. Salud: semáforo, próximas fechas, historial y carnet (se oculta en modo perdido) -->
+      <section id="health-zone" class="card">
+        <div class="card-h">
+          <span class="ico green"><i class="fa-solid fa-heart-pulse"></i></span>
+          <h2>Salud</h2>
+          <div id="vaccine-badge" class="sem sem-none"><span id="badge-dot" class="dot"></span><span id="badge-text">Calculando…</span></div>
+        </div>
+        <div class="card-b">
+          <div id="health-card" class="fechas hidden">
+            <div id="row-vaccine" class="fecha hidden"><i class="fa-solid fa-syringe"></i><span>Próxima vacuna</span><b id="txt-vaccine"></b></div>
+            <div id="row-deworming" class="fecha hidden"><i class="fa-solid fa-pills"></i><span>Desparasitación</span><b id="txt-deworming"></b></div>
+          </div>
+          <div class="fila">
+            <button id="btn-medical-history" type="button" onclick="abrirModalMedico()" class="btn btn-ambar hidden"><i class="fa-solid fa-file-medical"></i> Historial</button>
+            <button type="button" onclick="descargarCarnetDigital()" class="btn btn-line"><i class="fa-solid fa-download"></i> Carnet</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Ficha médica básica (se oculta en modo perdido) -->
+      <section id="medical-card" class="card hidden">
+        <div class="card-h">
+          <span class="ico rose"><i class="fa-solid fa-kit-medical"></i></span>
+          <h2>Ficha médica</h2>
+          <span class="pill req">Importante</span>
+        </div>
+        <div class="card-b">
+          <div id="row-allergies" class="med hidden"><span class="em">⚠️</span><div><small>Alergias</small><p id="txt-allergies"></p></div></div>
+          <div id="row-medical" class="med hidden"><span class="em">💊</span><div><small>Cuidados / medicación</small><p id="txt-medical"></p></div></div>
+          <div id="row-diet" class="med hidden"><span class="em">🍖</span><div><small>Alimentación</small><p id="txt-diet"></p></div></div>
+          <div id="row-vet" class="hidden">
+            <a id="btn-vet-call" href="#" class="btn btn-vet"><i class="fa-solid fa-user-doctor"></i> <span id="txt-vet-name">Llamar a la veterinaria</span></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Carnet oculto (se exporta como imagen con el semáforo dentro) -->
+      <div id="carnet-digital" class="carnet hidden">
+        <div class="carnet-glow"></div>
+        <div class="carnet-top">
+          <div class="carnet-brand"><i class="fa-solid fa-shield-dog"></i><span>HELPET ID</span></div>
+          <span id="carnet-status-pill" class="cp cp-none">Calculando...</span>
+        </div>
+        <div class="carnet-pet">
+          <img id="carnet-img" alt="Mascota">
           <div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dueño / Responsable</p>
-            <p id="owner-name" class="text-sm font-bold text-amber-800 uppercase tracking-widest" style="font-family: 'Fredoka', sans-serif;"></p>
+            <h2 id="carnet-nombre"></h2>
+            <p id="carnet-raza"></p>
+            <p class="carnet-id">ID: <span id="carnet-id"></span></p>
           </div>
         </div>
-      </div>
-
-      <!-- 3. Botones de contacto y difusión -->
-      <div class="order-3 space-y-3 pt-1">
-
-        <a id="btn-whatsapp" href="#" target="_blank" rel="noopener" class="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-emerald-500/20 transition-all active:scale-[0.98]">
-          <i class="fa-brands fa-whatsapp text-xl"></i> Escribir por WhatsApp
-        </a>
-
-        <a id="btn-call" href="#" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-indigo-600/20 transition-all active:scale-[0.98]">
-          <i class="fa-solid fa-phone text-lg"></i> Llamar al Dueño
-        </a>
-
-        <!-- Contacto secundario (aparece si la mascota tiene teléfono secundario) -->
-        <a id="btn-call-secondary" href="#" class="hidden w-full py-3.5 px-4 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md transition-all active:scale-[0.98]">
-          <i class="fa-solid fa-phone-volume text-lg"></i> Llamar a Contacto Secundario
-        </a>
-
-        <!-- Enviar ubicación: SOLO en modo perdida -->
-        <button id="btn-gps" onclick="enviarUbicacionGPS()" class="hidden w-full py-3.5 px-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-md shadow-sky-500/20 transition-all active:scale-[0.98]">
-          <i class="fa-solid fa-location-dot text-lg text-white"></i> <span>Encontré a esta mascota: enviar mi ubicación</span>
-        </button>
-        <p id="gps-note" class="hidden text-[10px] text-slate-500 text-center -mt-1 px-2">Al tocar el botón compartirás tu ubicación con el dueño y se abrirá WhatsApp.</p>
-
-        <div class="relative my-3 flex py-1 items-center">
-          <div class="flex-grow border-t border-slate-300/70"></div>
-          <span class="flex-shrink mx-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Opciones de difusión</span>
-          <div class="flex-grow border-t border-slate-300/70"></div>
-        </div>
-
-        <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="hidden w-full py-3 px-4 bg-white hover:bg-rose-50 text-rose-600 border-2 border-rose-500 font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-xs transition-all active:scale-[0.98]">
-          <i class="fa-solid fa-bullhorn text-lg"></i> Generar Afiche "¡SE BUSCA!"
-        </button>
-
-        <button id="btn-share-profile" onclick="compartirPerfil()" class="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2.5 shadow-xs transition-all active:scale-[0.98]">
-          <i class="fa-solid fa-share-nodes text-lg"></i> Compartir Perfil de Mascota
-        </button>
-      </div>
-
-      <!-- 4. Estado clínico + carnet (se oculta en modo perdido) -->
-      <div id="health-zone" class="order-4 border-t border-slate-100 pt-5 space-y-4">
-        <div class="flex flex-col items-center justify-center">
-          <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Estado Clínico</h4>
-          <div id="vaccine-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm">
-            <span id="badge-dot" class="w-2.5 h-2.5 rounded-full animate-pulse"></span>
-            <span id="badge-text">Calculando estado...</span>
-          </div>
-        </div>
-
-        <button onclick="descargarCarnetDigital()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg text-xs transition-all flex items-center justify-center gap-2">
-          <i class="fa-solid fa-download"></i> Descargar Carnet Digital (PNG)
-        </button>
-
-        <!-- Carnet oculto (se exporta con el semáforo dentro) -->
-        <div id="carnet-digital" class="w-[350px] bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-3xl text-white shadow-2xl relative overflow-hidden hidden mx-auto" style="font-family: 'Fredoka', sans-serif;">
-          <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-
-          <div class="flex items-center justify-between border-b border-white/20 pb-4 mb-4">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-shield-dog text-2xl"></i>
-              <span class="font-extrabold tracking-wider text-lg">HELPET ID</span>
-            </div>
-            <span id="carnet-status-pill" class="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md">Calculando...</span>
-          </div>
-
-          <div class="flex items-center gap-4 mb-4">
-            <img id="carnet-img" src="" alt="Mascota" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/50 shadow-md">
-            <div class="text-left">
-              <h2 id="carnet-nombre" class="text-xl font-bold leading-tight"></h2>
-              <p id="carnet-raza" class="text-xs text-white/80 mt-0.5"></p>
-              <p class="text-[11px] bg-black/20 inline-block px-2 py-0.5 rounded-lg mt-2 font-mono">ID: <span id="carnet-id"></span></p>
-            </div>
-          </div>
-
-          <div class="bg-white text-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3 mt-4 text-left">
-            <div class="text-[10px] space-y-0.5">
-              <p class="font-bold text-slate-900">Escanea para emergencias</p>
-              <p class="text-slate-500">Acceso directo al perfil.</p>
-            </div>
-            <div id="carnet-qrcode" class="bg-slate-100 p-1.5 rounded-xl"></div>
-          </div>
+        <div class="carnet-qr">
+          <div><b>Escanea para emergencias</b><span>Acceso directo al perfil.</span></div>
+          <div id="carnet-qrcode"></div>
         </div>
       </div>
 
-      <!-- 5. Botón de ficha médica (se oculta en modo perdido) -->
-      <button id="btn-medical-history"
-              onclick="abrirModalMedico()"
-              class="order-5 w-full py-3 px-4 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-2xl flex items-center justify-between text-amber-900 font-bold text-sm shadow-sm transition-all hidden"
-              style="font-family: 'Fredoka', sans-serif;">
-        <span class="flex items-center gap-2">
-          <i class="fa-solid fa-file-medical text-amber-600 text-base"></i>
-          Ficha Médica & Vacunas
-        </span>
-        <i class="fa-solid fa-chevron-right text-xs text-amber-600"></i>
-      </button>
-
-      <!-- 6. Carnet de Salud (próximas fechas) -->
-      <div id="health-card" class="order-6 hidden text-left bg-emerald-50/90 backdrop-blur-sm border border-emerald-200 rounded-2xl p-4 space-y-2 shadow-sm">
-        <div class="flex items-center justify-between border-b border-emerald-200/80 pb-2">
-          <span class="text-xs font-extrabold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-calendar-check"></i> Carnet Digital de Salud
-          </span>
-          <span class="text-[10px] font-bold bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md">Control</span>
-        </div>
-        <div id="row-vaccine" class="hidden text-xs flex justify-between items-center py-0.5">
-          <span class="font-bold text-slate-700"><i class="fa-solid fa-syringe text-emerald-600 mr-1.5"></i> Próxima Vacuna:</span>
-          <span id="txt-vaccine" class="font-extrabold text-emerald-800"></span>
-        </div>
-        <div id="row-deworming" class="hidden text-xs flex justify-between items-center py-0.5">
-          <span class="font-bold text-slate-700"><i class="fa-solid fa-pills text-emerald-600 mr-1.5"></i> Próx. Desparasitación:</span>
-          <span id="txt-deworming" class="font-extrabold text-emerald-800"></span>
-        </div>
-      </div>
-
-      <!-- 7. Ficha Médica & Salud -->
-      <div id="medical-card" class="order-7 hidden text-left bg-rose-50/90 backdrop-blur-sm border border-rose-200 rounded-2xl p-4 space-y-3 shadow-sm">
-        <div class="flex items-center justify-between border-b border-rose-200/80 pb-2">
-          <span class="text-xs font-extrabold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-kit-medical"></i> Ficha Médica & Salud
-          </span>
-          <span class="text-[10px] font-bold bg-rose-200 text-rose-800 px-2 py-0.5 rounded-md">Importante</span>
-        </div>
-        <div id="row-allergies" class="hidden text-xs"><span class="font-bold text-rose-900 block">⚠️ Alergias:</span><span id="txt-allergies" class="text-rose-800"></span></div>
-        <div id="row-medical" class="hidden text-xs"><span class="font-bold text-slate-800 block">💊 Cuidados / Medicación:</span><span id="txt-medical" class="text-slate-700"></span></div>
-        <div id="row-diet" class="hidden text-xs"><span class="font-bold text-slate-800 block">🍖 Alimentación:</span><span id="txt-diet" class="text-slate-700"></span></div>
-        <div id="row-vet" class="hidden pt-1 border-t border-rose-200/60">
-          <a id="btn-vet-call" href="#" class="w-full py-2 bg-white hover:bg-rose-100 text-rose-700 font-bold border border-rose-300 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm">
-            <i class="fa-solid fa-user-doctor"></i>
-            <span id="txt-vet-name">Llamar a Clínica Veterinaria</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- 8. Acceso del dueño -->
-      <div class="order-8 pt-2 border-t border-slate-200/60">
-        <button type="button" onclick="abrirModalPIN()" class="text-xs text-slate-500 hover:text-amber-600 font-semibold flex items-center justify-center gap-1.5 transition-colors mx-auto">
-          <i class="fa-solid fa-lock"></i> ¿Eres el dueño? Modificar datos
-        </button>
-      </div>
+      <!-- 6. Acceso del dueño -->
+      <button type="button" class="dueno" onclick="abrirModalPIN()"><i class="fa-solid fa-lock"></i> ¿Eres el dueño? Editar datos</button>
     </div>
   </main>
 
+  <!-- Pie de página con soporte técnico Helpet -->
+  <footer class="pie">
+    <span>¿Dudas con tu placa?</span>
+    <a id="btn-support-whatsapp" href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." target="_blank" rel="noopener" class="soporte"><i class="fa-brands fa-whatsapp"></i> Soporte Helpet</a>
+    <small>© 2026 Helpet · Identificación inteligente para mascotas</small>
+  </footer>
+
   <!-- MODAL DE PIN -->
-  <div id="pin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4 relative border border-slate-100">
-      <button onclick="cerrarModalPIN()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-      <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-key"></i></div>
+  <div id="pin-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pin-titulo">
+    <div class="sheet">
+      <button type="button" class="x" onclick="cerrarModalPIN()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      <div class="ico amber grande"><i class="fa-solid fa-key"></i></div>
       <div>
-        <h3 class="text-lg font-bold text-slate-900">Verificación del Dueño</h3>
-        <p class="text-xs text-slate-500 mt-1">Ingresa tu PIN de 4 dígitos para editar la información.</p>
+        <h3 id="pin-titulo">PIN del dueño</h3>
+        <p>Ingresa tus 4 dígitos para editar.</p>
       </div>
-      <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" placeholder="••••" pattern="[0-9]{4}" class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
-      <button onclick="validarPINModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all">Ingresar</button>
-      <a href="https://t.me/Ayudapetbot?start=recuperar" target="_blank" rel="noopener" class="text-xs text-amber-600 hover:underline font-semibold block mx-auto pt-1">
-        <i class="fa-brands fa-telegram mr-1"></i> ¿Olvidaste tu PIN? Recuperar por Telegram
-      </a>
+      <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" pattern="[0-9]{4}" class="fld center" onkeydown="if (event.key === 'Enter') validarPINModal()">
+      <button type="button" onclick="validarPINModal()" class="btn btn-ambar">Ingresar</button>
+      <a href="https://t.me/Ayudapetbot?start=recuperar" target="_blank" rel="noopener" class="enlace"><i class="fa-brands fa-telegram"></i> ¿Olvidaste tu PIN? Recupéralo por Telegram</a>
     </div>
   </div>
 
   <!-- MODAL AFICHE "¡SE BUSCA!" -->
-  <div id="afiche-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4 overflow-y-auto">
-    <div class="no-print mb-4 flex flex-wrap gap-2 justify-center">
-      <button id="btn-share-img" onclick="compartirAficheImagen()" class="py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-lg flex items-center gap-2 text-sm transition-all">
-        <i class="fa-solid fa-share-nodes text-base"></i> Compartir Imagen (WhatsApp / Redes)
-      </button>
-      <button onclick="imprimirAfiche()" class="py-2.5 px-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm transition-all flex items-center gap-1.5">
-        <i class="fa-solid fa-print"></i> PDF / Imprimir
-      </button>
-      <button onclick="cerrarAficheModal()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+  <div id="afiche-modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Afiche de búsqueda">
+    <div class="no-print barra">
+      <button id="btn-share-img" type="button" onclick="compartirAficheImagen()" class="btn btn-img"><i class="fa-solid fa-share-nodes"></i> Compartir imagen</button>
+      <button type="button" onclick="imprimirAfiche()" class="btn btn-gris"><i class="fa-solid fa-print"></i> Imprimir / PDF</button>
+      <button type="button" onclick="cerrarAficheModal()" class="btn btn-gris" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <!-- CARTEL CAPTURABLE -->
-    <div id="printable-poster" class="poster-paws-bg text-slate-900 p-6 rounded-3xl max-w-sm w-full border-4 border-red-600 shadow-2xl text-center space-y-4 relative font-sans overflow-hidden">
-      <div class="relative z-10 pt-1">
-        <h1 class="text-4xl sm:text-5xl font-black uppercase tracking-wider text-amber-400 drop-shadow-[0_4px_0_rgba(185,28,28,1)]" style="font-family: 'Arial Black', Impact, sans-serif; -webkit-text-stroke: 2px #dc2626;">
-          ¡SE BUSCA!
-        </h1>
-      </div>
+    <div id="printable-poster" class="poster">
+      <h2 class="poster-titulo">¡SE BUSCA!</h2>
 
-      <div class="relative z-10 w-52 h-64 mx-auto rounded-3xl overflow-hidden border-4 border-red-600 shadow-xl bg-slate-100">
-        <img id="poster-photo" crossorigin="anonymous" src="" class="w-full h-full object-cover">
-      </div>
+      <div class="poster-foto"><img id="poster-photo" crossorigin="anonymous" src="" alt=""></div>
 
-      <div class="relative z-10 space-y-1.5 text-slate-800 text-sm font-semibold px-2 leading-relaxed">
+      <div class="poster-txt">
         <p>
-          Nuestro amigo <span id="poster-pet-name" class="font-black text-slate-900 text-base">---</span>
+          Nuestro amigo <span id="poster-pet-name">---</span>
           se perdió <span id="poster-lost-where">en la zona</span>
           <span id="poster-lost-when">recientemente</span>.
           Agradecemos cualquier información oportuna que nos ayude a localizarlo.
         </p>
-        <p id="poster-reward-text" class="font-black text-red-600 text-sm hidden pt-1">🎁 ¡Se ofrece recompensa!</p>
-        <p class="text-xs font-bold text-slate-600 pt-2">Llama o escribe a:</p>
+        <p id="poster-reward-text" class="hidden">🎁 ¡Se ofrece recompensa!</p>
+        <p class="poster-llama">Llama o escribe a:</p>
       </div>
 
-      <div class="relative z-10 pt-1">
-        <a id="poster-phone-btn" href="#" class="flex items-center justify-center w-full bg-amber-400 border-4 border-red-600 py-3 px-4 rounded-full shadow-lg transition">
-          <svg class="w-7 h-7 text-red-700 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-          </svg>
-          <span id="poster-phone-num" class="text-red-700 font-black text-2xl font-mono tracking-wide">---</span>
-        </a>
+      <a id="poster-phone-btn" href="#" class="poster-tel">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+        </svg>
+        <span id="poster-phone-num">---</span>
+      </a>
+
+      <div class="poster-datos">
+        <div><small>Raza</small><span id="poster-breed">--</span></div>
+        <div><small>Color</small><span id="poster-color">--</span></div>
+        <div><small>Edad / Peso</small><span id="poster-age-weight">--</span></div>
       </div>
 
-      <div class="relative z-10 grid grid-cols-3 gap-1 bg-white/90 backdrop-blur-sm p-2 rounded-xl border border-red-200 text-[11px] font-bold text-slate-700 shadow-sm mt-2">
-        <div><span class="text-red-500 block text-[9px] uppercase font-bold">Raza</span><span id="poster-breed">--</span></div>
-        <div><span class="text-red-500 block text-[9px] uppercase font-bold">Color</span><span id="poster-color">--</span></div>
-        <div><span class="text-red-500 block text-[9px] uppercase font-bold">Edad / Peso</span><span id="poster-age-weight">--</span></div>
-      </div>
-
-      <div class="relative z-10 flex items-center justify-center gap-3 pt-1">
-        <div id="poster-qr" class="bg-white p-1 rounded-lg border border-red-200"></div>
-        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide text-left leading-tight">Escanea para ver<br>el perfil y contactar<br><span class="text-slate-400 text-[9px]">Placa Inteligente • Helpet</span></p>
+      <div class="poster-qr">
+        <div id="poster-qr"></div>
+        <p>Escanea para ver<br>el perfil y contactar<br><small>Placa Inteligente • Helpet</small></p>
       </div>
     </div>
   </div>
 
   <!-- MODAL FOTO EN GRANDE -->
-  <div id="photo-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 cursor-pointer" onclick="cerrarFotoGrande()">
-    <div class="relative max-w-sm w-full text-center" onclick="event.stopPropagation()">
-      <button onclick="cerrarFotoGrande()" class="absolute -top-10 right-0 text-white text-2xl font-bold bg-slate-800/80 w-10 h-10 rounded-full hover:bg-slate-700 flex items-center justify-center shadow-lg">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      <img id="full-pet-photo" src="" alt="Foto Mascota Grande" class="w-full max-h-[80vh] object-contain rounded-3xl shadow-2xl border-2 border-white/20">
+  <div id="photo-modal" class="modal hidden" onclick="cerrarFotoGrande()">
+    <div class="foto-grande" onclick="event.stopPropagation()">
+      <button type="button" class="x" onclick="cerrarFotoGrande()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      <img id="full-pet-photo" src="" alt="Foto de la mascota">
+    </div>
+  </div>
+
+  <!-- MODAL FLOTANTE DE HISTORIAL MÉDICO -->
+  <div id="modal-medico" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="medico-titulo">
+    <div class="hoja">
+      <div class="hoja-h">
+        <span class="ico amber"><i class="fa-solid fa-file-medical"></i></span>
+        <div class="ttl"><h3 id="medico-titulo">Historial médico</h3></div>
+        <!-- Botón + Registrar (solicita PIN y lleva a la sección médica) -->
+        <button type="button" onclick="abrirModalPIN('#seccion-medica')" class="btn btn-ambar"><i class="fa-solid fa-plus"></i> Registrar</button>
+        <button type="button" class="x" onclick="cerrarModalMedico()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="modal-medical-list"></div>
+
+      <button type="button" onclick="location.href='vet.html'+location.search" class="btn btn-line hoja-vet" style="width:auto"><i class="fa-solid fa-user-doctor"></i> ¿Eres veterinario? Registrar consulta</button>
+      <p class="hoja-nota">🔒 Por privacidad, diagnósticos y recetas solo los ve el dueño.</p>
     </div>
   </div>
 
@@ -405,6 +540,10 @@
     let ubicacionObtenida = null;
 
     const $ = id => document.getElementById(id);
+    // Foto de relleno (huella) para mascotas sin foto: la que trae el HTML
+    const FOTO_VACIA = $('pet-photo').getAttribute('src');
+    // Si la foto de la mascota no carga (enlace roto o sin conexión), se queda la huella de relleno
+    $('pet-photo').addEventListener('error', e => { if (e.target.getAttribute('src') !== FOTO_VACIA) e.target.src = FOTO_VACIA; });
     // Dispositivo del dueño (entró con su PIN): sin avisos ni permiso de ubicación.
     // Para probar como visitante desde tu propio celular, abre la ficha con &visitante=1
     const esDueno = () => !!localStorage.getItem(`dueno_${tagId}`) && !new URLSearchParams(window.location.search).has('visitante');
@@ -490,7 +629,8 @@
         avisarEscaneo();
         $('pet-name').textContent = (data.pet || '').toUpperCase();
         $('owner-name').textContent = data.owner || '';
-        if (data.photo) $('pet-photo').src = data.photo;
+        $('pet-photo').src = data.photo || FOTO_VACIA;
+        $('pet-photo').alt = data.pet ? `Foto de ${data.pet}` : 'Foto de la mascota';
 
         const isLost = data.is_lost || false;
 
@@ -516,11 +656,11 @@
           $('gps-note').classList.remove('hidden');
           $('btn-afiche').classList.remove('hidden');
 
-          badge.className = "relative z-10 inline-block bg-red-600/95 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-white border border-red-300 animate-pulse shadow-lg";
-          badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5 text-white"></i> URGENTE: BUSCANDO SU HOGAR`;
-          subStatus.className = "text-xs font-bold text-red-600 uppercase tracking-widest mt-1 animate-pulse";
-          subStatus.textContent = "🚨 MASCOTA PERDIDA - AYUDA A PET 🚨";
-          indicator.className = "absolute bottom-2 right-2 bg-red-600 w-6 h-6 rounded-full border-2 border-white shadow-md animate-ping";
+          badge.className = 'sello perdida';
+          badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Buscando su hogar`;
+          subStatus.className = 'perdida';
+          subStatus.textContent = "🚨 Mascota perdida";
+          indicator.className = 'punto perdida';
 
           await pedirUbicacionSiPerdida(); // el navegador pregunta ANTES de mostrar la ficha
 
@@ -533,12 +673,19 @@
           $('gps-note').classList.add('hidden');
           $('btn-afiche').classList.add('hidden');
 
-          $('pet-breed').textContent = data.breed || 'No especificada';
-          $('pet-color').textContent = data.color || 'No especificado';
-          $('pet-weight').textContent = fmtPeso(data.weight) || 'No especificado';
-          $('pet-age').textContent = data.age || 'No especificada';
+          // Ficha técnica: solo se muestran los datos que el dueño completó
+          let hayDatos = false;
+          [['pet-breed', data.breed], ['pet-color', data.color], ['pet-weight', fmtPeso(data.weight)], ['pet-age', data.age]].forEach(([id, valor]) => {
+            const texto = String(valor ?? '').trim();
+            $(id).textContent = texto;
+            $(id).closest('.dato').classList.toggle('hidden', !texto);
+            if (texto) hayDatos = true;
+          });
+          $('pet-tech-sheet').classList.toggle('hidden', !hayDatos);
+          const visibles = [...document.querySelectorAll('#pet-tech-sheet .dato')].filter(el => !el.classList.contains('hidden'));
+          visibles.forEach((el, i) => el.classList.toggle('ancho', visibles.length % 2 === 1 && i === visibles.length - 1));
 
-          // Carnet de salud (próximas fechas)
+          // Próximas fechas (vacuna / desparasitación)
           let tieneControl = false;
           if (data.next_vaccine) {
             $('row-vaccine').classList.remove('hidden');
@@ -566,11 +713,11 @@
           }
           if (tieneMedicos) $('medical-card').classList.remove('hidden');
 
-          badge.className = "relative z-10 inline-block bg-white/95 backdrop-blur-md border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-slate-800 shadow-md";
-          badge.innerHTML = `<i class="fa-solid fa-paw mr-1.5 text-amber-500"></i> Perfil & Ficha Médica`;
-          subStatus.className = "text-xs font-bold text-amber-600 uppercase tracking-wider mt-1 px-2";
-          subStatus.textContent = (data.description && data.description.trim() !== '') ? data.description : "Mascota Feliz & Amada 🐾";
-          indicator.className = "absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-2 border-white shadow-md";
+          badge.className = 'sello';
+          badge.innerHTML = `<i class="fa-solid fa-paw"></i> Perfil y ficha médica`;
+          subStatus.className = '';
+          subStatus.textContent = (data.description && data.description.trim() !== '') ? data.description : "Mascota feliz y amada 🐾";
+          indicator.className = 'punto';
 
           cargarHistorialMedico();
         }
@@ -651,7 +798,7 @@
 
       const btn = $('btn-gps');
       const original = btn.innerHTML;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-lg"></i> Abriendo WhatsApp...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Abriendo WhatsApp...`;
       btn.disabled = true;
 
       // Intenta obtenerla sin molestar; si no se puede, abre WhatsApp igual (sin ubicación)
@@ -682,8 +829,12 @@
       if (navigator.share) {
         try { await navigator.share(shareData); } catch (e) {}
       } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert("¡Enlace del perfil copiado al portapapeles!");
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          alert("¡Enlace del perfil copiado al portapapeles!");
+        } catch (e) {
+          window.prompt("Copia este enlace:", window.location.href);
+        }
       }
     }
 
@@ -710,13 +861,12 @@
         $('carnet-raza').textContent = [petData.breed, petData.color].filter(Boolean).join(' • ');
         $('carnet-id').textContent = tagId;
         await crearQR('carnet-qrcode', 110);
-        if (petData.photo) {
-          const im = $('carnet-img');
-          if (im.src !== petData.photo) {
-            im.crossOrigin = 'anonymous';
-            im.src = petData.photo;
-            await new Promise(r => { im.onload = im.onerror = r; });
-          }
+        const foto = petData.photo || FOTO_VACIA;
+        const im = $('carnet-img');
+        if (im.getAttribute('src') !== foto) {
+          im.crossOrigin = 'anonymous';
+          im.src = foto;
+          await new Promise(r => { im.onload = im.onerror = r; });
         }
 
         carnet.classList.remove('hidden');
@@ -755,7 +905,7 @@
       if (!petData) return;
 
       $('poster-pet-name').textContent = petData.pet || 'Nuestra mascota';
-      if (petData.photo) $('poster-photo').src = petData.photo;
+      $('poster-photo').src = petData.photo || FOTO_VACIA;
 
       const lugar = petData.lost_location ? `cerca a ${petData.lost_location}` : 'en la zona';
       let fechaHora = 'recientemente';
@@ -782,7 +932,17 @@
     }
 
     function cerrarAficheModal() { $('afiche-modal').classList.add('hidden'); }
-    function imprimirAfiche() { window.print(); }
+    // Imprime el afiche lo más grande posible pero en una sola hoja (mide su alto con el ancho de impresión)
+    function imprimirAfiche() {
+      const poster = $('printable-poster');
+      const previo = poster.style.cssText;
+      poster.style.cssText = 'width:384px;max-width:none;zoom:1';
+      const alto = poster.getBoundingClientRect().height || 760;
+      poster.style.cssText = previo;
+      const zoom = Math.max(1, Math.min(1.6, 700 / 384, 930 / alto));
+      document.documentElement.style.setProperty('--zoom-afiche', zoom.toFixed(3));
+      window.print();
+    }
 
     async function compartirAficheImagen() {
       const btn = $('btn-share-img');
@@ -838,21 +998,22 @@
       if (!lista) return;
       if (!historial || historial.length === 0) {
         lista.innerHTML = `
-          <div class="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-            <i class="fa-solid fa-clipboard text-2xl text-slate-300 mb-1"></i>
-            <p class="text-xs font-bold text-slate-600">Sin registros médicos</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">Aún no se han registrado consultas o vacunas.</p>
+          <div class="lista-vacia">
+            <i class="fa-solid fa-clipboard"></i>
+            <b>Sin registros médicos</b>
+            Aún no hay consultas ni vacunas registradas.
           </div>`;
         return;
       }
       lista.innerHTML = historial.map(rec => `
-        <div class="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-100 mb-2.5 shadow-sm text-left">
-          <div class="flex justify-between items-center mb-1.5">
-            <span class="text-xs font-bold text-amber-950 uppercase">${esc(rec.vet_name)}</span>
-            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(fmtFecha(rec.visit_date))}</span>
+        <div class="rec">
+          <div class="rec-h">
+            <span class="ico amber"><i class="fa-solid fa-user-doctor"></i></span>
+            <b>${esc(rec.vet_name)}</b>
+            <span class="pill">${esc(fmtFecha(rec.visit_date))}</span>
           </div>
-          <p class="text-xs text-slate-700 font-medium mb-1"><strong>Motivo:</strong> ${esc(rec.reason || 'Consulta general')}</p>
-          ${rec.next_due_date ? `<p class="text-xs text-emerald-800 mt-1"><strong>Próximo refuerzo:</strong> ${esc(fmtFecha(rec.next_due_date))}</p>` : ''}
+          <p><i class="fa-solid fa-stethoscope"></i>${esc(rec.reason || 'Consulta general')}</p>
+          ${rec.next_due_date ? `<p class="next"><i class="fa-solid fa-calendar-check"></i>Próximo refuerzo: ${esc(fmtFecha(rec.next_due_date))}</p>` : ''}
         </div>`).join('');
     }
 
@@ -862,16 +1023,16 @@
 
       if (lista) {
         lista.innerHTML = `
-          <div class="text-center py-6">
-            <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-lg mb-1"></i>
-            <p class="text-xs text-slate-400 font-semibold">Cargando consultas...</p>
+          <div class="lista-vacia">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            Cargando consultas...
           </div>`;
       }
 
       const { data: records, error } = await db.rpc('obtener_historial_medico', { p_id: tagId });
       if (error) {
         historial = null;
-        if (lista) lista.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">No se pudo cargar el historial. Intenta de nuevo.</p>`;
+        if (lista) lista.innerHTML = `<div class="lista-vacia">No se pudo cargar el historial. Intenta de nuevo.</div>`;
         actualizarSemaforoSalud(null);
         return;
       }
@@ -911,7 +1072,8 @@
     }
 
     function abrirFotoGrande() {
-      $('full-pet-photo').src = $('pet-photo').src;
+      if (!petData || !petData.photo || $('pet-photo').getAttribute('src') === FOTO_VACIA) return;
+      $('full-pet-photo').src = petData.photo;
       $('photo-modal').classList.remove('hidden');
     }
 
@@ -947,103 +1109,37 @@
 
     function actualizarSemaforoSalud(registros) {
       const badge = $('vaccine-badge');
-      const dot = $('badge-dot');
       const text = $('badge-text');
       const carnetStatus = $('carnet-status-pill');
-      if (!badge || !dot || !text) return;
+      if (!badge || !text) return;
 
       const e = calcularEstadoSalud(registros);
-      let badgeClase, dotClase, textoEstado, carnetClase;
+      let tono, textoEstado;
 
       if (e.estado === 'error') {
-        badgeClase = "bg-slate-50 text-slate-700 border-slate-200";
-        dotClase = "bg-slate-500 hidden";
-        textoEstado = "Estado no disponible";
-        carnetClase = "bg-slate-500/80 text-white";
+        tono = 'none'; textoEstado = "Estado no disponible";
       } else if (e.estado === 'sin') {
-        badgeClase = "bg-slate-50 text-slate-700 border-slate-200";
-        dotClase = "bg-slate-500 hidden";
-        textoEstado = "Sin historial médico";
-        carnetClase = "bg-slate-500/80 text-white";
+        tono = 'none'; textoEstado = "Sin historial médico";
       } else if (e.estado === 'atendido') {
-        badgeClase = "bg-emerald-50 text-emerald-700 border-emerald-200";
-        dotClase = "bg-emerald-500";
-        textoEstado = "Atendido 🟢";
-        carnetClase = "bg-emerald-500 text-white border border-emerald-400";
+        tono = 'ok'; textoEstado = "Atendido";
       } else if (e.dias > 15) {
-        badgeClase = "bg-emerald-50 text-emerald-700 border-emerald-200";
-        dotClase = "bg-emerald-500";
-        textoEstado = "Protección al día 🟢";
-        carnetClase = "bg-emerald-500 text-white border border-emerald-400 shadow-lg shadow-emerald-500/30";
+        tono = 'ok'; textoEstado = "Protección al día";
       } else if (e.dias >= 0) {
-        badgeClase = "bg-amber-50 text-amber-700 border-amber-200";
-        dotClase = "bg-amber-500";
-        textoEstado = e.dias === 0 ? "Refuerzo hoy 🟡" : `Refuerzo en ${e.dias} días 🟡`;
-        carnetClase = "bg-amber-500 text-white border border-amber-400 shadow-lg shadow-amber-500/30";
+        tono = 'warn'; textoEstado = e.dias === 0 ? "Refuerzo hoy" : `Refuerzo en ${e.dias} días`;
       } else {
-        badgeClase = "bg-rose-50 text-rose-700 border-rose-200";
-        dotClase = "bg-rose-500";
-        textoEstado = "Atención Vencida 🔴";
-        carnetClase = "bg-rose-600 text-white border border-rose-400 shadow-lg shadow-rose-600/30 animate-pulse";
+        tono = 'bad'; textoEstado = "Atención vencida";
       }
 
-      badge.className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shadow-sm ${badgeClase}`;
-      dot.className = `w-2.5 h-2.5 rounded-full animate-pulse ${dotClase}`;
+      badge.className = `sem sem-${tono}`;
       text.textContent = textoEstado;
 
       if (carnetStatus) {
-        carnetStatus.className = `text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-md ${carnetClase}`;
-        carnetStatus.textContent = textoEstado.replace(/🟢|🟡|🔴/g, '').trim();
+        carnetStatus.className = `cp cp-${tono}`;
+        carnetStatus.textContent = textoEstado;
       }
     }
 
     cargarPerfil();
   </script>
-
-  <!-- Pie de página con Soporte Técnico Helpet -->
-  <footer class="mt-8 pt-5 pb-4 border-t border-slate-200/80 text-center" style="font-family: 'Fredoka', sans-serif;">
-    <p class="text-xs font-semibold text-slate-400 mb-2">¿Tienes dudas o problemas con esta placa?</p>
-    <a id="btn-support-whatsapp"
-       href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica."
-       target="_blank" rel="noopener"
-       class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2.5 rounded-full border border-emerald-200/80 transition-all shadow-sm">
-      <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
-      Contactar a Soporte Helpet
-    </a>
-    <p class="text-[10px] text-slate-400 mt-4 font-normal">© 2026 Helpet • Identificación Inteligente para Mascotas</p>
-  </footer>
-
-  <!-- MODAL FLOTANTE DE HISTORIAL MÉDICO -->
-  <div id="modal-medico" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-300">
-    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" style="font-family: 'Fredoka', sans-serif;">
-
-      <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-file-medical text-amber-500 text-lg"></i>
-          <div>
-            <h3 class="text-sm font-bold text-slate-800">Historial Médico & Vacunas</h3>
-            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Ficha Digital</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <!-- Botón + Registrar (solicita PIN y lleva a la sección médica) -->
-          <button onclick="abrirModalPIN('#seccion-medica')" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1">
-            <i class="fa-solid fa-plus text-[10px]"></i> Registrar
-          </button>
-          <button onclick="cerrarModalMedico()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-        </div>
-      </div>
-
-      <div id="modal-medical-list" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
-
-      <button type="button" onclick="location.href='vet.html'+location.search"
-        class="mx-4 mb-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-2">
-        <i class="fa-solid fa-user-doctor"></i> ¿Eres veterinario? Registrar consulta
-      </button>
-      <p class="px-4 py-2 text-[10px] text-slate-400 border-t border-slate-100">🔒 Por privacidad, diagnósticos y recetas solo los ve el dueño.</p>
-    </div>
-  </div>
 </body>
 </html>
