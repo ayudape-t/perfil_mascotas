@@ -21,6 +21,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="robots" content="noindex, nofollow">
   <title>Helpet - Perfil de Mascota</title>
 
   <!-- Vista previa al compartir (WhatsApp / redes) -->
@@ -60,7 +61,7 @@
       margin: 0; min-height: 100vh; min-height: 100dvh; padding: 16px; position: relative; overflow-x: hidden;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta);
-      background-color: #29170d; background-image: url("Fondotodo.png");
+      background-color: #29170d; background-image: url("Fondotodo.jpg");
       -webkit-tap-highlight-color: transparent;
     }
     img { max-width: 100%; }
@@ -219,6 +220,7 @@
     .pie { width: 100%; max-width: 384px; margin: 16px 0 4px; padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; text-align: center; font-size: 12px; color: #ead8b8; background: rgba(26,14,9,.68); border: 1px solid rgba(248,237,209,.14); border-radius: 20px; }
     .pie .soporte { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; font-weight: 600; color: #a7f3d0; background: rgba(16,185,129,.16); border: 1px solid rgba(110,231,183,.45); }
     .pie small { flex-basis: 100%; font-size: 10.5px; color: #a8917a; }
+    .pie .legal { color: inherit; text-decoration: underline; }
 
     /* ---------- Ventanas (modales) ---------- */
     .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20,10,6,.84); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
@@ -438,7 +440,7 @@
   <footer class="pie">
     <span>¿Dudas con tu placa?</span>
     <a id="btn-support-whatsapp" href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." target="_blank" rel="noopener" class="soporte"><i class="fa-brands fa-whatsapp"></i> Soporte Helpet</a>
-    <small>© 2026 Helpet · Identificación inteligente para mascotas</small>
+    <small>© 2026 Helpet · Identificación inteligente para mascotas · <a href="privacidad.html" class="legal">Privacidad y términos</a></small>
   </footer>
 
   <!-- MODAL DE PIN -->
@@ -478,7 +480,7 @@
           Agradecemos cualquier información oportuna que nos ayude a localizarlo.
         </p>
         <p id="poster-reward-text" class="hidden">🎁 ¡Se ofrece recompensa!</p>
-        <p class="poster-llama">Llama o escribe a:</p>
+        <p class="poster-llama">Llama al:</p>
       </div>
 
       <a id="poster-phone-btn" href="#" class="poster-tel">
