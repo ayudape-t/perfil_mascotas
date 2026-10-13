@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#3b2420">
+  <meta name="robots" content="noindex, nofollow">
   <title>Panel de Control - Placa Inteligente</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
@@ -14,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
-    .paw-dark-body { background-color: #0b0f19; background-image: url("Fondotodo.png"); background-size: cover; background-attachment: fixed; }
+    .paw-dark-body { background-color: #0b0f19; background-image: url("Fondotodo.jpg"); background-size: cover; background-attachment: fixed; }
     *, *::before, *::after { box-sizing: border-box; }
     .hidden { display: none !important; }
     .rotate-180 { transform: rotate(180deg); }
@@ -290,7 +291,7 @@
           <p class="hint"><i class="fa-solid fa-circle-info"></i>El código viene en la tarjeta dentro del empaque. El PIN te servirá para editar tus datos.</p>
           <label class="consent">
             <input type="checkbox" id="input-consent">
-            <span>Acepto que mi nombre, mi teléfono y los datos que marque como públicos se muestren a quien escanee la placa, y que mis datos se usen solo para este servicio. *</span>
+            <span>Acepto el <a href="privacidad.html" target="_blank" rel="noopener" style="color:#8f3523;font-weight:600;text-decoration:underline">aviso de privacidad y los términos</a>. Entiendo que los datos de mi mascota, incluidos los de salud, se muestran a quien escanee la placa según lo que elija, y que se guardan en servidores de Brasil y en Telegram solo para este servicio. *</span>
           </label>
         </div>
       </section>
@@ -505,7 +506,16 @@
         if (est !== 'sin_activar') { window.location.href = `index.html?id=${encodeURIComponent(tagId)}`; return; }
         $('activation-box').classList.remove('hidden');
       }
-      if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); refrescarTelegram(); }
+      if (existe) {
+        localStorage.setItem(`dueno_${tagId}`, '1');
+        refrescarTelegram();
+        // Desde «+ Registrar» en la ficha: abrir la sección médica y el formulario de consulta
+        if (location.hash === '#seccion-medica') {
+          $('seccion-medica').open = true;
+          const sub = document.querySelector('#seccion-medica details.sub');
+          if (sub) sub.open = true;
+        }
+      }
       await cargarHistorialPrivado();
       await cargarHistorialEscaneos();
     }
@@ -618,6 +628,7 @@
         if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
 
         sessionStorage.setItem(`pin_${tagId}`, finalPin);
+        localStorage.setItem(`dueno_${tagId}`, '1'); // este dispositivo es del dueño: no genera avisos a Telegram
         window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
       } catch (err) {
         alert("Error al guardar: " + err.message);
