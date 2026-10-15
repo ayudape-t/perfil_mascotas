@@ -76,7 +76,9 @@
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
-    .cargando { color: rgba(255,255,255,.7); font-size: 38px; }
+    .cargando { color: rgba(255,255,255,.7); font-size: 38px; text-align: center; }
+    .cargando-msg { max-width: 300px; margin: 18px auto 0; font-size: 15px; line-height: 1.4; font-weight: 500; color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6); }
+    .cargando-msg b { color: #ffd9a8; font-weight: 600; }
 
     /* ---------- Piezas reutilizables (mismo lenguaje visual que registro.html) ---------- */
     .card { background: #fff; border: 1px solid var(--arena); border-radius: 20px; box-shadow: 0 1px 0 rgba(59,36,32,.05), 0 10px 22px -16px rgba(59,36,32,.5); overflow: hidden; }
@@ -297,7 +299,11 @@
 <body>
 
   <!-- Indicador mínimo mientras carga / mientras el navegador pregunta por la ubicación -->
-  <div id="cargando" class="cargando" role="status" aria-label="Cargando"><i class="fa-solid fa-paw fa-beat"></i></div>
+  <div id="cargando" class="cargando" role="status" aria-label="Cargando">
+    <i class="fa-solid fa-paw fa-beat"></i>
+    <!-- Mascota perdida: explica por qué el navegador va a pedir la ubicación (se llena desde pedirUbicacionSiPerdida) -->
+    <p id="cargando-msg" class="cargando-msg hidden"></p>
+  </div>
 
   <!-- Placa no registrada / no válida / sin conexión -->
   <section id="unregistered-card" class="vacio hidden">
@@ -362,7 +368,7 @@
           <a id="btn-call-secondary" href="#" class="btn btn-line hidden"><i class="fa-solid fa-phone-volume"></i> Contacto de emergencia</a>
           <!-- Enviar ubicación: SOLO en modo perdida -->
           <button id="btn-gps" type="button" onclick="enviarUbicacionGPS()" class="btn btn-gps hidden"><i class="fa-solid fa-location-crosshairs"></i> <span>¡La encontré! Enviar mi ubicación</span></button>
-          <p id="gps-note" class="hint hidden"><i class="fa-solid fa-circle-info"></i>Compartirás tu ubicación con el dueño por WhatsApp.</p>
+          <p id="gps-note" class="hint hidden"><i class="fa-solid fa-circle-info"></i><span id="gps-note-txt">Compartirás tu ubicación con el dueño por WhatsApp.</span></p>
         </div>
       </section>
 
@@ -537,15 +543,22 @@
     let historial = null;
     let posterBlobPromise = null;
     let destinoPIN = '';
-    let ubicacionObtenida = null;
+    let ubicacionObtenida = null;   // { lat, lon } cuando el visitante aceptó compartir su ubicación
+    let solicitudUbic = null;       // solicitud de ubicación en curso (compartida por la carga y el botón)
+    let estadoUbic = 'nueva';       // nueva | esperando | ok | denegada | no-disponible
+    let permisoGeo = null;          // PermissionStatus de la geolocalización (si el navegador lo ofrece)
+    let escaneoSinUbicGuardado = false;
+    let registroEscaneo = null;     // último guardado del escaneo (promesa); el botón de WhatsApp lo espera antes de salir de la página
+    let registrosEnCurso = 0;
 
     const $ = id => document.getElementById(id);
     // Foto de relleno (huella) para mascotas sin foto: la que trae el HTML
     const FOTO_VACIA = $('pet-photo').getAttribute('src');
     // Si la foto de la mascota no carga (enlace roto o sin conexión), se queda la huella de relleno
     $('pet-photo').addEventListener('error', e => { if (e.target.getAttribute('src') !== FOTO_VACIA) e.target.src = FOTO_VACIA; });
-    // Dispositivo del dueño (entró con su PIN): sin avisos ni permiso de ubicación.
-    // Para probar como visitante desde tu propio celular, abre la ficha con &visitante=1
+    // Dispositivo del dueño (entró con su PIN): no genera escaneos ni avisos a Telegram, pero SÍ ve el aviso de
+    // ubicación del navegador y el botón de WhatsApp, para poder probarlos. Para probar TODO como visitante
+    // (escaneo + aviso a Telegram) desde tu propio celular, abre la ficha con &visitante=1
     const esDueno = () => !!localStorage.getItem(`dueno_${tagId}`) && !new URLSearchParams(window.location.search).has('visitante');
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const soloDigitos = v => String(v || '').replace(/\D/g, '');
@@ -742,82 +755,164 @@
       try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon, denegada } }); } catch (e) {}
     }
 
-    // Registra el escaneo (con o sin ubicación) y avisa al Telegram del dueño
+    // Registra el escaneo (con o sin ubicación) y avisa al Telegram del dueño.
+    // El celular del dueño no genera escaneos ni avisos (salvo con &visitante=1).
     async function guardarEscaneoSilencioso(lat, lon, denegada = lat == null) {
+      if (!tagId || esDueno()) return;
       const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
       if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
       else await avisarEscaneo(lat, lon, denegada);
     }
 
-    // Mascota perdida + visitante (no el dueño): el navegador pregunta por la ubicación y,
-    // en cuanto el visitante acepta o rechaza, se muestra la ficha. Si el navegador no va a preguntar
-    // (ya permitido o bloqueado), la ficha se muestra de inmediato.
-    async function pedirUbicacionSiPerdida() {
-      if (!petData || !petData.is_lost || esDueno()) return;
-      if (sessionStorage.getItem(`ubic_${tagId}`)) return;
-      sessionStorage.setItem(`ubic_${tagId}`, '1');
-      if (!navigator.geolocation) { guardarEscaneoSilencioso(null, null); return; }
+    // ---- Ubicación del visitante (solo mascota perdida) ----
+    // Hay UNA sola solicitud de ubicación, compartida por la carga de la página y por el botón. Así la ubicación que
+    // el visitante acepta siempre llega al mensaje de WhatsApp: el botón espera esa misma solicitud en vez de
+    // abrir WhatsApp tras un plazo fijo (el visitante puede tardar en responder al cuadro del navegador).
+    // Nada de seguimiento: una sola lectura por solicitud, nunca watchPosition.
 
-      let permiso = null;
-      try { permiso = await navigator.permissions.query({ name: 'geolocation' }); } catch (e) {}
-      const preguntara = !permiso || permiso.state === 'prompt';
-
+    // Una lectura de posición. Nunca rechaza: { ok, lat, lon } o { ok:false, code } (1 = no autorizó).
+    // Algunos navegadores cuentan el rato que el visitante tarda en responder dentro del tiempo máximo (código 3):
+    // en ese caso se reintenta una vez.
+    function leerPosicion() {
       return new Promise(resolve => {
-        if (!preguntara) resolve();
-        else {
-          if (permiso) permiso.onchange = () => resolve();   // respondió: permitir o bloquear
-          setTimeout(resolve, 12000);                        // respaldo: nunca se deja sin ficha a quien encontró la mascota
-        }
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            ubicacionObtenida = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-            resolve();
-            guardarEscaneoSilencioso(ubicacionObtenida.lat, ubicacionObtenida.lon);
-          },
-          err => {
-            resolve();
-            guardarEscaneoSilencioso(null, null, err && err.code === 1);
-          },
-          { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
-        );
+        if (!navigator.geolocation) return resolve({ ok: false, code: 0 });
+        let intento = 0;
+        const probar = () => {
+          intento++;
+          try {
+            navigator.geolocation.getCurrentPosition(
+              pos => resolve({ ok: true, lat: pos.coords.latitude, lon: pos.coords.longitude }),
+              err => {
+                const code = err && err.code;
+                if (code === 3 && intento < 2) probar();
+                else resolve({ ok: false, code });
+              },
+              { enableHighAccuracy: false, timeout: intento === 1 ? 15000 : 10000, maximumAge: 60000 }
+            );
+          } catch (e) { resolve({ ok: false, code: 0 }); }
+        };
+        probar();
       });
     }
 
-    // Abre WhatsApp con el mensaje (con la ubicación si se tiene)
-    function abrirWhatsApp(ubic) {
-      const base = `¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}.`;
-      const texto = ubic ? `${base} Mi ubicación GPS actual es: https://maps.google.com/?q=${ubic.lat},${ubic.lon}` : base;
-      window.location.href = `https://wa.me/${petData.phone}?text=${encodeURIComponent(texto)}`;
+    // Pide la ubicación (o reutiliza la que ya se pidió). Resuelve con { lat, lon } o null; nunca falla.
+    // Además registra el escaneo: con coordenadas si el visitante aceptó, sin ellas si no.
+    function solicitarUbicacion() {
+      if (ubicacionObtenida) return Promise.resolve(ubicacionObtenida);
+      if (solicitudUbic) return solicitudUbic;
+      estadoUbic = 'esperando';
+      actualizarBotonUbicacion();
+      solicitudUbic = leerPosicion().then(r => {
+        solicitudUbic = null;
+        if (r.ok) {
+          ubicacionObtenida = { lat: r.lat, lon: r.lon };
+          estadoUbic = 'ok';
+          $('btn-whatsapp').href = urlWhatsApp(ubicacionObtenida);   // el botón verde «WhatsApp» también lleva la ubicación
+          registrarEscaneoUbic(r.lat, r.lon);
+        } else {
+          estadoUbic = r.code === 1 ? 'denegada' : 'no-disponible';
+          if (!escaneoSinUbicGuardado) {   // el escaneo se registra igual, sin ubicación
+            escaneoSinUbicGuardado = true;
+            registrarEscaneoUbic(null, null, r.code === 1);
+          }
+        }
+        actualizarBotonUbicacion();
+        return ubicacionObtenida;
+      });
+      return solicitudUbic;
     }
 
-    // Botón «Encontré a esta mascota» (solo visible en modo perdido): siempre termina en WhatsApp
+    // Guarda el escaneo sin frenar la ficha. El botón de WhatsApp espera a que termine (máx. 3 s) antes de cambiar de
+    // página, porque al salir de ella el navegador cancela las peticiones que sigan en curso.
+    function registrarEscaneoUbic(lat, lon, denegada) {
+      registrosEnCurso++;
+      registroEscaneo = guardarEscaneoSilencioso(lat, lon, denegada).catch(() => {}).then(() => { registrosEnCurso--; });
+    }
+
+    // Texto y estado del botón «¡La encontré!» según lo que pasó con la ubicación
+    function actualizarBotonUbicacion() {
+      const btn = $('btn-gps');
+      if (!btn || btn.disabled || !petData || !petData.is_lost) return;   // ocupado: lo restaura enviarUbicacionGPS
+      const ico = btn.querySelector('i'), txt = btn.querySelector('span'), nota = $('gps-note-txt');
+      if (estadoUbic === 'ok') {
+        ico.className = 'fa-solid fa-location-dot';
+        txt.textContent = 'Ubicación lista: enviar por WhatsApp';
+        nota.textContent = 'Tu ubicación saldrá en el mensaje para el dueño.';
+      } else if (estadoUbic === 'denegada' || estadoUbic === 'no-disponible') {
+        ico.className = 'fa-brands fa-whatsapp';
+        txt.textContent = '¡La encontré! Avisar por WhatsApp';
+        nota.textContent = estadoUbic === 'denegada'
+          ? 'Sin ubicación: el aviso saldrá sin ella. Para incluirla, permite la ubicación en los ajustes del navegador y recarga.'
+          : 'No pudimos obtener tu ubicación: el aviso saldrá sin ella.';
+      } else {
+        ico.className = 'fa-solid fa-location-crosshairs';
+        txt.textContent = '¡La encontré! Enviar mi ubicación';
+        nota.textContent = 'Compartirás tu ubicación con el dueño por WhatsApp.';
+      }
+    }
+
+    // Mascota perdida (visitante o dueño): el navegador pregunta por la ubicación ANTES de mostrar la ficha, con un
+    // mensaje claro de por qué. En cuanto el visitante responde (permitir o bloquear) se muestra la ficha; si no
+    // responde en 12 s se muestra igual (la ficha nunca queda oculta). Si el navegador no va a preguntar
+    // (ya permitido o bloqueado, o sin geolocalización) la ficha se muestra de inmediato.
+    async function pedirUbicacionSiPerdida() {
+      if (!petData || !petData.is_lost) return;
+      if (!navigator.geolocation) { solicitarUbicacion(); return; }   // sin geolocalización: escaneo sin ubicación
+
+      try { permisoGeo = await navigator.permissions.query({ name: 'geolocation' }); } catch (e) { permisoGeo = null; }
+      if (permisoGeo) {
+        // Si el permiso se concede más tarde (respondió tarde o lo activó en el navegador), se toma la ubicación entonces
+        permisoGeo.addEventListener('change', () => {
+          if (permisoGeo.state === 'granted' && !ubicacionObtenida && !solicitudUbic) solicitarUbicacion();
+        });
+      }
+      const preguntara = !permisoGeo || permisoGeo.state === 'prompt';
+
+      if (preguntara) {
+        const msg = $('cargando-msg');
+        msg.innerHTML = '<b>Esta mascota está perdida.</b><br>Cuando tu navegador te lo pida, toca <b>Permitir</b> para decirle a su dueño dónde la encontraste.';
+        msg.classList.remove('hidden');
+      }
+      const solicitud = solicitarUbicacion();
+      if (!preguntara) return;
+
+      await new Promise(resolve => {
+        if (permisoGeo) permisoGeo.addEventListener('change', () => resolve());   // respondió: permitir o bloquear
+        solicitud.then(() => resolve());                                          // o el navegador ya dio la ubicación / un error
+        setTimeout(resolve, 12000);                                               // respaldo
+      });
+    }
+
+    // Enlace de WhatsApp con el mensaje (con la ubicación si se tiene)
+    function urlWhatsApp(ubic) {
+      const base = `¡Hola ${petData.owner}! Encontré a tu mascota ${petData.pet}.`;
+      const texto = ubic ? `${base} Mi ubicación GPS actual es: https://maps.google.com/?q=${ubic.lat.toFixed(6)},${ubic.lon.toFixed(6)}` : base;
+      return `https://wa.me/${petData.phone}?text=${encodeURIComponent(texto)}`;
+    }
+    function abrirWhatsApp(ubic) { window.location.href = urlWhatsApp(ubic); }
+
+    // Botón «¡La encontré!» (solo visible en modo perdido): siempre termina en WhatsApp.
+    // Si ya hay ubicación, abre al instante. Si no, espera la solicitud en curso (o inicia otra: tocar el botón es un
+    // gesto del visitante) sin plazos cortos. El botón verde «WhatsApp» de arriba sigue disponible para avisar sin ubicación.
     async function enviarUbicacionGPS() {
       if (!petData) return;
-      // Si aceptó al entrar, la ubicación ya está guardada y avisada: abre WhatsApp al instante
-      if (ubicacionObtenida) { abrirWhatsApp(ubicacionObtenida); return; }
+      // Ubicación lista y escaneo ya guardado: abre WhatsApp al instante, dentro del propio toque
+      if (ubicacionObtenida && !registrosEnCurso) { abrirWhatsApp(ubicacionObtenida); return; }
 
       const btn = $('btn-gps');
-      const original = btn.innerHTML;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Abriendo WhatsApp...`;
+      if (btn.disabled) return;
       btn.disabled = true;
+      btn.querySelector('i').className = 'fa-solid fa-spinner fa-spin';
+      btn.querySelector('span').textContent = (!ubicacionObtenida && permisoGeo && permisoGeo.state === 'prompt')
+        ? 'Esperando tu permiso...' : 'Abriendo WhatsApp...';
 
-      // Intenta obtenerla sin molestar; si no se puede, abre WhatsApp igual (sin ubicación)
-      const ubic = await new Promise(resolve => {
-        if (!navigator.geolocation) return resolve(null);
-        const t = setTimeout(() => resolve(null), 8000);
-        navigator.geolocation.getCurrentPosition(
-          p => { clearTimeout(t); resolve({ lat: p.coords.latitude, lon: p.coords.longitude }); },
-          () => { clearTimeout(t); resolve(null); },
-          { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
-        );
-      });
-      if (ubic) {
-        ubicacionObtenida = ubic;
-        await Promise.race([guardarEscaneoSilencioso(ubic.lat, ubic.lon), new Promise(r => setTimeout(r, 2000))]);
-      }
-      btn.innerHTML = original;
+      // Espera la MISMA solicitud de ubicación (tope de seguridad: 40 s, por si el visitante no responde al navegador)
+      const ubic = await Promise.race([solicitarUbicacion(), new Promise(r => setTimeout(() => r(null), 40000))]);
+      // Deja terminar el guardado del escaneo (máx. 3 s): al cambiar de página el navegador cancela lo que siga en curso
+      if (registroEscaneo) await Promise.race([registroEscaneo, new Promise(r => setTimeout(r, 3000))]);
       btn.disabled = false;
-      abrirWhatsApp(ubic);
+      actualizarBotonUbicacion();
+      abrirWhatsApp(ubic || ubicacionObtenida);
     }
 
     async function compartirPerfil() {
