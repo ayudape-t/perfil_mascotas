@@ -76,9 +76,7 @@
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
-    .cargando { color: rgba(255,255,255,.7); font-size: 38px; text-align: center; }
-    .cargando-msg { max-width: 300px; margin: 18px auto 0; font-size: 15px; line-height: 1.4; font-weight: 500; color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6); }
-    .cargando-msg b { color: #ffd9a8; font-weight: 600; }
+    .cargando { color: rgba(255,255,255,.7); font-size: 38px; }
 
     /* ---------- Piezas reutilizables (mismo lenguaje visual que registro.html) ---------- */
     .card { background: #fff; border: 1px solid var(--arena); border-radius: 20px; box-shadow: 0 1px 0 rgba(59,36,32,.05), 0 10px 22px -16px rgba(59,36,32,.5); overflow: hidden; }
@@ -99,6 +97,7 @@
     .ico.blue { background: linear-gradient(135deg, #60a5fa, #1d4ed8); }
     .hint { margin: 0; font-size: 10.5px; line-height: 1.3; color: #a09182; text-align: center; }
     .hint i { color: #e0a24a; margin-right: 3px; }
+    .hint.resalta { color: var(--oxido2); font-weight: 600; }
     .g2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
     .fila { display: flex; gap: 8px; }
     .fila > .btn { flex: 1 1 0; width: auto; min-width: 0; }
@@ -299,11 +298,7 @@
 <body>
 
   <!-- Indicador mínimo mientras carga / mientras el navegador pregunta por la ubicación -->
-  <div id="cargando" class="cargando" role="status" aria-label="Cargando">
-    <i class="fa-solid fa-paw fa-beat"></i>
-    <!-- Mascota perdida: explica por qué el navegador va a pedir la ubicación (se llena desde pedirUbicacionSiPerdida) -->
-    <p id="cargando-msg" class="cargando-msg hidden"></p>
-  </div>
+  <div id="cargando" class="cargando" role="status" aria-label="Cargando"><i class="fa-solid fa-paw fa-beat"></i></div>
 
   <!-- Placa no registrada / no válida / sin conexión -->
   <section id="unregistered-card" class="vacio hidden">
@@ -368,7 +363,7 @@
           <a id="btn-call-secondary" href="#" class="btn btn-line hidden"><i class="fa-solid fa-phone-volume"></i> Contacto de emergencia</a>
           <!-- Enviar ubicación: SOLO en modo perdida -->
           <button id="btn-gps" type="button" onclick="enviarUbicacionGPS()" class="btn btn-gps hidden"><i class="fa-solid fa-location-crosshairs"></i> <span>¡La encontré! Enviar mi ubicación</span></button>
-          <p id="gps-note" class="hint hidden"><i class="fa-solid fa-circle-info"></i><span id="gps-note-txt">Compartirás tu ubicación con el dueño por WhatsApp.</span></p>
+          <p id="gps-note" class="hint hidden" aria-live="polite"><i class="fa-solid fa-circle-info"></i><span id="gps-note-txt">Compartirás tu ubicación con el dueño por WhatsApp.</span></p>
         </div>
       </section>
 
@@ -839,11 +834,10 @@
         txt.textContent = 'Ubicación lista: enviar por WhatsApp';
         nota.textContent = 'Tu ubicación saldrá en el mensaje para el dueño.';
       } else if (estadoUbic === 'denegada' || estadoUbic === 'no-disponible') {
-        ico.className = 'fa-brands fa-whatsapp';
-        txt.textContent = '¡La encontré! Avisar por WhatsApp';
-        nota.textContent = estadoUbic === 'denegada'
-          ? 'Sin ubicación: el aviso saldrá sin ella. Para incluirla, permite la ubicación en los ajustes del navegador y recarga.'
-          : 'No pudimos obtener tu ubicación: el aviso saldrá sin ella.';
+        ico.className = 'fa-solid fa-location-crosshairs';
+        txt.textContent = '¡La encontré! Enviar mi ubicación';
+        nota.textContent = (estadoUbic === 'denegada' ? 'No compartiste tu ubicación.' : 'No pudimos obtener tu ubicación.')
+          + ' Para avisar al dueño sin ella, usa el botón WhatsApp.';
       } else {
         ico.className = 'fa-solid fa-location-crosshairs';
         txt.textContent = '¡La encontré! Enviar mi ubicación';
@@ -851,9 +845,9 @@
       }
     }
 
-    // Mascota perdida (visitante o dueño): el navegador pregunta por la ubicación ANTES de mostrar la ficha, con un
-    // mensaje claro de por qué. En cuanto el visitante responde (permitir o bloquear) se muestra la ficha; si no
-    // responde en 12 s se muestra igual (la ficha nunca queda oculta). Si el navegador no va a preguntar
+    // Mascota perdida (visitante o dueño): el navegador pregunta por la ubicación ANTES de mostrar la ficha (solo el
+    // permiso nativo, sin tarjetas ni avisos propios). En cuanto el visitante responde (permitir o bloquear) se muestra
+    // la ficha; si no responde en 12 s se muestra igual (la ficha nunca queda oculta). Si el navegador no va a preguntar
     // (ya permitido o bloqueado, o sin geolocalización) la ficha se muestra de inmediato.
     async function pedirUbicacionSiPerdida() {
       if (!petData || !petData.is_lost) return;
@@ -868,11 +862,6 @@
       }
       const preguntara = !permisoGeo || permisoGeo.state === 'prompt';
 
-      if (preguntara) {
-        const msg = $('cargando-msg');
-        msg.innerHTML = '<b>Esta mascota está perdida.</b><br>Cuando tu navegador te lo pida, toca <b>Permitir</b> para decirle a su dueño dónde la encontraste.';
-        msg.classList.remove('hidden');
-      }
       const solicitud = solicitarUbicacion();
       if (!preguntara) return;
 
@@ -891,9 +880,10 @@
     }
     function abrirWhatsApp(ubic) { window.location.href = urlWhatsApp(ubic); }
 
-    // Botón «¡La encontré!» (solo visible en modo perdido): siempre termina en WhatsApp.
-    // Si ya hay ubicación, abre al instante. Si no, espera la solicitud en curso (o inicia otra: tocar el botón es un
-    // gesto del visitante) sin plazos cortos. El botón verde «WhatsApp» de arriba sigue disponible para avisar sin ubicación.
+    // Botón «¡La encontré! Enviar mi ubicación» (solo visible en modo perdido). Abre WhatsApp SOLO al tocarlo y SOLO
+    // si el visitante concedió el permiso (el mensaje lleva el enlace de Maps). Si ya hay ubicación, abre al instante.
+    // Si no, espera la solicitud en curso (o la repite: tocar el botón es un gesto del visitante) sin plazos cortos.
+    // Sin ubicación no abre nada: para avisar sin compartirla está el botón verde «WhatsApp».
     async function enviarUbicacionGPS() {
       if (!petData) return;
       // Ubicación lista y escaneo ya guardado: abre WhatsApp al instante, dentro del propio toque
@@ -904,15 +894,23 @@
       btn.disabled = true;
       btn.querySelector('i').className = 'fa-solid fa-spinner fa-spin';
       btn.querySelector('span').textContent = (!ubicacionObtenida && permisoGeo && permisoGeo.state === 'prompt')
-        ? 'Esperando tu permiso...' : 'Abriendo WhatsApp...';
+        ? 'Esperando tu permiso...' : 'Obteniendo tu ubicación...';
 
       // Espera la MISMA solicitud de ubicación (tope de seguridad: 40 s, por si el visitante no responde al navegador)
-      const ubic = await Promise.race([solicitarUbicacion(), new Promise(r => setTimeout(() => r(null), 40000))]);
+      const ubic = await Promise.race([solicitarUbicacion(), new Promise(r => setTimeout(() => r(null), 40000))]) || ubicacionObtenida;
       // Deja terminar el guardado del escaneo (máx. 3 s): al cambiar de página el navegador cancela lo que siga en curso
       if (registroEscaneo) await Promise.race([registroEscaneo, new Promise(r => setTimeout(r, 3000))]);
       btn.disabled = false;
       actualizarBotonUbicacion();
-      abrirWhatsApp(ubic || ubicacionObtenida);
+      if (ubic) abrirWhatsApp(ubic);
+      else if (estadoUbic === 'denegada' || estadoUbic === 'no-disponible') resaltarNota();
+    }
+
+    // Sin ubicación el botón no abre WhatsApp: resalta un momento la nota que explica qué hacer
+    function resaltarNota() {
+      const n = $('gps-note');
+      n.classList.add('resalta');
+      setTimeout(() => n.classList.remove('resalta'), 4000);
     }
 
     async function compartirPerfil() {
