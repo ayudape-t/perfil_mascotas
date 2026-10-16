@@ -551,10 +551,12 @@
     const FOTO_VACIA = $('pet-photo').getAttribute('src');
     // Si la foto de la mascota no carga (enlace roto o sin conexión), se queda la huella de relleno
     $('pet-photo').addEventListener('error', e => { if (e.target.getAttribute('src') !== FOTO_VACIA) e.target.src = FOTO_VACIA; });
-    // Dispositivo del dueño (entró con su PIN): no genera escaneos ni avisos a Telegram, pero SÍ ve el aviso de
-    // ubicación del navegador y el botón de WhatsApp, para poder probarlos. Para probar TODO como visitante
-    // (escaneo + aviso a Telegram) desde tu propio celular, abre la ficha con &visitante=1
-    const esDueno = () => !!localStorage.getItem(`dueno_${tagId}`) && !new URLSearchParams(window.location.search).has('visitante');
+    // Dispositivo del dueño (entró con su PIN o guardó cambios): no recibe la pregunta de ubicación del navegador al
+    // cargar la ficha y no genera escaneos ni avisos a Telegram. Se recuerda en localStorage; una sesión con PIN
+    // también cuenta. Para probar TODO como visitante desde tu propio celular, abre la ficha con &visitante=1
+    const leerAlmacen = (nombre, clave) => { try { return window[nombre].getItem(clave); } catch (e) { return null; } };   // nunca falla (cookies bloqueadas)
+    const esDueno = () => !new URLSearchParams(window.location.search).has('visitante')
+      && !!(leerAlmacen('localStorage', `dueno_${tagId}`) || leerAlmacen('sessionStorage', `pin_${tagId}`));
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const soloDigitos = v => String(v || '').replace(/\D/g, '');
     const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
@@ -610,6 +612,8 @@
     async function cargarPerfil() {
       if (window.__redirigiendo) return;
       tagId = new URLSearchParams(window.location.search).get('id') || '';
+      // Con una sesión de PIN activa este dispositivo es del dueño: queda recordado también al recargar o cerrar la pestaña
+      if (tagId && leerAlmacen('sessionStorage', `pin_${tagId}`)) { try { localStorage.setItem(`dueno_${tagId}`, '1'); } catch (e) {} }
 
       try {
         const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
@@ -845,12 +849,12 @@
       }
     }
 
-    // Mascota perdida (visitante o dueño): el navegador pregunta por la ubicación ANTES de mostrar la ficha (solo el
-    // permiso nativo, sin tarjetas ni avisos propios). En cuanto el visitante responde (permitir o bloquear) se muestra
-    // la ficha; si no responde en 12 s se muestra igual (la ficha nunca queda oculta). Si el navegador no va a preguntar
-    // (ya permitido o bloqueado, o sin geolocalización) la ficha se muestra de inmediato.
+    // Mascota perdida y visitante (nunca el dueño): el navegador pregunta por la ubicación ANTES de mostrar la ficha
+    // (solo el permiso nativo, sin tarjetas ni avisos propios). En cuanto el visitante responde (permitir o bloquear)
+    // se muestra la ficha; si no responde en 12 s se muestra igual (la ficha nunca queda oculta). Si el navegador no
+    // va a preguntar (ya permitido o bloqueado, o sin geolocalización) la ficha se muestra de inmediato.
     async function pedirUbicacionSiPerdida() {
-      if (!petData || !petData.is_lost) return;
+      if (!petData || !petData.is_lost || esDueno()) return;
       if (!navigator.geolocation) { solicitarUbicacion(); return; }   // sin geolocalización: escaneo sin ubicación
 
       try { permisoGeo = await navigator.permissions.query({ name: 'geolocation' }); } catch (e) { permisoGeo = null; }

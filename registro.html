@@ -618,6 +618,7 @@
         if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
 
         sessionStorage.setItem(`pin_${tagId}`, finalPin);
+        try { localStorage.setItem(`dueno_${tagId}`, '1'); } catch (e) {}   // este dispositivo es del dueño (también al activar la placa)
         window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
       } catch (err) {
         alert("Error al guardar: " + err.message);
