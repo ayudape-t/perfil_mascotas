@@ -63,6 +63,7 @@
     details.sub > summary::-webkit-details-marker { display: none; }
     details.sub > summary .chev { margin-left: auto; }
     details.sub > .sub-b { padding: 2px 11px 11px; display: grid; gap: 8px; }
+    #seccion-medica { scroll-margin-top: 10px; }
 
     /* Campos */
     .lbl { display: block; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--suave); margin: 0 0 3px 3px; }
@@ -451,10 +452,28 @@
       e === 'telefono_invalido' ? 'Revisa los teléfonos: usa solo números, con código de país (ej. 51987654321).' :
       'Revisa los datos (' + e + ').';
 
+    // «+ Registrar» del perfil llega con #registrar-medico (#seccion-medica en enlaces anteriores):
+    // se abre el formulario «Agregar atención o vacuna» y se baja hasta él.
+    let tocoPantalla = false;
+    function mostrarFormularioMedico(suave) {
+      const seccion = $('seccion-medica'), form = $('form-medical-record');
+      if (!seccion || !form || seccion.classList.contains('hidden')) return;
+      seccion.open = true;
+      const sub = form.closest('details');
+      if (sub) sub.open = true;
+      const sinMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      seccion.scrollIntoView({ behavior: suave && !sinMovimiento ? 'smooth' : 'auto', block: 'start' });
+    }
+    function vigilarToque() {   // si ya tocó la pantalla, no se le vuelve a mover la vista
+      ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(ev =>
+        window.addEventListener(ev, () => { tocoPantalla = true; }, { once: true, passive: true }));
+    }
+
     async function inicializar() {
       tagId = new URLSearchParams(window.location.search).get('id') || '';
       $('input-id').value = tagId;
       if (!tagId) { alert('Enlace de placa no válido.'); return; }
+      const irAMedico = ['#registrar-medico', '#seccion-medica'].includes(window.location.hash);
 
       const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
       if (existe) {
@@ -500,14 +519,21 @@
           p.classList.remove('hidden');
           $('placeholder-icon').classList.add('hidden');
         }
+        if (irAMedico) { mostrarFormularioMedico(true); vigilarToque(); }
       } else {
         const { data: est } = await client.rpc('estado_placa', { p_id: tagId });
         if (est !== 'sin_activar') { window.location.href = `index.html?id=${encodeURIComponent(tagId)}`; return; }
         $('activation-box').classList.remove('hidden');
       }
-      if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); refrescarTelegram(); }
+      let telegram = null;
+      if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); telegram = refrescarTelegram(); }
       await cargarHistorialPrivado();
       await cargarHistorialEscaneos();
+      // El aviso de Telegram y el último escaneo pueden mover lo de arriba: si no tocó nada, el formulario vuelve a quedar a la vista
+      if (irAMedico && existe) {
+        try { await telegram; } catch (e) {}
+        if (!tocoPantalla) mostrarFormularioMedico(false);
+      }
     }
 
     function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
