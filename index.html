@@ -545,6 +545,8 @@
     let escaneoSinUbicGuardado = false;
     let registroEscaneo = null;     // último guardado del escaneo (promesa); el botón de WhatsApp lo espera antes de salir de la página
     let registrosEnCurso = 0;
+    let avisoEnviado = false;       // el aviso a Telegram sale UNA sola vez por visita
+    let avisoGarantizado = false;
 
     const $ = id => document.getElementById(id);
     // Foto de relleno (huella) para mascotas sin foto: la que trae el HTML
@@ -637,8 +639,9 @@
         petData.phone = soloDigitos(data.phone);
         if (petData.phone.length === 9 && petData.phone[0] === '9') petData.phone = '51' + petData.phone;
 
-        // Mascota perdida: la ficha se muestra DESPUÉS de que el navegador pregunte por la ubicación
-        avisarEscaneo();
+        // Mascota segura: el aviso a Telegram sale al cargar. Perdida: sale al saber si el visitante permite la ubicación
+        // (un solo mensaje) y la ficha se muestra DESPUÉS de que el navegador pregunte por ella
+        if (!data.is_lost) avisarEscaneo();
         $('pet-name').textContent = (data.pet || '').toUpperCase();
         $('owner-name').textContent = data.owner || '';
         $('pet-photo').src = data.photo || FOTO_VACIA;
@@ -745,22 +748,53 @@
     // ==========================================
     // ESCANEO, UBICACIÓN Y AVISOS A TELEGRAM
     // ==========================================
-    // Aviso de escaneo (1 por visita). lat == null: sin ubicación; denegada: el visitante no autorizó.
-    async function avisarEscaneo(lat, lon, denegada = false) {
-      if (!tagId || esDueno()) return;
-      const clave = lat != null ? `avisado_gps_${tagId}` : denegada ? `avisado_den_${tagId}` : `avisado_${tagId}`;
-      if (sessionStorage.getItem(clave)) return;
-      sessionStorage.setItem(clave, '1');
-      try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon, denegada } }); } catch (e) {}
+    // UN solo aviso a Telegram por visita: con la ubicación si el visitante la permitió y, si no, solo el aviso (sin
+    // mencionar la ubicación). Mascota segura: sale al cargar. Mascota perdida: sale al saber si el visitante permite
+    // la ubicación (ver garantizarAviso). Si la ubicación llega después, ya no se manda otro mensaje.
+    async function avisarEscaneo(lat = null, lon = null, alSalir = false) {
+      if (!tagId || esDueno() || avisoEnviado) return;
+      avisoEnviado = true;
+      if (leerAlmacen('sessionStorage', `avisado_${tagId}`)) return;   // recargó la misma pestaña: ya se avisó
+      try { sessionStorage.setItem(`avisado_${tagId}`, '1'); } catch (e) {}
+      if (alSalir) { enviarAlSalir('/functions/v1/avisar-escaneo', { id: tagId, lat, lon }); return; }
+      try { await db.functions.invoke('avisar-escaneo', { body: { id: tagId, lat, lon } }); } catch (e) {}
     }
 
-    // Registra el escaneo (con o sin ubicación) y avisa al Telegram del dueño.
+    // Petición que sobrevive al cierre de la página (keepalive): así no se pierde el aviso si el visitante sale antes
+    function enviarAlSalir(ruta, cuerpo) {
+      try {
+        fetch(`${SUPABASE_URL}${ruta}`, {
+          method: 'POST', keepalive: true,
+          headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+          body: JSON.stringify(cuerpo)
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
+    // Registra el escaneo (con o sin ubicación) y avisa al Telegram del dueño; si una de las dos cosas falla, la otra sale igual.
     // El celular del dueño no genera escaneos ni avisos (salvo con &visitante=1).
-    async function guardarEscaneoSilencioso(lat, lon, denegada = lat == null) {
+    async function guardarEscaneoSilencioso(lat, lon) {
       if (!tagId || esDueno()) return;
-      const { error } = await db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon });
-      if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message);
-      else await avisarEscaneo(lat, lon, denegada);
+      const registro = db.rpc('registrar_escaneo', { p_id: tagId, p_lat: lat, p_lon: lon })
+        .then(({ error }) => { if (error) console.error("❌ ERROR AL GUARDAR EN SUPABASE:", error.message); });
+      await Promise.all([registro.catch(() => {}), avisarEscaneo(lat, lon)]);
+    }
+
+    // Mascota perdida (solo visitantes): el aviso espera a saber si el visitante permite la ubicación, pero nunca se
+    // pierde: si no responde en 20 s, o sale de la página antes (llamar, WhatsApp, cerrar), el aviso sale igual, sin ubicación.
+    function garantizarAviso() {
+      if (avisoGarantizado || esDueno()) return;
+      avisoGarantizado = true;
+      const sinUbicacion = alSalir => {
+        if (avisoEnviado) return;
+        if (!alSalir) { escaneoSinUbicGuardado = true; registrarEscaneoUbic(null, null); return; }
+        avisarEscaneo(null, null, true);
+        enviarAlSalir('/rest/v1/rpc/registrar_escaneo', { p_id: tagId, p_lat: null, p_lon: null });
+      };
+      setTimeout(() => sinUbicacion(false), 20000);
+      const salir = () => sinUbicacion(true);
+      window.addEventListener('pagehide', salir);
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') salir(); });
     }
 
     // ---- Ubicación del visitante (solo mascota perdida) ----
@@ -812,7 +846,7 @@
           estadoUbic = r.code === 1 ? 'denegada' : 'no-disponible';
           if (!escaneoSinUbicGuardado) {   // el escaneo se registra igual, sin ubicación
             escaneoSinUbicGuardado = true;
-            registrarEscaneoUbic(null, null, r.code === 1);
+            registrarEscaneoUbic(null, null);
           }
         }
         actualizarBotonUbicacion();
@@ -823,9 +857,9 @@
 
     // Guarda el escaneo sin frenar la ficha. El botón de WhatsApp espera a que termine (máx. 3 s) antes de cambiar de
     // página, porque al salir de ella el navegador cancela las peticiones que sigan en curso.
-    function registrarEscaneoUbic(lat, lon, denegada) {
+    function registrarEscaneoUbic(lat, lon) {
       registrosEnCurso++;
-      registroEscaneo = guardarEscaneoSilencioso(lat, lon, denegada).catch(() => {}).then(() => { registrosEnCurso--; });
+      registroEscaneo = guardarEscaneoSilencioso(lat, lon).catch(() => {}).then(() => { registrosEnCurso--; });
     }
 
     // Texto y estado del botón «¡La encontré!» según lo que pasó con la ubicación
@@ -855,6 +889,7 @@
     // va a preguntar (ya permitido o bloqueado, o sin geolocalización) la ficha se muestra de inmediato.
     async function pedirUbicacionSiPerdida() {
       if (!petData || !petData.is_lost || esDueno()) return;
+      garantizarAviso();   // el aviso a Telegram sale con el resultado de la ubicación, a los 20 s o al salir de la página
       if (!navigator.geolocation) { solicitarUbicacion(); return; }   // sin geolocalización: escaneo sin ubicación
 
       try { permisoGeo = await navigator.permissions.query({ name: 'geolocation' }); } catch (e) { permisoGeo = null; }
