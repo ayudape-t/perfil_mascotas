@@ -111,6 +111,18 @@
     .btn-wa { background: linear-gradient(135deg, #34d399, #059669); color: #fff; text-decoration: none; padding: 8px 12px; font-size: 13px; }
     .btn:disabled { opacity: .6; }
 
+    /* Carnet: frecuencia y «Ya lo hice» · historial: eliminar */
+    .carnet-col { display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; align-content: start; min-width: 0; }
+    /* Si un título se parte en dos líneas (celulares angostos), las dos columnas siguen alineadas fila por fila */
+    @supports (grid-template-rows: subgrid) {
+      .carnet-grid { grid-template-rows: repeat(4, auto); row-gap: 6px; }
+      .carnet-grid > .carnet-col { grid-row: span 4; grid-template-rows: subgrid; }
+    }
+    .btn-hecho { width: 100%; padding: 7px 10px; border-radius: 12px; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font: 600 12.5px 'Fredoka', sans-serif; color: #fff; background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 4px 10px -4px rgba(4,120,87,.7); }
+    .btn-hecho:disabled { opacity: .6; }
+    .btn-borrar { flex: none; width: 28px; height: 28px; border-radius: 9px; border: 1px solid #fecaca; background: #fff; color: #be123c; cursor: pointer; display: grid; place-items: center; font-size: 12px; }
+    .btn-borrar:disabled { opacity: .5; }
+
     /* Barra de guardado fija */
     .savebar { position: sticky; bottom: 0; z-index: 20; padding: 18px 12px 12px; margin-top: 4px; background: linear-gradient(to top, #f8edd1 62%, rgba(248,237,209,0)); }
     #btn-save { width: 100%; padding: 13px 14px; border-radius: 16px; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 16px 'Fredoka', sans-serif; color: #fff;
@@ -305,16 +317,33 @@
           <i class="fa-solid fa-chevron-down chev"></i>
         </summary>
         <div class="card-b">
-          <div class="g2">
-            <div>
+          <div class="g2 carnet-grid">
+            <div class="carnet-col">
               <label for="input-next-vaccine" class="lbl">Próxima vacuna</label>
               <input type="date" id="input-next-vaccine" class="fld">
+              <select id="input-vaccine-every" class="fld" aria-label="Cada cuánto se repite la vacuna">
+                <option value="">No se repite</option>
+                <option value="1">Cada mes</option>
+                <option value="3">Cada 3 meses</option>
+                <option value="6">Cada 6 meses</option>
+                <option value="12">Cada año</option>
+              </select>
+              <button type="button" id="btn-hecho-vacuna" class="btn-hecho hidden" onclick="marcarCarnetHecho('vacuna')"><i class="fa-solid fa-check"></i> Ya lo hice</button>
             </div>
-            <div>
+            <div class="carnet-col">
               <label for="input-next-deworming" class="lbl">Próx. desparasitación</label>
               <input type="date" id="input-next-deworming" class="fld">
+              <select id="input-deworming-every" class="fld" aria-label="Cada cuánto se repite la desparasitación">
+                <option value="">No se repite</option>
+                <option value="1">Cada mes</option>
+                <option value="3">Cada 3 meses</option>
+                <option value="6">Cada 6 meses</option>
+                <option value="12">Cada año</option>
+              </select>
+              <button type="button" id="btn-hecho-desparasitacion" class="btn-hecho hidden" onclick="marcarCarnetHecho('desparasitacion')"><i class="fa-solid fa-check"></i> Ya lo hice</button>
             </div>
           </div>
+          <p class="hint"><i class="fa-solid fa-rotate"></i>Si se repite, la fecha avanza sola y el aviso de Telegram sigue. «Ya lo hice» (aparece con la fecha ya guardada) lo anota en el historial y pasa a la siguiente.</p>
           <div class="g2">
             <div>
               <label for="input-allergies" class="lbl">Alergias</label>
@@ -450,7 +479,11 @@
       e === 'codigo_incorrecto' ? 'El código de activación es incorrecto.' :
       e === 'placa_invalida' ? 'Esta placa no es válida o ya fue activada.' :
       e === 'telefono_invalido' ? 'Revisa los teléfonos: usa solo números, con código de país (ej. 51987654321).' :
+      e === 'sin_fecha' ? 'Primero guarda una fecha en el carnet.' :
+      e === 'ya_registrado' ? 'Ya lo anotaste hoy en el historial.' :
+      e === 'no_encontrado' ? 'Ese registro ya no existe.' :
       'Revisa los datos (' + e + ').';
+    const hoyLima = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });   // AAAA-MM-DD
 
     // «+ Registrar» del perfil llega con #registrar-medico (#seccion-medica en enlaces anteriores):
     // se abre el formulario «Agregar atención o vacuna» y se baja hasta él.
@@ -467,6 +500,62 @@
     function vigilarToque() {   // si ya tocó la pantalla, no se le vuelve a mover la vista
       ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(ev =>
         window.addEventListener(ev, () => { tocoPantalla = true; }, { once: true, passive: true }));
+    }
+
+    // ---- Carnet: frecuencia y «Ya lo hice» ----
+    const CARNET = {
+      vacuna:          { fecha: 'input-next-vaccine',   cada: 'input-vaccine-every',   btn: 'btn-hecho-vacuna',          nombre: 'la vacuna',          guardada: { fecha: '', cada: '' } },
+      desparasitacion: { fecha: 'input-next-deworming', cada: 'input-deworming-every', btn: 'btn-hecho-desparasitacion', nombre: 'la desparasitación', guardada: { fecha: '', cada: '' } }
+    };
+    function ponerFrecuencia(id, n) {   // si la base trae una frecuencia que la lista no tiene (2 meses, 2 años...), se agrega como opción
+      const sel = $(id), v = n ? String(n) : '';
+      if (v && ![...sel.options].some(o => o.value === v)) {
+        const o = document.createElement('option');
+        o.value = v;
+        o.textContent = n % 12 === 0 ? `Cada ${n / 12} años` : `Cada ${n} meses`;
+        sel.appendChild(o);
+      }
+      sel.value = v;
+    }
+    function recordarCarnet(tipo) {      // lo que ya está guardado en el servidor
+      const c = CARNET[tipo];
+      c.guardada = { fecha: val(c.fecha), cada: val(c.cada) };
+    }
+    function actualizarBotonesCarnet() { // «Ya lo hice» solo con la fecha ya guardada: el servidor usa lo guardado, no lo que está a medio cambiar
+      Object.values(CARNET).forEach(c => {
+        const igual = val(c.fecha) === c.guardada.fecha && val(c.cada) === c.guardada.cada;
+        $(c.btn).classList.toggle('hidden', !(c.guardada.fecha && igual));
+      });
+    }
+    Object.values(CARNET).forEach(c => [c.fecha, c.cada].forEach(id =>
+      ['input', 'change'].forEach(ev => $(id).addEventListener(ev, actualizarBotonesCarnet))));
+
+    async function marcarCarnetHecho(tipo) {
+      const c = CARNET[tipo], btn = $(c.btn);
+      if (!pinSesion) { alert('Vuelve a entrar con tu PIN desde el perfil.'); return; }
+      const sigue = !!c.guardada.cada;
+      if (!confirm(`¿Ya aplicaste ${c.nombre}? Se anotará en el historial con la fecha de hoy` +
+          (sigue ? ' y la fecha del carnet pasará a la siguiente.' : '. Como no se repite, la fecha del carnet se quitará.'))) return;
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Anotando...`;
+      try {
+        const { data, error } = await db.rpc('marcar_carnet_hecho', { p_id: tagId, p_pin: pinSesion, p_tipo: tipo });
+        if (error || !data) throw new Error('No se pudo anotar. Revisa tu conexión e intenta de nuevo.');
+        if (data.estado !== 'ok') throw new Error(msgEstado(data.estado));
+        $(c.fecha).value = soloFecha(data.proxima);
+        recordarCarnet(tipo);
+        alert(data.proxima
+          ? `✅ Anotado en el historial. Próxima fecha: ${fmtFecha(data.proxima)}.`
+          : '✅ Anotado en el historial. Como no se repite, la fecha del carnet se quitó: pon la próxima cuando la tengas.');
+        await cargarHistorialPrivado();
+      } catch (err) {
+        alert('❌ ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+        actualizarBotonesCarnet();
+      }
     }
 
     async function inicializar() {
@@ -506,6 +595,9 @@
         // Las fechas antiguas escritas como texto ("15 de Octubre") no se pueden convertir: quedan vacías
         $('input-next-vaccine').value = soloFecha(data.next_vaccine);
         $('input-next-deworming').value = soloFecha(data.next_deworming);
+        ponerFrecuencia('input-vaccine-every', data.vaccine_every);
+        ponerFrecuencia('input-deworming-every', data.deworming_every);
+        recordarCarnet('vacuna'); recordarCarnet('desparasitacion'); actualizarBotonesCarnet();
         $('input-reward').checked = data.reward || false;
 
         savedPin = pinSesion;
@@ -636,6 +728,7 @@
             lost_date: v('input-lost-date'), lost_time: v('input-lost-time'),
             reward: $('input-reward').checked, photo: photoPublicUrl,
             next_vaccine: v('input-next-vaccine'), next_deworming: v('input-next-deworming'),
+            vaccine_every: Number(v('input-vaccine-every')) || null, deworming_every: Number(v('input-deworming-every')) || null,
             allergies: v('input-allergies'), medical_notes: v('input-medical'), diet: v('input-diet'),
             vet_name: v('input-vet-name'), vet_phone: v('input-vet-phone'),
           }
@@ -697,17 +790,57 @@
         return;
       }
       const regs = res.registros || [];
-      box.innerHTML = regs.length ? regs.map(r => `
+      const hoy = hoyLima(), scroll = box.scrollTop;
+      box.innerHTML = regs.length ? regs.map(r => {
+        const hecha = !!r.proxima_hecha_en;
+        const vencido = !!r.next_due_date && !hecha && r.next_due_date < hoy;
+        const id = esc(r.id);
+        return `
         <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-100 text-left">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-xs font-bold text-amber-950 uppercase">${esc(r.vet_name)}</span>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-bold text-amber-950 uppercase min-w-0 flex-1 truncate">${esc(r.vet_name)}</span>
             <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(fmtFecha(r.visit_date))}</span>
+            <button type="button" class="btn-borrar" title="Eliminar este registro" aria-label="Eliminar este registro" onclick="eliminarRegistro('${id}')"><i class="fa-regular fa-trash-can"></i></button>
           </div>
           <p class="text-xs text-slate-700 font-medium"><strong>Motivo:</strong> ${esc(r.reason || 'Consulta general')}</p>
           ${r.diagnosis ? `<p class="text-xs text-slate-600 mt-1"><strong>Diagnóstico:</strong> ${esc(r.diagnosis)}</p>` : ''}
           ${r.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2 rounded-xl border border-emerald-100 mt-1.5"><strong>Receta/Tratamiento:</strong> ${esc(r.prescription)}</p>` : ''}
-          ${r.next_due_date ? `<p class="text-xs text-emerald-800 mt-1"><strong>Próximo refuerzo:</strong> ${esc(fmtFecha(r.next_due_date))}</p>` : ''}
-        </div>`).join('') : `<p class="text-xs text-slate-400 italic">Sin registros aún.</p>`;
+          ${r.next_due_date ? `
+          <label class="flex items-center gap-2 text-xs text-emerald-800 mt-1.5 cursor-pointer">
+            <input type="checkbox" class="chk-refuerzo" ${hecha ? 'checked' : ''} onchange="marcarRefuerzo('${id}', this)" style="width:17px;height:17px;accent-color:#059669;flex:none">
+            <span><strong>Próximo refuerzo:</strong> <span class="${hecha ? 'line-through opacity-60' : ''}">${esc(fmtFecha(r.next_due_date))}</span>${hecha ? ` · ✓ hecho el ${esc(fmtFecha(r.proxima_hecha_en))}` : vencido ? ' · <b class="text-rose-600">vencido: ¿ya lo hiciste?</b>' : ''}</span>
+          </label>` : ''}
+        </div>`;
+      }).join('') : `<p class="text-xs text-slate-400 italic">Sin registros aún.</p>`;
+      box.scrollTop = scroll;   // al marcar o eliminar, la lista no salta al inicio
+    }
+
+    // Solo el dueño (PIN en el servidor): el registro se oculta del historial y del perfil público
+    async function eliminarRegistro(id) {
+      if (!pinSesion) { alert('Vuelve a entrar con tu PIN desde el perfil.'); return; }
+      if (!confirm('¿Eliminar este registro del historial? Dejará de verse aquí y en el perfil de tu mascota.')) return;
+      try {
+        const { data, error } = await db.rpc('eliminar_registro_medico', { p_id: tagId, p_pin: pinSesion, p_registro: id });
+        if (error || !data) throw new Error('No se pudo eliminar. Revisa tu conexión e intenta de nuevo.');
+        if (data.estado !== 'ok' && data.estado !== 'no_encontrado') throw new Error(msgEstado(data.estado));
+      } catch (err) {
+        alert('❌ ' + err.message);
+      }
+      await cargarHistorialPrivado();
+    }
+
+    // Check del «Próximo refuerzo»: marcado = ya se hizo (deja de avisar y de contar como pendiente)
+    async function marcarRefuerzo(id, chk) {
+      const hecho = chk.checked;
+      chk.disabled = true;
+      try {
+        const { data, error } = await db.rpc('marcar_proxima_hecha', { p_id: tagId, p_pin: pinSesion, p_registro: id, p_hecho: hecho });
+        if (error || !data) throw new Error('No se pudo guardar. Revisa tu conexión e intenta de nuevo.');
+        if (data.estado !== 'ok' && data.estado !== 'no_encontrado') throw new Error(msgEstado(data.estado));
+      } catch (err) {
+        alert('❌ ' + err.message);
+      }
+      await cargarHistorialPrivado();   // se muestra lo que quedó guardado de verdad
     }
 
     function toggleHistorialEscaneos() {

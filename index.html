@@ -1145,7 +1145,7 @@
             <span class="pill">${esc(fmtFecha(rec.visit_date))}</span>
           </div>
           <p><i class="fa-solid fa-stethoscope"></i>${esc(rec.reason || 'Consulta general')}</p>
-          ${rec.next_due_date ? `<p class="next"><i class="fa-solid fa-calendar-check"></i>Próximo refuerzo: ${esc(fmtFecha(rec.next_due_date))}</p>` : ''}
+          ${rec.next_due_date && !rec.proxima_hecha_en ? `<p class="next"><i class="fa-solid fa-calendar-check"></i>Próximo refuerzo: ${esc(fmtFecha(rec.next_due_date))}</p>` : ''}
         </div>`).join('');
     }
 
@@ -1217,7 +1217,8 @@
     // SEMÁFORO DE SALUD
     // ==========================================
     // Toma el último registro de cada motivo y gana la fecha de refuerzo más urgente.
-    // Sin historial, usa las fechas del carnet (próxima vacuna / desparasitación).
+    // Un refuerzo que el dueño ya marcó como hecho no cuenta. Las fechas del carnet (próxima vacuna /
+    // desparasitación) cuentan siempre: con «Ya lo hice» se van actualizando solas.
     function calcularEstadoSalud(registros) {
       if (registros === null) return { estado: 'error' };
       registros = registros || [];
@@ -1228,9 +1229,9 @@
         const k = norm(r.reason);
         if (vistos.has(k)) return;
         vistos.add(k);
-        if (r.next_due_date) fechas.push(r.next_due_date);
+        if (r.next_due_date && !r.proxima_hecha_en) fechas.push(r.next_due_date);
       });
-      if (registros.length === 0 && petData) {
+      if (petData) {
         [petData.next_vaccine, petData.next_deworming].forEach(f => { if (diasHasta(f) !== null) fechas.push(f); });
       }
       if (registros.length === 0 && fechas.length === 0) return { estado: 'sin' };
