@@ -177,6 +177,14 @@
             <input type="checkbox" id="input-reward" class="w-4 h-4 accent-red-600 rounded cursor-pointer">
             🎁 Ofrecer recompensa en el afiche
           </label>
+          <div class="row-mini" style="padding:8px 10px;background:#fff;border:1px solid #fecaca;border-radius:12px">
+            <div class="ico sky"><i class="fa-brands fa-telegram"></i></div>
+            <div class="txt">
+              <div class="t">Ayuda a las mascotas a reencontrarse</div>
+              <p class="s">Únete al canal @HelpetAvisos. Al guardar podrás publicar su aviso con la zona donde se perdió.</p>
+            </div>
+            <a href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn-mini" style="text-decoration:none">Unirme</a>
+          </div>
         </div>
       </div>
 
@@ -188,6 +196,16 @@
           <p id="telegram-estado" class="s">Avisos de escaneos y de vacunas.</p>
         </div>
         <button type="button" id="btn-telegram" onclick="accionTelegram()" class="btn-mini">Vincular</button>
+      </div>
+
+      <!-- COMUNIDAD: solo cuando hay mascotas perdidas publicadas en el canal -->
+      <div id="canal-banner" class="hidden card row-mini">
+        <div class="ico sky"><i class="fa-brands fa-telegram"></i></div>
+        <div class="txt">
+          <div class="t">Ayuda a las mascotas a reencontrarse</div>
+          <p class="s">Únete al canal de avisos de Helpet.</p>
+        </div>
+        <a href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn-mini" style="text-decoration:none">Unirme</a>
       </div>
 
       <!-- ÚLTIMA UBICACIÓN / ESCANEOS -->
@@ -562,6 +580,7 @@
       tagId = new URLSearchParams(window.location.search).get('id') || '';
       $('input-id').value = tagId;
       if (!tagId) { alert('Enlace de placa no válido.'); return; }
+      revisarCanal();
       const irAMedico = ['#registrar-medico', '#seccion-medica'].includes(window.location.hash);
 
       const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
@@ -630,7 +649,17 @@
 
     function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
 
+    // Invitación al canal para todos cuando hay mascotas perdidas publicadas (con la alarma activa ya va dentro del recuadro rojo)
+    let hayAvisosCanal = false;
+    function revisarCanal() {
+      Promise.resolve(client.rpc('canal_hay_avisos'))
+        .then(({ data }) => { hayAvisosCanal = data === true; actualizarBannerCanal(); })
+        .catch(() => {});
+    }
+    function actualizarBannerCanal() { $('canal-banner').classList.toggle('hidden', !hayAvisosCanal || isLostState); }
+
     function actualizarBotonAlarmaUI() {
+      actualizarBannerCanal();
       const btn = $('btn-toggle-lost');
       const box = $('lost-details-box');
       const base = "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ";

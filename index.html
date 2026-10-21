@@ -373,6 +373,20 @@
         <button id="btn-share-profile" type="button" onclick="compartirPerfil()" class="btn btn-share"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
       </div>
 
+      <!-- 3b. Canal de avisos: SOLO el dueño y con la mascota perdida -->
+      <section id="canal-card" class="card hidden">
+        <div class="card-h">
+          <span class="ico sky"><i class="fa-brands fa-telegram"></i></span>
+          <div class="ttl"><small>Canal Helpet Avisos</small><b>Avisa a la comunidad</b></div>
+        </div>
+        <div class="card-b">
+          <p id="canal-info" class="hint"></p>
+          <button id="btn-canal-publicar" type="button" onclick="publicarCanal()" class="btn btn-gps"><i class="fa-solid fa-bullhorn"></i> <span>Publicar en el canal</span></button>
+          <a id="btn-canal-unirme" href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn btn-line"><i class="fa-brands fa-telegram"></i> Unirme al canal</a>
+          <p id="canal-estado" class="hint hidden" aria-live="polite"></p>
+        </div>
+      </section>
+
       <!-- 4. Salud: semáforo, próximas fechas, historial y carnet (se oculta en modo perdido) -->
       <section id="health-zone" class="card">
         <div class="card-h">
@@ -429,6 +443,17 @@
           <div id="carnet-qrcode"></div>
         </div>
       </div>
+
+      <!-- Comunidad: aparece para todos cuando hay mascotas perdidas publicadas en el canal -->
+      <section id="canal-banner" class="card hidden">
+        <div class="card-h">
+          <span class="ico sky"><i class="fa-brands fa-telegram"></i></span>
+          <div class="ttl"><small>Comunidad Helpet</small><b>Ayuda a las mascotas a reencontrarse</b></div>
+        </div>
+        <div class="card-b">
+          <a href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn btn-gps"><i class="fa-brands fa-telegram"></i> Únete al canal</a>
+        </div>
+      </section>
 
       <!-- 6. Acceso del dueño -->
       <button type="button" class="dueno" onclick="abrirModalPIN()"><i class="fa-solid fa-lock"></i> ¿Eres el dueño? Editar datos</button>
@@ -559,6 +584,11 @@
     const leerAlmacen = (nombre, clave) => { try { return window[nombre].getItem(clave); } catch (e) { return null; } };   // nunca falla (cookies bloqueadas)
     const esDueno = () => !new URLSearchParams(window.location.search).has('visitante')
       && !!(leerAlmacen('localStorage', `dueno_${tagId}`) || leerAlmacen('sessionStorage', `pin_${tagId}`));
+    // Visita desde el canal de Telegram (src=canal) o desde el atajo del dueño (canal=1): no es un escaneo de la placa,
+    // así que al cargar no se avisa al dueño ni se pide la ubicación (el botón «¡La encontré!» funciona igual)
+    const parametros = new URLSearchParams(window.location.search);
+    const atajoCanal = parametros.get('canal') === '1';
+    const desdeCanal = atajoCanal || parametros.get('src') === 'canal';
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const soloDigitos = v => String(v || '').replace(/\D/g, '');
     const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
@@ -641,7 +671,7 @@
 
         // Mascota segura: el aviso a Telegram sale al cargar. Perdida: sale al saber si el visitante permite la ubicación
         // (un solo mensaje) y la ficha se muestra DESPUÉS de que el navegador pregunte por ella
-        if (!data.is_lost) avisarEscaneo();
+        if (!data.is_lost && !desdeCanal) avisarEscaneo();
         $('pet-name').textContent = (data.pet || '').toUpperCase();
         $('owner-name').textContent = data.owner || '';
         $('pet-photo').src = data.photo || FOTO_VACIA;
@@ -737,6 +767,7 @@
           cargarHistorialMedico();
         }
         mostrarPerfil();
+        prepararCanal();
       } catch (err) {
         console.error("Error al cargar:", err);
         if (petData) mostrarPerfil();
@@ -888,7 +919,7 @@
     // se muestra la ficha; si no responde en 12 s se muestra igual (la ficha nunca queda oculta). Si el navegador no
     // va a preguntar (ya permitido o bloqueado, o sin geolocalización) la ficha se muestra de inmediato.
     async function pedirUbicacionSiPerdida() {
-      if (!petData || !petData.is_lost || esDueno()) return;
+      if (!petData || !petData.is_lost || esDueno() || desdeCanal) return;
       garantizarAviso();   // el aviso a Telegram sale con el resultado de la ubicación, a los 20 s o al salir de la página
       if (!navigator.geolocation) { solicitarUbicacion(); return; }   // sin geolocalización: escaneo sin ubicación
 
@@ -1174,10 +1205,92 @@
     }
 
     // ==========================================
+    // CANAL DE AVISOS (@HelpetAvisos)
+    // ==========================================
+    // Dueño con la mascota perdida: tarjeta para publicar el aviso (el PIN y los límites los valida el servidor).
+    // Resto de visitas: invitación a unirse, solo si hay mascotas perdidas publicadas (la base responde solo sí/no).
+    let publicandoCanal = false;
+    const zonaPerdida = () => String((petData && petData.lost_location) || '').trim();
+    const fmtMin = m => { m = Math.max(1, Number(m) || 1); return m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}` : `${m} min`; };
+
+    function prepararCanal() {
+      if (!petData) return;
+      const tarjeta = !!petData.is_lost && (esDueno() || atajoCanal);
+      if (tarjeta) {
+        const zona = zonaPerdida();
+        $('canal-info').textContent = zona
+          ? `Se publicará su foto, sus datos, la zona «${zona}» y el enlace a su perfil.`
+          : 'Para publicar, primero escribe «¿Dónde se perdió?» en Editar datos.';
+        $('btn-canal-publicar').querySelector('span').textContent = zona ? 'Publicar en el canal' : 'Agregar dónde se perdió';
+        $('canal-card').classList.remove('hidden');
+        if (atajoCanal) setTimeout(() => $('canal-card').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+        return;
+      }
+      Promise.resolve(db.rpc('canal_hay_avisos'))
+        .then(({ data }) => { if (data === true) $('canal-banner').classList.remove('hidden'); })
+        .catch(() => {});
+    }
+
+    function mostrarEstadoCanal(texto, enlace) {
+      const p = $('canal-estado');
+      p.textContent = texto;
+      if (enlace && /^https:\/\/t\.me\/[A-Za-z0-9_]+\/\d+$/.test(enlace)) {
+        const a = document.createElement('a');
+        a.href = enlace; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Ver publicación';
+        a.style.cssText = 'font-weight:600;text-decoration:underline;margin-left:4px';
+        p.append(a);
+      }
+      p.classList.remove('hidden');
+    }
+
+    async function publicarCanal() {
+      if (!petData || publicandoCanal) return;
+      const pin = leerAlmacen('sessionStorage', `pin_${tagId}`);
+      if (!zonaPerdida()) {   // sin zona no hay aviso: a editar los datos (con el PIN)
+        if (pin) window.location.href = `registro.html?id=${encodeURIComponent(tagId)}`;
+        else abrirModalPIN();
+        return;
+      }
+      if (!pin) { abrirModalPIN('#canal'); return; }
+
+      publicandoCanal = true;
+      const btn = $('btn-canal-publicar'), ico = btn.querySelector('i'), txt = btn.querySelector('span');
+      btn.disabled = true;
+      ico.className = 'fa-solid fa-spinner fa-spin';
+      txt.textContent = 'Publicando...';
+      let r = null;
+      try { const { data } = await db.functions.invoke('publicar-canal', { body: { id: tagId, pin } }); r = data; } catch (e) {}
+      publicandoCanal = false;
+      btn.disabled = false;
+      ico.className = 'fa-solid fa-bullhorn';
+      txt.textContent = 'Publicar en el canal';
+
+      const estado = r && r.estado;
+      if (estado === 'ok') { mostrarEstadoCanal('✅ Publicado en el canal. ¡Compártelo con tus contactos!', r.enlace); return; }
+      if (estado === 'incorrecto') {   // el PIN guardado ya no sirve (lo cambiaron): se pide otra vez
+        try { sessionStorage.removeItem(`pin_${tagId}`); } catch (e) {}
+        abrirModalPIN('#canal');
+        return;
+      }
+      const mensajes = {
+        bloqueado: '⏳ Demasiados intentos con el PIN. Espera 15 minutos o recupéralo por Telegram.',
+        limite: `Ya publicaste hace poco. Podrás volver a publicar en ${fmtMin(r && r.minutos)}.`,
+        limite_dia: 'Ya se publicó 3 veces hoy (el máximo). Podrás volver a publicar mañana.',
+        limite_canal: 'El canal está recibiendo muchos avisos. Inténtalo de nuevo en unos minutos.',
+        en_curso: 'Se está publicando… espera un momento.',
+        no_perdida: 'La mascota ya no está marcada como perdida.',
+        sin_zona: 'Primero escribe «¿Dónde se perdió?» en Editar datos.',
+      };
+      mostrarEstadoCanal(mensajes[estado] || 'No se pudo publicar ahora. Revisa tu conexión e inténtalo de nuevo.');
+    }
+
+    // ==========================================
     // PIN DEL DUEÑO
     // ==========================================
     function abrirModalPIN(destino = '') {
       destinoPIN = destino;
+      $('pin-titulo').nextElementSibling.textContent = destino === '#canal'
+        ? 'Ingresa tus 4 dígitos para publicar el aviso.' : 'Ingresa tus 4 dígitos para editar.';
       cerrarModalMedico();
       $('pin-modal').classList.remove('hidden');
       $('modal-pin-input').value = '';
@@ -1197,6 +1310,7 @@
       if (estado === 'ok') {
         sessionStorage.setItem(`pin_${tagId}`, input);
         localStorage.setItem(`dueno_${tagId}`, '1'); // este dispositivo es del dueño: sin avisos ni permisos de ubicación
+        if (destinoPIN === '#canal') { cerrarModalPIN(); publicarCanal(); return; }   // vuelve a «Publicar en el canal»
         window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destinoPIN}`;
       } else if (estado === 'bloqueado') {
         alert("⏳ Demasiados intentos. Espera 15 minutos o recupera tu PIN por Telegram.");
