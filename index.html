@@ -16,6 +16,7 @@
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#29170d">
   <meta name="color-scheme" content="light">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -220,6 +221,7 @@
     .pie { width: 100%; max-width: 384px; margin: 16px 0 4px; padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; text-align: center; font-size: 12px; color: #ead8b8; background: rgba(26,14,9,.68); border: 1px solid rgba(248,237,209,.14); border-radius: 20px; }
     .pie .soporte { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; font-weight: 600; color: #a7f3d0; background: rgba(16,185,129,.16); border: 1px solid rgba(110,231,183,.45); }
     .pie small { flex-basis: 100%; font-size: 10.5px; color: #a8917a; }
+    .pie .legal { color: inherit; font-weight: 500; text-decoration: underline; }
 
     /* ---------- Ventanas (modales) ---------- */
     .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20,10,6,.84); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
@@ -467,7 +469,7 @@
   <footer class="pie">
     <span>¿Dudas con tu placa?</span>
     <a id="btn-support-whatsapp" href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20asistencia%20t%C3%A9cnica." target="_blank" rel="noopener" class="soporte"><i class="fa-brands fa-whatsapp"></i> Soporte Helpet</a>
-    <small>© 2026 Helpet · Identificación inteligente para mascotas</small>
+    <small>© 2026 Helpet · Identificación inteligente para mascotas · <a href="privacidad.html" class="legal">Privacidad y términos</a></small>
   </footer>
 
   <!-- MODAL DE PIN -->
@@ -1239,7 +1241,7 @@
       if (tarjeta) {
         const zona = zonaPerdida();
         $('canal-info').textContent = zona
-          ? `Se publicará su foto, sus datos, la zona «${zona}» y el enlace a su perfil.`
+          ? `Se publicará en el canal público su foto, sus datos, la zona «${zona}» y el enlace a su perfil.`
           : 'Para publicar, primero escribe «¿Dónde se perdió?» en Editar datos.';
         $('btn-canal-publicar').querySelector('span').textContent = zona ? 'Publicar en el canal' : 'Agregar dónde se perdió';
         $('canal-card').classList.remove('hidden');
