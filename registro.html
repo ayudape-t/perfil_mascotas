@@ -198,6 +198,16 @@
         <button type="button" id="btn-telegram" onclick="accionTelegram()" class="btn-mini">Vincular</button>
       </div>
 
+      <!-- DISPOSITIVOS CON ACCESO (solo al editar) -->
+      <div id="disp-box" class="hidden card row-mini">
+        <div class="ico violet"><i class="fa-solid fa-mobile-screen-button"></i></div>
+        <div class="txt">
+          <div class="t">Dispositivos con acceso</div>
+          <p id="disp-estado" class="s">Cargando...</p>
+        </div>
+        <button type="button" id="btn-disp" onclick="quitarOtrosDispositivos()" class="btn-mini hidden">Quitar otros</button>
+      </div>
+
       <!-- COMUNIDAD: solo cuando hay mascotas perdidas publicadas en el canal -->
       <div id="canal-banner" class="hidden card row-mini">
         <div class="ico sky"><i class="fa-brands fa-telegram"></i></div>
@@ -318,7 +328,7 @@
               <input type="password" id="input-pin" maxlength="4" inputmode="numeric" placeholder="••••" pattern="[0-9]{4}" class="fld key center">
             </div>
           </div>
-          <p class="hint"><i class="fa-solid fa-circle-info"></i>El código viene en la tarjeta dentro del empaque. El PIN te servirá para editar tus datos.</p>
+          <p class="hint"><i class="fa-solid fa-circle-info"></i>El código viene en la tarjeta dentro del empaque: guárdala, la necesitarás para entrar desde otro celular. Evita PIN fáciles como 1234 o tu año.</p>
           <label class="consent">
             <input type="checkbox" id="input-consent">
             <span>Acepto que mi nombre, mi teléfono y los datos que marque como públicos se muestren a quien escanee la placa, y que mis datos se usen solo para este servicio. *</span>
@@ -491,7 +501,8 @@
     const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
     const msgEstado = e =>
       e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' :
-      e === 'incorrecto' ? 'PIN incorrecto: vuelve a entrar desde el perfil.' :
+      e === 'incorrecto' ? 'Tu sesión venció: vuelve a entrar con tu PIN desde el perfil.' :
+      e === 'pin_debil' ? MSG_PIN_FACIL :
       e === 'no_existe' ? 'Primero guarda los datos de la placa.' :
       e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' :
       e === 'codigo_incorrecto' ? 'El código de activación es incorrecto.' :
@@ -501,6 +512,22 @@
       e === 'ya_registrado' ? 'Ya lo anotaste hoy en el historial.' :
       e === 'no_encontrado' ? 'Ese registro ya no existe.' :
       'Revisa los datos (' + e + ').';
+    // Mismas reglas que el servidor (pin_es_debil): solo para avisar antes de enviar
+    const MSG_PIN_FACIL = 'Ese PIN es muy fácil de adivinar (como 1234, 0000, un año o los últimos 4 dígitos de tu teléfono). Elige otro.';
+    function pinFacil(p, ...tels) {
+      if (!/^[0-9]{4}$/.test(p)) return true;
+      if (/^(\d\d)\1$/.test(p) || /^(\d)\1(\d)\2$/.test(p) || /^(\d)(\d)\2\1$/.test(p) || /^(19|20)\d\d$/.test(p)) return true;
+      if ('01234567890'.includes(p) || '09876543210'.includes(p)) return true;
+      if (['2580','0852','1357','2468','1470','0741','3690','0963','1478','8741','3214','1236','1004','6969','1590'].includes(p)) return true;
+      return tels.some(t => { const d = String(t || '').replace(/\D/g, ''); return d.length >= 4 && d.slice(-4) === p; });
+    }
+    function etiquetaDispositivo() {
+      const u = navigator.userAgent || '';
+      const so = /Android/i.test(u) ? 'Android' : /iPhone|iPad|iPod/i.test(u) ? 'iPhone' : /Windows/i.test(u) ? 'Windows' : /Mac OS/i.test(u) ? 'Mac' : /Linux/i.test(u) ? 'Linux' : 'Otro';
+      const nav = /Edg\//.test(u) ? 'Edge' : /OPR\/|Opera/.test(u) ? 'Opera' : /SamsungBrowser/.test(u) ? 'Samsung Internet'
+        : /Firefox|FxiOS/.test(u) ? 'Firefox' : /Chrome|CriOS/.test(u) ? 'Chrome' : /Safari/.test(u) ? 'Safari' : 'Navegador';
+      return `${nav} · ${so}`;
+    }
     const hoyLima = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });   // AAAA-MM-DD
 
     // «+ Registrar» del perfil llega con #registrar-medico (#seccion-medica en enlaces anteriores):
@@ -637,7 +664,7 @@
         $('activation-box').classList.remove('hidden');
       }
       let telegram = null;
-      if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); telegram = refrescarTelegram(); }
+      if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); telegram = refrescarTelegram().catch(() => {}).then(cargarDispositivos); }   // aparecen juntos: un solo empujón que se corrige abajo
       await cargarHistorialPrivado();
       await cargarHistorialEscaneos();
       // El aviso de Telegram y el último escaneo pueden mover lo de arriba: si no tocó nada, el formulario vuelve a quedar a la vista
@@ -645,6 +672,31 @@
         try { await telegram; } catch (e) {}
         if (!tocoPantalla) mostrarFormularioMedico(false);
       }
+    }
+
+    // Celulares que pueden entrar con el PIN (el que activó la placa y los verificados con Telegram o la tarjeta)
+    async function cargarDispositivos() {
+      if (!pinSesion) return;
+      let r = null;
+      try { const { data } = await client.rpc('mis_dispositivos', { p_id: tagId, p_sesion: pinSesion }); r = data; } catch (e) {}
+      if (!r || r.estado !== 'ok') return;
+      const lista = r.dispositivos || [];
+      const otros = lista.filter(d => !d.este);
+      $('disp-estado').textContent = otros.length === 0
+        ? 'Solo este celular puede entrar con tu PIN. En otro te pediremos un código.'
+        : `Este y ${otros.length === 1 ? '1 más' : otros.length + ' más'}: ${otros.slice(0, 3).map(d => d.etiqueta).join(', ')}${otros.length > 3 ? '…' : ''}.`;
+      $('btn-disp').classList.toggle('hidden', otros.length === 0);
+      $('disp-box').classList.remove('hidden');
+    }
+    async function quitarOtrosDispositivos() {
+      if (!confirm('¿Quitar el acceso a los demás celulares? Para volver a entrar desde ellos tendrán que confirmar con un código.')) return;
+      const btn = $('btn-disp');
+      btn.disabled = true;
+      let r = null;
+      try { const { data } = await client.rpc('cerrar_otros_dispositivos', { p_id: tagId, p_sesion: pinSesion }); r = data; } catch (e) {}
+      btn.disabled = false;
+      if (!r || r.estado !== 'ok') { alert('No se pudo quitar el acceso. ' + msgEstado(r ? r.estado : 'sin_conexion')); return; }
+      await cargarDispositivos();
     }
 
     function toggleMascotaPerdida() { isLostState = !isLostState; actualizarBotonAlarmaUI(); }
@@ -728,6 +780,7 @@
       if (!pet || !owner || !phone || !finalPin) { alert("Por favor completa los campos requeridos (*)."); return; }
       if (phone.length < 8 || phone.length > 15) { alert("Revisa el teléfono principal: usa solo números, con código de país (ej. 51987654321)."); return; }
       if (!savedPin && !/^[0-9]{4}$/.test(finalPin)) { alert("El PIN debe ser de 4 números."); return; }
+      if (!savedPin && pinFacil(finalPin, phone, normalizarTel(val('input-phone-secondary')))) { alert(MSG_PIN_FACIL); return; }
       if (esNueva && !$('input-consent').checked) { alert("Para activar la placa debes aceptar el uso de tus datos."); return; }
 
       btn.disabled = true;
@@ -760,13 +813,18 @@
             vaccine_every: Number(v('input-vaccine-every')) || null, deworming_every: Number(v('input-deworming-every')) || null,
             allergies: v('input-allergies'), medical_notes: v('input-medical'), diet: v('input-diet'),
             vet_name: v('input-vet-name'), vet_phone: v('input-vet-phone'),
+            ...(esNueva ? { _etiqueta: etiquetaDispositivo() } : {}),
           }
         });
         if (dbError) throw dbError;
         if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
 
-        sessionStorage.setItem(`pin_${tagId}`, finalPin);
-        try { localStorage.setItem(`dueno_${tagId}`, '1'); } catch (e) {}   // este dispositivo es del dueño (también al activar la placa)
+        // Placa nueva: el servidor devuelve la sesión y deja este celular como dispositivo del dueño
+        sessionStorage.setItem(`pin_${tagId}`, res.sesion || finalPin);
+        try {
+          if (res.dispositivo) localStorage.setItem(`disp_${tagId}`, res.dispositivo);
+          localStorage.setItem(`dueno_${tagId}`, '1');
+        } catch (e) {}   // este dispositivo es del dueño (también al activar la placa)
         window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
       } catch (err) {
         alert("Error al guardar: " + err.message);

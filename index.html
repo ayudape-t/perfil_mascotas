@@ -226,6 +226,9 @@
     .sheet { position: relative; width: 100%; max-width: 320px; padding: 22px 18px 18px; display: grid; gap: 12px; text-align: center; background: #fffdf8; border: 1px solid var(--arena); border-radius: 24px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
     .sheet h3 { margin: 0; font-size: 17px; font-weight: 600; color: var(--cafe); }
     .sheet p { margin: 3px 0 0; font-size: 12.5px; color: var(--suave); }
+    .sheet .paso { display: grid; gap: 12px; }
+    .fld.center.codigo { font-size: 20px; letter-spacing: .15em; }
+    .fld.center.ph::placeholder { letter-spacing: .02em; font: 500 15px 'Fredoka', system-ui, sans-serif; }
     .x { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #f3eadb; color: var(--suave); font-size: 14px; cursor: pointer; }
 
     #modal-medico { align-items: flex-end; padding: 0; }
@@ -471,14 +474,31 @@
   <div id="pin-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pin-titulo">
     <div class="sheet">
       <button type="button" class="x" onclick="cerrarModalPIN()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-      <div class="ico amber grande"><i class="fa-solid fa-key"></i></div>
+      <div class="ico amber grande"><i id="pin-ico" class="fa-solid fa-key"></i></div>
       <div>
         <h3 id="pin-titulo">PIN del dueño</h3>
-        <p>Ingresa tus 4 dígitos para editar.</p>
+        <p id="pin-texto">Ingresa tus 4 dígitos para editar.</p>
       </div>
-      <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" pattern="[0-9]{4}" class="fld center" onkeydown="if (event.key === 'Enter') validarPINModal()">
-      <button type="button" onclick="validarPINModal()" class="btn btn-ambar">Ingresar</button>
-      <a href="https://t.me/Ayudapetbot?start=recuperar" target="_blank" rel="noopener" class="enlace"><i class="fa-brands fa-telegram"></i> ¿Olvidaste tu PIN? Recupéralo por Telegram</a>
+      <!-- Paso 1: PIN -->
+      <div id="pin-paso1" class="paso">
+        <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" pattern="[0-9]{4}" class="fld center" onkeydown="if (event.key === 'Enter') validarPINModal()">
+        <button type="button" onclick="validarPINModal()" class="btn btn-ambar">Ingresar</button>
+        <a href="https://t.me/Ayudapetbot?start=recuperar" target="_blank" rel="noopener" class="enlace"><i class="fa-brands fa-telegram"></i> ¿Olvidaste tu PIN? Recupéralo por Telegram</a>
+      </div>
+      <!-- Paso 2: dispositivo nuevo → código de Telegram, de la tarjeta de la placa o de soporte -->
+      <div id="pin-paso2" class="paso hidden">
+        <input type="text" id="modal-codigo-input" maxlength="9" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="Código" class="fld center codigo ph" onkeydown="if (event.key === 'Enter') verificarCodigoModal()">
+        <button type="button" onclick="verificarCodigoModal()" class="btn btn-ambar">Confirmar</button>
+        <button type="button" id="btn-reenviar" onclick="reenviarCodigo()" class="btn btn-line hidden"><i class="fa-brands fa-telegram"></i> Reenviar código</button>
+        <a id="pin-soporte" href="https://wa.me/51921512933?text=Hola%20Helpet,%20necesito%20un%20c%C3%B3digo%20para%20entrar%20al%20panel%20de%20mi%20mascota." target="_blank" rel="noopener" class="enlace"><i class="fa-brands fa-whatsapp"></i> ¿No tienes el código? Escríbenos</a>
+      </div>
+      <!-- Paso 3: el PIN es fácil de adivinar → se cambia antes de entrar -->
+      <div id="pin-paso3" class="paso hidden">
+        <input type="password" id="pin-nuevo1" maxlength="4" inputmode="numeric" autocomplete="new-password" placeholder="PIN nuevo" class="fld center ph">
+        <input type="password" id="pin-nuevo2" maxlength="4" inputmode="numeric" autocomplete="new-password" placeholder="Repítelo" class="fld center ph" onkeydown="if (event.key === 'Enter') cambiarPinDebil()">
+        <button type="button" onclick="cambiarPinDebil()" class="btn btn-ambar">Guardar PIN nuevo</button>
+      </div>
+      <p id="pin-msg" class="hint resalta hidden" aria-live="polite"></p>
     </div>
   </div>
 
@@ -1267,7 +1287,7 @@
 
       const estado = r && r.estado;
       if (estado === 'ok') { mostrarEstadoCanal('✅ Publicado en el canal. ¡Compártelo con tus contactos!', r.enlace); return; }
-      if (estado === 'incorrecto') {   // el PIN guardado ya no sirve (lo cambiaron): se pide otra vez
+      if (estado === 'incorrecto' || estado === 'pin_debil') {   // la sesión venció o ya no sirve: se pide el PIN otra vez
         try { sessionStorage.removeItem(`pin_${tagId}`); } catch (e) {}
         abrirModalPIN('#canal');
         return;
@@ -1287,34 +1307,153 @@
     // ==========================================
     // PIN DEL DUEÑO
     // ==========================================
+    // El PIN solo ya no abre el panel: el servidor da una sesión (12 h) si este celular es del dueño (lo activó o ya se
+    // verificó). En un celular nuevo pide además el código que llega por Telegram, el de la tarjeta de la placa o uno de
+    // soporte. Un PIN fácil de adivinar se cambia antes de entrar. En el navegador solo quedan tokens, nunca el PIN.
+    let accesoPendiente = null;   // { acceso, telegram, tarjeta } mientras se espera la 2.ª prueba
+    let sesionPendiente = null;   // sesión con PIN fácil: solo sirve para cambiarlo
+    const MSG_PIN_FACIL = 'Ese PIN es muy fácil de adivinar (como 1234, 0000, un año o los últimos 4 dígitos de tu teléfono). Elige otro.';
+    function pinFacil(p, ...tels) {   // mismas reglas que el servidor (pin_es_debil), solo para avisar antes
+      if (!/^[0-9]{4}$/.test(p)) return true;
+      if (/^(\d\d)\1$/.test(p) || /^(\d)\1(\d)\2$/.test(p) || /^(\d)(\d)\2\1$/.test(p) || /^(19|20)\d\d$/.test(p)) return true;
+      if ('01234567890'.includes(p) || '09876543210'.includes(p)) return true;
+      if (['2580','0852','1357','2468','1470','0741','3690','0963','1478','8741','3214','1236','1004','6969','1590'].includes(p)) return true;
+      return tels.some(t => { const d = soloDigitos(t); return d.length >= 4 && d.slice(-4) === p; });
+    }
+    function etiquetaDispositivo() {   // «Chrome · Android»: lo ve el dueño en el aviso de Telegram y en su lista de dispositivos
+      const u = navigator.userAgent || '';
+      const so = /Android/i.test(u) ? 'Android' : /iPhone|iPad|iPod/i.test(u) ? 'iPhone' : /Windows/i.test(u) ? 'Windows' : /Mac OS/i.test(u) ? 'Mac' : /Linux/i.test(u) ? 'Linux' : 'Otro';
+      const nav = /Edg\//.test(u) ? 'Edge' : /OPR\/|Opera/.test(u) ? 'Opera' : /SamsungBrowser/.test(u) ? 'Samsung Internet'
+        : /Firefox|FxiOS/.test(u) ? 'Firefox' : /Chrome|CriOS/.test(u) ? 'Chrome' : /Safari/.test(u) ? 'Safari' : 'Navegador';
+      return `${nav} · ${so}`;
+    }
+    function mensajePIN(t) { const p = $('pin-msg'); p.textContent = t || ''; p.classList.toggle('hidden', !t); }
+    function pasoPIN(n, titulo, texto, ico) {
+      ['pin-paso1', 'pin-paso2', 'pin-paso3'].forEach((id, i) => $(id).classList.toggle('hidden', i !== n - 1));
+      $('pin-titulo').textContent = titulo;
+      $('pin-texto').textContent = texto;
+      $('pin-ico').className = 'fa-solid ' + ico;
+      mensajePIN('');
+    }
+    function pasoInicialPIN(msg) {
+      accesoPendiente = null; sesionPendiente = null;
+      pasoPIN(1, 'PIN del dueño', destinoPIN === '#canal' ? 'Ingresa tus 4 dígitos para publicar el aviso.' : 'Ingresa tus 4 dígitos para editar.', 'fa-key');
+      $('modal-pin-input').value = '';
+      if (msg) mensajePIN(msg);
+      $('modal-pin-input').focus();
+    }
+
     function abrirModalPIN(destino = '') {
       destinoPIN = destino;
-      $('pin-titulo').nextElementSibling.textContent = destino === '#canal'
-        ? 'Ingresa tus 4 dígitos para publicar el aviso.' : 'Ingresa tus 4 dígitos para editar.';
       cerrarModalMedico();
       $('pin-modal').classList.remove('hidden');
-      $('modal-pin-input').value = '';
-      $('modal-pin-input').focus();
+      pasoInicialPIN();
     }
 
     function cerrarModalPIN() {
       $('pin-modal').classList.add('hidden');
       destinoPIN = '';
+      accesoPendiente = null; sesionPendiente = null;
     }
 
     async function validarPINModal() {
       const input = $('modal-pin-input').value.trim();
       if (!petData) return;
-      const { data: estado, error } = await db.rpc('verificar_pin', { p_id: tagId, p_pin: input });
-      if (error) { alert("❌ No se pudo verificar el PIN. Intenta de nuevo."); return; }
-      if (estado === 'ok') {
-        sessionStorage.setItem(`pin_${tagId}`, input);
-        localStorage.setItem(`dueno_${tagId}`, '1'); // este dispositivo es del dueño: sin avisos ni permisos de ubicación
-        if (destinoPIN === '#canal') { cerrarModalPIN(); publicarCanal(); return; }   // vuelve a «Publicar en el canal»
-        window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destinoPIN}`;
-      } else if (estado === 'bloqueado') {
-        alert("⏳ Demasiados intentos. Espera 15 minutos o recupera tu PIN por Telegram.");
-      } else { alert("❌ PIN Incorrecto."); }
+      const disp = leerAlmacen('localStorage', `disp_${tagId}`);
+      const { data: r, error } = await db.rpc('entrar', { p_id: tagId, p_pin: input, p_disp: disp, p_etiqueta: etiquetaDispositivo() });
+      if (error || !r) { alert("❌ No se pudo verificar el PIN. Intenta de nuevo."); return; }
+      if (r.dispositivo_invalido) { try { localStorage.removeItem(`disp_${tagId}`); } catch (e) {} }   // le quitaron el acceso a este celular
+      if (r.estado === 'ok') return entradaLista(r.sesion, r.pin_debil);
+      if (r.estado === 'verificar') { accesoPendiente = r; return mostrarPasoCodigo(); }
+      if (r.estado === 'bloqueado') alert("⏳ Demasiados intentos. Espera 15 minutos o recupera tu PIN por Telegram.");
+      else if (r.estado === 'limite') alert("⏳ Demasiados accesos desde celulares nuevos por hoy. Inténtalo más tarde o escríbenos por WhatsApp.");
+      else alert("❌ PIN Incorrecto.");
+    }
+
+    function mostrarPasoCodigo() {
+      const a = accesoPendiente;
+      const texto = a.telegram && a.tarjeta
+        ? 'Este celular aún no está registrado como tuyo. Escribe el código que te enviamos por Telegram o el código de activación de la tarjeta de tu placa.'
+        : a.telegram
+          ? 'Este celular aún no está registrado como tuyo. Escribe el código de 6 dígitos que te enviamos por Telegram.'
+          : a.tarjeta
+            ? 'Este celular aún no está registrado como tuyo. Escribe el código de activación de la tarjeta de tu placa (ej. NAF3-NU2K).'
+            : 'Este celular aún no está registrado como tuyo. Escríbenos por WhatsApp y te daremos un código para confirmar que eres el dueño.';
+      pasoPIN(2, 'Confirma que eres el dueño', texto, 'fa-shield-halved');
+      $('btn-reenviar').classList.toggle('hidden', !a.telegram);
+      $('modal-codigo-input').value = '';
+      $('modal-codigo-input').focus();
+    }
+
+    let verificandoCodigo = false;
+    async function verificarCodigoModal() {
+      if (!accesoPendiente || verificandoCodigo) return;
+      const c = $('modal-codigo-input').value.trim();
+      if (!c) { mensajePIN('Escribe el código.'); return; }
+      verificandoCodigo = true;
+      let r = null;
+      try { const { data } = await db.rpc('verificar_acceso', { p_acceso: accesoPendiente.acceso, p_codigo: c, p_etiqueta: etiquetaDispositivo() }); r = data; } catch (e) {}
+      verificandoCodigo = false;
+      if (!r) { mensajePIN('No se pudo verificar. Revisa tu conexión e inténtalo de nuevo.'); return; }
+      if (r.estado === 'ok') {
+        try { localStorage.setItem(`disp_${tagId}`, r.dispositivo); } catch (e) {}   // desde ahora este celular es del dueño
+        accesoPendiente = null;
+        return entradaLista(r.sesion, r.pin_debil);
+      }
+      if (r.estado === 'incorrecto' && r.quedan > 0) {
+        mensajePIN(`Código incorrecto. Te queda${r.quedan === 1 ? '' : 'n'} ${r.quedan} intento${r.quedan === 1 ? '' : 's'}.`);
+        return;
+      }
+      pasoInicialPIN(r.estado === 'incorrecto' ? 'Código incorrecto. Vuelve a poner tu PIN para pedir otro.' : 'El código venció. Vuelve a poner tu PIN.');
+    }
+
+    async function reenviarCodigo() {
+      if (!accesoPendiente) return;
+      let r = null;
+      try { const { data } = await db.rpc('acceso_reenviar', { p_acceso: accesoPendiente.acceso }); r = data; } catch (e) {}
+      const estado = r && r.estado;
+      if (estado === 'ok') mensajePIN('📲 Te enviamos otro código por Telegram.');
+      else if (estado === 'espera') mensajePIN(`Espera ${r.segundos} s para pedir otro código.`);
+      else if (estado === 'limite') mensajePIN('Ya te enviamos 3 códigos: usa el último que te llegó.');
+      else if (estado === 'sin_telegram') { $('btn-reenviar').classList.add('hidden'); mensajePIN('Esta mascota ya no tiene Telegram vinculado.'); }
+      else if (estado === 'vencido') pasoInicialPIN('El código venció. Vuelve a poner tu PIN.');
+      else mensajePIN('No se pudo reenviar. Revisa tu conexión.');
+    }
+
+    function entradaLista(sesion, debil) {
+      if (debil) {
+        sesionPendiente = sesion;
+        pasoPIN(3, 'Cambia tu PIN', 'Tu PIN es muy fácil de adivinar (como 1234, 0000, un año o los últimos dígitos de tu teléfono). Elige uno nuevo para continuar.', 'fa-key');
+        $('pin-nuevo1').value = ''; $('pin-nuevo2').value = '';
+        $('pin-nuevo1').focus();
+        return;
+      }
+      finalizarEntrada(sesion);
+    }
+
+    function finalizarEntrada(sesion) {
+      try {
+        sessionStorage.setItem(`pin_${tagId}`, sesion);   // la sesión (no el PIN)
+        localStorage.setItem(`dueno_${tagId}`, '1');      // este dispositivo es del dueño: sin avisos ni permisos de ubicación
+      } catch (e) {}
+      const destino = destinoPIN;
+      if (destino === '#canal') { cerrarModalPIN(); publicarCanal(); return; }   // vuelve a «Publicar en el canal»
+      window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destino}`;
+    }
+
+    async function cambiarPinDebil() {
+      if (!sesionPendiente) return;
+      const p1 = $('pin-nuevo1').value.trim(), p2 = $('pin-nuevo2').value.trim();
+      if (!/^[0-9]{4}$/.test(p1)) { mensajePIN('El PIN debe tener 4 números.'); return; }
+      if (p1 !== p2) { mensajePIN('Los PIN no coinciden.'); return; }
+      if (pinFacil(p1, petData.phone, petData.phone_secondary)) { mensajePIN(MSG_PIN_FACIL); return; }
+      let r = null;
+      try { const { data } = await db.rpc('cambiar_pin', { p_id: tagId, p_sesion: sesionPendiente, p_nuevo: p1 }); r = data; } catch (e) {}
+      const estado = r && r.estado;
+      if (estado === 'ok') { const s = sesionPendiente; sesionPendiente = null; finalizarEntrada(s); return; }
+      if (estado === 'pin_debil') { mensajePIN(MSG_PIN_FACIL); return; }
+      if (estado === 'incorrecto') { pasoInicialPIN('Tu sesión venció. Vuelve a poner tu PIN.'); return; }
+      mensajePIN('No se pudo guardar el PIN. Revisa tu conexión e inténtalo de nuevo.');
     }
 
     function abrirFotoGrande() {

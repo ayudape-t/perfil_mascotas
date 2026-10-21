@@ -32,7 +32,8 @@
       <section id="paso-ok" class="hidden text-center space-y-3">
         <i class="fa-solid fa-circle-check text-emerald-500 text-4xl"></i>
         <p class="text-sm font-bold text-slate-800">PIN actualizado para <span id="pet-nombre"></span></p>
-        <p class="text-xs text-slate-500">Ya puedes entrar al panel con tu nuevo PIN.</p>
+        <p class="text-xs text-slate-500">Este celular quedó como tuyo. Por seguridad, quitamos el acceso a los demás.</p>
+        <a id="ir-panel" href="#" class="block w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg">Ir al panel</a>
       </section>
 
       <p id="msg" class="hidden text-center text-xs font-bold rounded-xl p-2.5 bg-rose-100 text-rose-800"></p>
@@ -47,6 +48,15 @@
     const token = new URLSearchParams(location.search).get('t') || '';
     const $ = id => document.getElementById(id);
 
+    // Mismas reglas que el servidor (pin_es_debil); los 4 últimos del teléfono los revisa el servidor
+    const MSG_PIN_FACIL = 'Ese PIN es muy fácil de adivinar (como 1234, 0000, un año o los últimos 4 dígitos de tu teléfono). Elige otro.';
+    function pinFacil(p) {
+      if (!/^[0-9]{4}$/.test(p)) return true;
+      if (/^(\d\d)\1$/.test(p) || /^(\d)\1(\d)\2$/.test(p) || /^(\d)(\d)\2\1$/.test(p) || /^(19|20)\d\d$/.test(p)) return true;
+      if ('01234567890'.includes(p) || '09876543210'.includes(p)) return true;
+      return ['2580','0852','1357','2468','1470','0741','3690','0963','1478','8741','3214','1236','1004','6969','1590'].includes(p);
+    }
+
     function error(texto) {
       const el = $('msg');
       el.textContent = texto;
@@ -60,6 +70,7 @@
       const p1 = $('pin1').value.trim(), p2 = $('pin2').value.trim();
       if (!/^[0-9]{4}$/.test(p1)) return error('El PIN debe tener 4 números.');
       if (p1 !== p2) return error('Los PIN no coinciden.');
+      if (pinFacil(p1)) return error(MSG_PIN_FACIL);
 
       $('btn').disabled = true;
       const { data, error: err } = await sb.rpc('canjear_token_pin', { p_token: token, p_nuevo_pin: p1 });
@@ -69,8 +80,17 @@
       if (data.estado === 'token_invalido') {
         return error('El enlace venció o ya fue usado. Escribe /recuperar al bot para recibir uno nuevo.');
       }
+      if (data.estado === 'pin_debil') return error(MSG_PIN_FACIL);
       if (data.estado !== 'ok') return error('No se pudo cambiar el PIN.');
 
+      // El enlace llegó al Telegram del dueño: este celular queda como suyo y entra directo
+      try {
+        if (data.id && data.dispositivo) localStorage.setItem(`disp_${data.id}`, data.dispositivo);
+        if (data.id && data.sesion) sessionStorage.setItem(`pin_${data.id}`, data.sesion);
+        if (data.id) localStorage.setItem(`dueno_${data.id}`, '1');
+      } catch (e) {}
+      if (data.id) $('ir-panel').href = `registro.html?id=${encodeURIComponent(data.id)}`;
+      else $('ir-panel').classList.add('hidden');
       $('pet-nombre').textContent = data.pet || '';
       $('paso-form').classList.add('hidden');
       $('paso-ok').classList.remove('hidden');
