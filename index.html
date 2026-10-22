@@ -250,6 +250,11 @@
     #pet-name .letra { display: inline-block; }
     #pet-name.ola .letra { animation: saltito .55s cubic-bezier(.3,.7,.4,1.4) both; animation-delay: calc(var(--n, 0) * 45ms); }
     #sub-status { margin: 5px 0 0; padding: 0 18px; text-align: center; font-size: 13px; font-weight: 500; letter-spacing: .01em; line-height: 1.3; color: var(--oxido); text-wrap: balance; animation: subir .5s .3s cubic-bezier(.2,.8,.2,1) both; }
+    /* Aviso para el dueño: una cinta con puntadas, como un bordado; el ojo parpadea al aparecer */
+    @keyframes parpadeo { 0%, 100% { transform: none; } 45%, 55% { transform: scaleY(.1); } }
+    .aviso-dueno { display: flex; align-items: center; justify-content: center; gap: 6px; width: max-content; max-width: calc(100% - 36px); margin: 10px auto 0; padding: 5px 12px; border-radius: 999px; border: 1.5px dashed #d9a35a; background: #fff8ea; font-size: 11.5px; font-weight: 500; line-height: 1.25; color: var(--cafe); text-align: center; animation: subir .5s .55s cubic-bezier(.2,.8,.2,1) both; }
+    .aviso-dueno i { flex: none; color: var(--oxido); animation: parpadeo .5s 1.3s ease-in-out 2; }
+    #cuidados-nota { text-align: left; font-size: 11.5px; }
     #sub-status.perdida { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #dc2626; animation: pulso 1.6s ease-in-out infinite; }
 
     .cuerpo { padding: 12px 12px 12px; display: grid; gap: 9px; }
@@ -533,6 +538,8 @@
 
     <h1 id="pet-name"></h1>
     <p id="sub-status">Mascota feliz y amada 🐾</p>
+    <!-- Solo en el celular del dueño: recuerda que esta es la vista de quien escanea la placa -->
+    <p id="aviso-dueno" class="aviso-dueno hidden"><i class="fa-regular fa-eye"></i> <span></span></p>
 
     <div class="cuerpo">
 
@@ -603,14 +610,15 @@
         </div>
       </section>
 
-      <!-- 5. Ficha médica básica (se oculta en modo perdido) -->
+      <!-- 5. Ficha médica básica. En modo perdido quedan solo los cuidados (alergias, medicación, alimentación) para quien la tenga mientras vuelve -->
       <section id="medical-card" class="card hidden">
         <div class="card-h">
           <span class="ico rose"><i class="fa-solid fa-kit-medical"></i></span>
-          <h2>Ficha médica</h2>
-          <span class="pill req">Importante</span>
+          <h2 id="medical-titulo">Ficha médica</h2>
+          <span id="medical-pill" class="pill req">Importante</span>
         </div>
         <div class="card-b">
+          <p id="cuidados-nota" class="hint hidden"><i class="fa-solid fa-hand-holding-heart"></i>Si está contigo mientras vuelve a casa, ten esto en cuenta:</p>
           <div id="row-allergies" class="med hidden"><span class="em">⚠️</span><div><small>Alergias</small><p id="txt-allergies"></p></div></div>
           <div id="row-medical" class="med hidden"><span class="em">💊</span><div><small>Cuidados / medicación</small><p id="txt-medical"></p></div></div>
           <div id="row-diet" class="med hidden"><span class="em">🍖</span><div><small>Alimentación</small><p id="txt-diet"></p></div></div>
@@ -649,7 +657,7 @@
       </section>
 
       <!-- 6. Acceso del dueño -->
-      <button type="button" class="dueno" onclick="abrirModalPIN()"><i class="fa-solid fa-lock"></i> ¿Eres el dueño? Editar datos</button>
+      <button id="btn-dueno" type="button" class="dueno" onclick="abrirModalPIN()"><i class="fa-solid fa-lock"></i> <span>¿Eres el dueño? Editar datos</span></button>
     </div>
   </main>
 
@@ -1078,10 +1086,36 @@
         if (!data.is_lost && !desdeCanal) avisarEscaneo();
         ponerNombre((data.pet || '').toUpperCase());
         $('owner-name').textContent = data.owner || '';
+        if (esDueno()) {   // el dueño ve lo mismo que un visitante: se lo recordamos y su botón dice qué hace
+          $('aviso-dueno').querySelector('span').textContent = `Así ven a ${data.pet || 'tu mascota'} quienes escanean su placa`;
+          $('aviso-dueno').classList.remove('hidden');
+          $('btn-dueno').querySelector('span').textContent = `Editar datos de ${data.pet || 'tu mascota'}`;
+        }
         $('pet-photo').src = data.photo || FOTO_VACIA;
         $('pet-photo').alt = data.pet ? `Foto de ${data.pet}` : 'Foto de la mascota';
 
         const isLost = data.is_lost || false;
+
+        // Ficha médica básica. Con la mascota perdida quedan solo los cuidados (alergias, medicación, alimentación):
+        // quien la tenga mientras vuelve a casa necesita saberlos. La veterinaria solo se muestra con la mascota en casa.
+        let tieneMedicos = false;
+        [['row-allergies', 'txt-allergies', data.allergies], ['row-medical', 'txt-medical', data.medical_notes], ['row-diet', 'txt-diet', data.diet]].forEach(([fila, txt, valor]) => {
+          const texto = String(valor ?? '').trim();
+          $(fila).classList.toggle('hidden', !texto);
+          $(txt).textContent = texto;
+          if (texto) tieneMedicos = true;
+        });
+        const telVet = isLost ? '' : soloDigitos(data.vet_phone);
+        $('row-vet').classList.toggle('hidden', !telVet);
+        if (telVet) {
+          $('btn-vet-call').href = `tel:+${telVet}`;
+          if (data.vet_name) $('txt-vet-name').textContent = `Llamar a ${data.vet_name}`;
+          tieneMedicos = true;
+        }
+        $('medical-titulo').textContent = isLost ? 'Cuidados importantes' : 'Ficha médica';
+        $('medical-pill').classList.toggle('hidden', isLost);
+        $('cuidados-nota').classList.toggle('hidden', !isLost);
+        $('medical-card').classList.toggle('hidden', !tieneMedicos);
 
         // Contacto (visible en ambos modos)
         $('btn-whatsapp').href = `https://wa.me/${petData.phone}?text=${encodeURIComponent(`¡Hola ${data.owner}! Encontré a tu mascota ${data.pet}.`)}`;
@@ -1097,8 +1131,8 @@
         const indicator = $('status-indicator');
 
         if (isLost) {
-          // 🔴 MODO PERDIDO: contacto + ubicación + compartir (+ afiche, solo para el dueño)
-          ['pet-tech-sheet', 'health-zone', 'btn-medical-history', 'health-card', 'medical-card']
+          // 🔴 MODO PERDIDO: contacto + ubicación + compartir + cuidados (+ afiche, solo para el dueño)
+          ['pet-tech-sheet', 'health-zone', 'btn-medical-history', 'health-card']
             .forEach(id => $(id).classList.add('hidden'));
 
           $('btn-gps').classList.remove('hidden');
@@ -1148,20 +1182,6 @@
             tieneControl = true;
           });
           if (tieneControl) $('health-card').classList.remove('hidden');
-
-          // Ficha médica básica
-          let tieneMedicos = false;
-          if (data.allergies) { $('row-allergies').classList.remove('hidden'); $('txt-allergies').textContent = data.allergies; tieneMedicos = true; }
-          if (data.medical_notes) { $('row-medical').classList.remove('hidden'); $('txt-medical').textContent = data.medical_notes; tieneMedicos = true; }
-          if (data.diet) { $('row-diet').classList.remove('hidden'); $('txt-diet').textContent = data.diet; tieneMedicos = true; }
-          const telVet = soloDigitos(data.vet_phone);
-          if (telVet) {
-            $('row-vet').classList.remove('hidden');
-            $('btn-vet-call').href = `tel:+${telVet}`;
-            if (data.vet_name) $('txt-vet-name').textContent = `Llamar a ${data.vet_name}`;
-            tieneMedicos = true;
-          }
-          if (tieneMedicos) $('medical-card').classList.remove('hidden');
 
           badge.className = 'sello';
           badge.innerHTML = `<i class="fa-solid fa-paw"></i> Perfil y ficha médica`;
