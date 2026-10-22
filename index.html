@@ -104,6 +104,16 @@
     @keyframes sacudir { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
     @keyframes brincar { 0%, 100% { transform: none; } 40% { transform: translateY(-4px) rotate(-8deg); } 70% { transform: rotate(6deg); } }
     @keyframes brillo { from { transform: translateX(-120%) skewX(-20deg); } 60%, to { transform: translateX(260%) skewX(-20deg); } }
+    @keyframes revelar { from { opacity: 0; transform: translateY(22px) scale(.98); } }
+    @keyframes saltito { 0%, 100% { transform: none; } 40% { transform: translateY(-9px) rotate(-5deg); } 70% { transform: translateY(2px); } }
+    @keyframes pop { 0%, 100% { transform: none; } 50% { transform: scale(1.35); } }
+    @keyframes timbre { 0%, 100% { transform: none; } 15%, 45%, 75% { transform: rotate(-18deg); } 30%, 60%, 90% { transform: rotate(18deg); } }
+    @keyframes guino { 0%, 100% { transform: none; } 40% { transform: scale(1.3) rotate(-14deg); } 70% { transform: scale(.94) rotate(6deg); } }
+    @keyframes megafono { 0%, 100% { transform: none; } 20%, 60% { transform: rotate(-14deg) scale(1.15); } 40%, 80% { transform: rotate(10deg) scale(1.15); } }
+    @keyframes caer { 0% { transform: translateY(-7px); opacity: 0; } 60% { transform: translateY(2px); opacity: 1; } 100% { transform: none; } }
+    @keyframes puntito { 0% { transform: scale(.3); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+    @keyframes halo { 0% { box-shadow: 0 8px 16px -6px rgba(3,105,161,.75), 0 0 0 0 rgba(56,189,248,.6); } 70%, 100% { box-shadow: 0 8px 16px -6px rgba(3,105,161,.75), 0 0 0 10px rgba(56,189,248,0); } }
+    @keyframes estampa { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--r)) scale(1.8); } 15% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--r)) scale(.9); } 25% { transform: translate(-50%, -50%) rotate(var(--r)) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--r)) scale(1); } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
     /* Cargando: huella dentro de un anillo tejido que gira */
@@ -139,11 +149,29 @@
     .fld:focus { border-color: #e08a2c; box-shadow: 0 0 0 3px rgba(224,138,44,.2); background: #fff; }
     .fld.center { text-align: center; font-family: ui-monospace, monospace; font-weight: 700; font-size: 24px; letter-spacing: .3em; }
     .fld.mal { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225,29,72,.15); animation: sacudir .4s; }
+    /* PIN: el texto del campo no se ve; encima, cuatro puntos que se llenan, se ponen rojos (error) o verdes (entró) */
+    .pin-caja { position: relative; }
+    .pin-caja .fld { color: transparent; caret-color: transparent; }
+    .pin-caja .fld::placeholder { color: transparent; }
+    .pin-caja.mal { animation: sacudir .4s; }
+    .pin-caja.mal .fld { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225,29,72,.15); }
+    .pin-puntos { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 16px; pointer-events: none; }
+    .pin-puntos span { width: 15px; height: 15px; border-radius: 50%; border: 2px solid #e2cfae; transition: background .15s, border-color .15s; }
+    .pin-puntos span.lleno { background: var(--oxido); border-color: var(--oxido); animation: puntito .3s cubic-bezier(.2,.8,.2,1); }
+    .pin-caja.mal .pin-puntos span { background: #e11d48; border-color: #e11d48; }
+    .pin-caja.bien .fld { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.18); }
+    .pin-caja.bien .pin-puntos span { background: #10b981; border-color: #10b981; animation: puntito .35s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--n, 0) * 70ms); }
 
     /* Botones (con onda al tocar: ver «INTERACCIÓN» en el script) */
     .btn { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 10px 12px; border: 0; border-radius: 14px; font: 600 14px/1.15 'Fredoka', system-ui, sans-serif; text-align: center; color: #fff; cursor: pointer; transition: transform .12s, filter .15s; }
     .btn::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: currentColor; opacity: 0; pointer-events: none; }
     .btn.onda::after { animation: onda .6s ease-out; }
+    /* Cada ícono reacciona a su manera al tocarlo: el teléfono suena, WhatsApp guiña, el megáfono grita... */
+    .btn.onda i:not(.fa-spin) { animation: pop .4s ease-out; }
+    .btn-call.onda i:not(.fa-spin), .btn-vet.onda i:not(.fa-spin), #btn-call-secondary.onda i:not(.fa-spin) { animation: timbre .6s ease-in-out; }
+    .btn-wa.onda i:not(.fa-spin) { animation: guino .5s ease-out; }
+    .btn-afiche.onda i:not(.fa-spin) { animation: megafono .6s ease-in-out; }
+    #btn-carnet.onda i:not(.fa-spin), .btn-gps.onda i:not(.fa-spin) { animation: caer .45s ease-out; }
     .btn:active { transform: scale(.98); }
     .btn:disabled { opacity: .65; }
     .btn:focus-visible, .dueno:focus-visible, .x:focus-visible { outline: 3px solid rgba(224,138,44,.6); outline-offset: 2px; }
@@ -152,6 +180,7 @@
     .btn-wa { background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 6px 14px -6px rgba(5,150,105,.75); }
     .btn-call { background: linear-gradient(135deg, #60a5fa, #1d4ed8); box-shadow: 0 6px 14px -6px rgba(29,78,216,.7); }
     .btn-gps { padding: 12px; font-size: 14.5px; background: linear-gradient(135deg, #38bdf8, #0369a1); box-shadow: 0 8px 16px -6px rgba(3,105,161,.75); }
+    #btn-gps:not(:disabled) { animation: halo 2s ease-out infinite; }   /* «¡La encontré!» llama la atención con un halo */
     .btn-ambar { background: linear-gradient(135deg, #f59e0b, #c2410c); box-shadow: 0 6px 14px -6px rgba(194,65,12,.7); }
     .btn-line { background: #fff; color: var(--cafe); border: 1.5px solid #e6d9c4; }
     .btn-line i { color: #6366f1; }
@@ -159,6 +188,8 @@
     .btn-afiche i { color: #e11d48; }
     .btn-share { background: #fff; color: var(--cafe); border: 1.5px solid #e6d9c4; font-size: 13px; }
     .btn-share i { color: var(--oxido); }
+    .btn-share.hecho { color: #047857; border-color: #6ee7b7; background: #ecfdf5; }
+    .btn-share.hecho i { color: #059669; animation: pop .4s ease-out; }
     .btn-vet { background: #fff; color: #be123c; border: 1.5px solid #fda4af; padding: 8px 12px; font-size: 13px; }
     .btn-vet i { color: #e11d48; }
     .btn-mini { flex: none; width: auto; padding: 8px 12px; font-size: 12.5px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #0369a1); box-shadow: 0 6px 12px -6px rgba(3,105,161,.7); }
@@ -205,17 +236,27 @@
     .punto.perdida { background: #dc2626; animation: ping 1.4s cubic-bezier(0,0,.2,1) infinite; }
 
     #pet-name { margin: 10px 0 0; padding: 0 14px; text-align: center; font-family: 'DynaPuff', 'Fredoka', cursive; font-weight: 800; font-size: 30px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; color: var(--cafe); text-shadow: 0 2px 0 #fff, 0 4px 0 var(--arena), 0 7px 10px rgba(59,36,32,.22); overflow-wrap: anywhere; text-wrap: balance; animation: subir .5s .25s cubic-bezier(.2,.8,.2,1) both; }
+    /* Cada letra del nombre es un «saltito»: ondean al cargar y al tocar el nombre */
+    #pet-name { cursor: pointer; -webkit-user-select: none; user-select: none; }
+    #pet-name .palabra { display: inline-block; white-space: nowrap; }
+    #pet-name .letra { display: inline-block; }
+    #pet-name.ola .letra { animation: saltito .55s cubic-bezier(.3,.7,.4,1.4) both; animation-delay: calc(var(--n, 0) * 45ms); }
     #sub-status { margin: 5px 0 0; padding: 0 18px; text-align: center; font-size: 13px; font-weight: 500; letter-spacing: .01em; line-height: 1.3; color: var(--oxido); text-wrap: balance; animation: subir .5s .3s cubic-bezier(.2,.8,.2,1) both; }
     #sub-status.perdida { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #dc2626; animation: pulso 1.6s ease-in-out infinite; }
 
     .cuerpo { padding: 12px 12px 12px; display: grid; gap: 9px; }
     /* Las piezas entran una tras otra (--i lo pone mostrarPerfil). El carnet no: se captura como imagen */
     .cuerpo > :not(.carnet) { animation: subir .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.32s + var(--i, 0) * 70ms); }
+    /* Con el script: cada pieza aparece cuando entra en la pantalla al bajar (ver revelarAlBajar) */
+    .cuerpo.revela > :not(.carnet) { animation: none; }
+    .cuerpo.revela > :not(.carnet):not(.visto) { opacity: 0; transform: translateY(22px) scale(.98); }
+    .cuerpo.revela > .visto { animation: revelar .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--d, 0) * 90ms); }
 
     /* Ficha técnica 2×2 */
     .datos { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
     .dato { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 7px 9px; background: #fff; border: 1px solid var(--arena); border-radius: 16px; box-shadow: 0 1px 0 rgba(59,36,32,.04), 0 8px 16px -14px rgba(59,36,32,.5); transition: transform .18s, box-shadow .18s; }
     .dato .ico { width: 28px; height: 28px; border-radius: 9px; font-size: 12px; }
+    .dato:active { transform: scale(.97); }
     .dato:active .ico { animation: brincar .45s; }
     @media (hover: hover) { .dato:hover { transform: translateY(-2px); box-shadow: 0 1px 0 rgba(59,36,32,.04), 0 12px 20px -12px rgba(59,36,32,.45); } .dato:hover .ico { animation: brincar .45s; } }
     .dato > div { min-width: 0; }
@@ -299,6 +340,11 @@
     .dock.ver { transform: translate(-50%, 0); }
 
     /* ---------- Aviso breve (reemplaza a los alert) ---------- */
+    /* Huellitas: se estampan al tocar un espacio vacío y salen volando de la foto o del nombre */
+    .huella { position: fixed; z-index: 70; pointer-events: none; font-size: 22px; color: rgba(180,69,43,.45); --r: 0deg; animation: estampa 1.3s ease-out forwards; }
+    .huella.clara { color: rgba(248,237,209,.5); }
+    .huella.vuela { animation: none; filter: drop-shadow(0 1px 1px rgba(255,253,248,.9)) drop-shadow(0 3px 4px rgba(59,36,32,.3)); }
+
     .toast { position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); z-index: 60; width: max-content; max-width: min(340px, calc(100% - 32px)); padding: 11px 16px 11px 14px; display: flex; align-items: center; gap: 9px; border-radius: 16px; font-size: 13.5px; font-weight: 500; line-height: 1.3; color: var(--crema); background: #2b1a12; border: 1px solid rgba(224,162,74,.45); box-shadow: 0 16px 34px -10px rgba(0,0,0,.7); opacity: 0; pointer-events: none; transform: translate(-50%, 16px); transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
     .toast.ver { opacity: 1; transform: translate(-50%, 0); }
     .toast i { flex: none; font-size: 17px; color: var(--ocre); }
@@ -326,6 +372,9 @@
     .hoja-h h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--cafe); line-height: 1.15; }
     .hoja-h .btn { width: auto; padding: 7px 12px; font-size: 12.5px; border-radius: 12px; }
     .hoja-h .x { position: static; flex: none; }
+    .hoja-h { position: relative; touch-action: none; cursor: grab; }   /* se arrastra hacia abajo para cerrar */
+    .asa { position: absolute; left: 50%; top: 4px; width: 38px; height: 4px; margin-left: -19px; border-radius: 4px; background: #e2d3bd; }
+    @media (min-width: 640px) { .asa { display: none; } }
     #modal-medical-list { flex: 1; overflow-y: auto; padding: 12px 14px; display: grid; gap: 8px; align-content: start; }
     .hoja-vet { margin: 0 14px 12px; }
     .hoja-nota { margin: 0; padding: 8px 14px 10px; border-top: 1px solid #f3eadb; font-size: 10.5px; color: #a09182; }
@@ -345,9 +394,9 @@
     .lista-vacia b { display: block; font-weight: 600; color: var(--cafe); }
 
     #photo-modal { background: rgba(0,0,0,.9); cursor: zoom-out; }
-    .foto-grande { position: relative; width: 100%; max-width: 384px; text-align: center; cursor: default; animation: foto-pop .4s cubic-bezier(.2,.8,.2,1) both; }
-    .foto-grande .x { top: -42px; right: 0; width: 38px; height: 38px; background: rgba(40,28,24,.85); color: #fff; font-size: 18px; }
-    .foto-grande img { display: block; width: 100%; max-height: 80vh; object-fit: contain; border-radius: 24px; border: 2px solid rgba(255,255,255,.2); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
+    .foto-grande { position: relative; width: 100%; max-width: 384px; text-align: center; cursor: default; }
+    .foto-grande .x { top: -42px; right: 0; width: 38px; height: 38px; background: rgba(40,28,24,.85); color: #fff; font-size: 18px; animation: velo .3s .25s both; }
+    .foto-grande img { display: block; width: 100%; max-height: 80vh; object-fit: contain; border-radius: 24px; border: 2px solid rgba(255,255,255,.2); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); will-change: transform; }   /* crece desde la foto de la tarjeta (zoomFoto) */
 
     /* ---------- Afiche «¡SE BUSCA!» (se exporta como imagen: solo CSS simple) ---------- */
     #afiche-modal { flex-direction: column; justify-content: flex-start; overflow-y: auto; background: rgba(20,10,6,.92); }
@@ -481,7 +530,7 @@
       <!-- 3. Difusión -->
       <div class="fila">
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="btn btn-afiche hidden"><i class="fa-solid fa-bullhorn"></i> Crear afiche</button>
-        <button id="btn-share-profile" type="button" onclick="compartirPerfil()" class="btn btn-share"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+        <button id="btn-share-profile" type="button" onclick="compartirPerfil()" class="btn btn-share"><i class="fa-solid fa-share-nodes"></i> <span>Compartir</span></button>
       </div>
 
       <!-- 3b. Canal de avisos: SOLO el dueño y con la mascota perdida -->
@@ -594,8 +643,11 @@
       </div>
       <!-- Paso 1: PIN -->
       <div id="pin-paso1" class="paso">
-        <!-- Con el 4.º dígito entra solo -->
-        <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" pattern="[0-9]{4}" class="fld center" onkeydown="if (event.key === 'Enter') validarPINModal()" oninput="this.classList.remove('mal'); if (/^[0-9]{4}$/.test(this.value)) validarPINModal()">
+        <!-- Con el 4.º dígito entra solo. Los puntos muestran cuántos dígitos van -->
+        <div id="pin-caja" class="pin-caja">
+          <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" pattern="[0-9]{4}" aria-label="PIN de 4 dígitos" class="fld center" onkeydown="if (event.key === 'Enter') validarPINModal()" oninput="alEscribirPIN()">
+          <div class="pin-puntos" aria-hidden="true"><span style="--n:0"></span><span style="--n:1"></span><span style="--n:2"></span><span style="--n:3"></span></div>
+        </div>
         <button id="btn-pin" type="button" onclick="validarPINModal()" class="btn btn-ambar">Ingresar</button>
         <a href="https://t.me/Ayudapetbot?start=recuperar" target="_blank" rel="noopener" class="enlace"><i class="fa-brands fa-telegram"></i> ¿Olvidaste tu PIN? Recupéralo por Telegram</a>
       </div>
@@ -673,6 +725,7 @@
   <div id="modal-medico" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="medico-titulo" onclick="if (event.target === this) cerrarModalMedico()">
     <div class="hoja">
       <div class="hoja-h">
+        <span class="asa" aria-hidden="true"></span>
         <span class="ico amber"><i class="fa-solid fa-file-medical"></i></span>
         <div class="ttl"><h3 id="medico-titulo">Historial médico</h3></div>
         <!-- Botón + Registrar (solicita PIN y abre directo el formulario para agregar el registro) -->
@@ -771,6 +824,113 @@
       document.documentElement.classList.toggle('bloqueo', !!document.querySelector('.modal:not(.hidden)'));
     }
 
+    // ==========================================
+    // ANIMACIONES QUE RESPONDEN AL VISITANTE (todas se apagan con «reducir movimiento»)
+    // ==========================================
+    const sinMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const vibrar = patron => { try { if (!sinMovimiento && navigator.vibrate) navigator.vibrate(patron); } catch (e) {} };
+    // Web Animations (el CSS de «reducir movimiento» no las alcanza: por eso se revisa aquí)
+    const animar = (el, cuadros, opciones) => (sinMovimiento || !el.animate) ? null
+      : el.animate(cuadros, { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both', ...opciones });
+
+    // Huellitas que salen volando en abanico desde un elemento (la foto, el nombre)
+    const COLORES_HUELLA = ['#b4452b', '#e0a24a', '#7f9a3e', '#3b2420'];
+    function lanzarHuellas(el, cantidad = 7) {
+      if (sinMovimiento || !el) return;
+      const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      for (let k = 0; k < cantidad; k++) {
+        const h = document.createElement('i');
+        h.className = 'fa-solid fa-paw huella vuela';
+        h.style.cssText = `left:${x}px;top:${y}px;color:${COLORES_HUELLA[k % COLORES_HUELLA.length]};font-size:${18 + Math.random() * 12}px`;
+        document.body.appendChild(h);
+        const ang = (-90 + (k - (cantidad - 1) / 2) * (170 / cantidad)) * Math.PI / 180;
+        const dist = 90 + Math.random() * 60, giro = Math.random() * 90 - 45;
+        const a = animar(h, [
+          { transform: 'translate(-50%, -50%) scale(.3)', opacity: 0, easing: 'cubic-bezier(.2,.8,.2,1)' },
+          { transform: `translate(-50%, -50%) translate(${Math.cos(ang) * dist * .5}px, ${Math.sin(ang) * dist * .5}px) rotate(${giro / 2}deg) scale(1.15)`, opacity: 1, offset: .25 },
+          { transform: `translate(-50%, -50%) translate(${Math.cos(ang) * dist * .85}px, ${Math.sin(ang) * dist * .85 - 10}px) rotate(${giro * .8}deg) scale(1)`, opacity: 1, offset: .6, easing: 'ease-in' },
+          { transform: `translate(-50%, -50%) translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist - 24}px) rotate(${giro}deg) scale(.9)`, opacity: 0 }
+        ], { duration: 1000 + Math.random() * 300, delay: k * 30, easing: 'linear' });   // el ritmo va en cada tramo
+        if (a) a.finished.then(() => h.remove(), () => h.remove()); else h.remove();
+      }
+    }
+
+    // Huellita que se estampa donde se tocó (café sobre la tarjeta, clara sobre el fondo oscuro)
+    function estamparHuella(x, y, clara) {
+      if (sinMovimiento) return;
+      const h = document.createElement('i');
+      h.className = 'fa-solid fa-paw huella' + (clara ? ' clara' : '');
+      h.style.cssText = `left:${x}px;top:${y}px;--r:${Math.round(Math.random() * 60 - 30)}deg`;
+      h.addEventListener('animationend', () => h.remove());
+      document.body.appendChild(h);
+    }
+
+    // El nombre va letra por letra (para la ola), agrupado por palabras: solo se parte entre palabras
+    function ponerNombre(texto) {
+      const h = $('pet-name');
+      h.textContent = '';
+      h.setAttribute('aria-label', texto);
+      const seg = window.Intl && Intl.Segmenter ? new Intl.Segmenter('es', { granularity: 'grapheme' }) : null;
+      let n = 0;
+      texto.split(/(\s+)/).forEach(parte => {
+        if (!parte) return;
+        if (/^\s+$/.test(parte)) { h.append(' '); return; }
+        const palabra = document.createElement('span');
+        palabra.className = 'palabra';
+        palabra.setAttribute('aria-hidden', 'true');
+        (seg ? [...seg.segment(parte)].map(s => s.segment) : [...parte]).forEach(c => {
+          const l = document.createElement('span');
+          l.className = 'letra';
+          l.style.setProperty('--n', n++);
+          l.textContent = c;
+          palabra.append(l);
+        });
+        h.append(palabra);
+      });
+    }
+
+    // Las letras del nombre dan un saltito una tras otra
+    let olaTimer = null;
+    function ola() {
+      const h = $('pet-name');
+      if (sinMovimiento) return;
+      h.classList.remove('ola');
+      void h.offsetWidth;   // reinicia la animación
+      h.classList.add('ola');
+      clearTimeout(olaTimer);
+      olaTimer = setTimeout(() => h.classList.remove('ola'), 600 + h.querySelectorAll('.letra').length * 45);
+    }
+
+    // Las piezas de la ficha aparecen cuando entran en la pantalla al bajar; las que ya se ven, una tras otra
+    function revelarAlBajar() {
+      const cuerpo = document.querySelector('.cuerpo');
+      if (sinMovimiento || !('IntersectionObserver' in window) || cuerpo.classList.contains('revela')) return;
+      cuerpo.classList.add('revela');
+      let primera = true;
+      const io = new IntersectionObserver(entradas => {
+        let d = primera ? 3 : 0;   // la primera tanda espera a que entren la foto y el nombre
+        primera = false;
+        entradas.forEach(e => {
+          if (!e.isIntersecting) return;
+          e.target.style.setProperty('--d', d++);
+          e.target.classList.add('visto');
+          io.unobserve(e.target);
+        });
+      }, { rootMargin: '0px 0px -40px 0px' });
+      cuerpo.querySelectorAll(':scope > :not(.carnet)').forEach(el => io.observe(el));
+    }
+
+    // El botón confirma lo que pasó («¡Copiado!») con un check y vuelve a la normalidad
+    function confirmarBoton(btn, texto) {
+      const i = btn.querySelector('i'), s = btn.querySelector('span');
+      if (!i || !s || btn._antes) return;
+      btn._antes = [i.className, s.textContent];
+      i.className = 'fa-solid fa-check';
+      s.textContent = texto;
+      btn.classList.add('hecho');
+      setTimeout(() => { [i.className, s.textContent] = btn._antes; btn._antes = null; btn.classList.remove('hecho'); }, 1800);
+    }
+
     // Librerías pesadas: se cargan solo cuando se usan
     const LIB_QR = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
     const LIB_H2C = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
@@ -804,6 +964,8 @@
       $('corona-helpet').classList.remove('hidden');
       if (petData && petData.is_lost) $('lost-alert-banner').classList.remove('hidden');
       activarDock();
+      revelarAlBajar();
+      setTimeout(ola, 950);   // el nombre saluda cuando termina de entrar
     }
 
     async function cargarPerfil() {
@@ -838,7 +1000,7 @@
         // Mascota segura: el aviso a Telegram sale al cargar. Perdida: sale al saber si el visitante permite la ubicación
         // (un solo mensaje) y la ficha se muestra DESPUÉS de que el navegador pregunte por ella
         if (!data.is_lost && !desdeCanal) avisarEscaneo();
-        $('pet-name').textContent = (data.pet || '').toUpperCase();
+        ponerNombre((data.pet || '').toUpperCase());
         $('owner-name').textContent = data.owner || '';
         $('pet-photo').src = data.photo || FOTO_VACIA;
         $('pet-photo').alt = data.pet ? `Foto de ${data.pet}` : 'Foto de la mascota';
@@ -1172,11 +1334,11 @@
         url: window.location.href
       };
       if (navigator.share) {
-        try { await navigator.share(shareData); } catch (e) {}
+        try { await navigator.share(shareData); confirmarBoton($('btn-share-profile'), '¡Compartido!'); } catch (e) {}
       } else {
         try {
           await navigator.clipboard.writeText(window.location.href);
-          aviso('¡Enlace del perfil copiado!', 'ok');
+          confirmarBoton($('btn-share-profile'), '¡Enlace copiado!');
         } catch (e) {
           window.prompt("Copia este enlace:", window.location.href);
         }
@@ -1339,7 +1501,11 @@
       if (historial === null) cargarHistorialMedico();
     }
 
-    function cerrarModalMedico() { capa('modal-medico', false); }
+    function cerrarModalMedico() {
+      capa('modal-medico', false);
+      const hoja = document.querySelector('#modal-medico .hoja');
+      hoja.style.animation = hoja.style.transition = hoja.style.transform = '';   // lista para entrar deslizándose otra vez
+    }
 
     // Ícono según el motivo: vacuna, desparasitación o consulta
     function iconoMotivo(motivo) {
@@ -1513,7 +1679,8 @@
       accesoPendiente = null; sesionPendiente = null;
       pasoPIN(1, 'PIN del dueño', destinoPIN === '#canal' ? 'Ingresa tus 4 dígitos para publicar el aviso.' : 'Ingresa tus 4 dígitos para editar.', 'fa-key');
       $('modal-pin-input').value = '';
-      $('modal-pin-input').classList.remove('mal');
+      $('pin-caja').classList.remove('mal', 'bien');
+      pintarPuntos();
       if (msg) mensajePIN(msg);
       $('modal-pin-input').focus();
     }
@@ -1531,14 +1698,32 @@
       accesoPendiente = null; sesionPendiente = null;
     }
 
-    // Error dentro de la ventana: el campo tiembla y se vacía para volver a intentar
-    function errorPIN(texto, limpiar = true) {
+    // Un punto por dígito escrito
+    function pintarPuntos() {
+      const n = $('modal-pin-input').value.length;
+      document.querySelectorAll('#pin-caja .pin-puntos span').forEach((p, k) => p.classList.toggle('lleno', k < n));
+    }
+    // Solo números; con el 4.º dígito entra solo
+    function alEscribirPIN() {
       const i = $('modal-pin-input');
+      i.value = soloDigitos(i.value).slice(0, 4);
+      $('pin-caja').classList.remove('mal', 'bien');
+      pintarPuntos();
+      if (i.value.length === 4) validarPINModal();
+    }
+
+    // Error dentro de la ventana: los puntos se ponen rojos, la caja tiembla y luego se vacía para volver a intentar
+    function errorPIN(texto, limpiar = true) {
+      const i = $('modal-pin-input'), caja = $('pin-caja');
       mensajePIN(texto);
-      i.classList.remove('mal');
-      void i.offsetWidth;   // reinicia la animación
-      i.classList.add('mal');
-      if (limpiar) i.value = '';
+      caja.classList.remove('mal', 'bien');
+      void caja.offsetWidth;   // reinicia la animación
+      caja.classList.add('mal');
+      vibrar([40, 50, 40]);
+      if (limpiar) {
+        const malo = i.value;
+        setTimeout(() => { if (i.value === malo) { i.value = ''; pintarPuntos(); } }, sinMovimiento ? 0 : 450);
+      }
       i.focus();
     }
 
@@ -1633,8 +1818,12 @@
         localStorage.setItem(`dueno_${tagId}`, '1');      // este dispositivo es del dueño: sin avisos ni permisos de ubicación
       } catch (e) {}
       const destino = destinoPIN;
-      if (destino === '#canal') { cerrarModalPIN(); publicarCanal(); return; }   // vuelve a «Publicar en el canal»
-      window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destino}`;
+      $('pin-caja').classList.add('bien');   // los puntos se ponen verdes un momento antes de seguir
+      vibrar(25);
+      setTimeout(() => {
+        if (destino === '#canal') { cerrarModalPIN(); publicarCanal(); return; }   // vuelve a «Publicar en el canal»
+        window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destino}`;
+      }, sinMovimiento ? 0 : 450);
     }
 
     async function cambiarPinDebil() {
@@ -1652,13 +1841,44 @@
       mensajePIN('No se pudo guardar el PIN. Revisa tu conexión e inténtalo de nuevo.');
     }
 
-    function abrirFotoGrande() {
-      if (!petData || !petData.photo || $('pet-photo').getAttribute('src') === FOTO_VACIA) return;
-      $('full-pet-photo').src = petData.photo;
-      capa('photo-modal', true);
+    // La foto en grande crece desde su lugar en la tarjeta (y al cerrar vuelve a él). Sin foto: solo las huellitas.
+    function cuadrosZoom() {
+      const a = $('pet-photo').getBoundingClientRect(), b = $('full-pet-photo').getBoundingClientRect();
+      if (!a.width || !b.width || !b.height) return null;
+      const dx = a.left + a.width / 2 - (b.left + b.width / 2), dy = a.top + a.height / 2 - (b.top + b.height / 2);
+      const s = Math.min(a.width / b.width, a.height / b.height);
+      return [{ transform: `translate(${dx}px, ${dy}px) scale(${s})`, borderRadius: '50%', opacity: .5 }, { transform: 'none', borderRadius: '24px', opacity: 1 }];
     }
 
-    function cerrarFotoGrande() { capa('photo-modal', false); }
+    async function abrirFotoGrande() {
+      const chica = $('pet-photo'), grande = $('full-pet-photo');
+      lanzarHuellas(chica, 6);
+      vibrar(12);
+      if (!petData || !petData.photo || chica.getAttribute('src') === FOTO_VACIA) return;
+      grande.getAnimations && grande.getAnimations().forEach(a => a.cancel());
+      grande.src = petData.photo;
+      grande.style.visibility = 'hidden';   // hasta conocer su tamaño final
+      capa('photo-modal', true);
+      try { await grande.decode(); } catch (e) {}
+      grande.style.visibility = '';
+      const c = cuadrosZoom();
+      if (c) animar(grande, c, { duration: 420 });
+    }
+
+    let cerrandoFoto = false;
+    function cerrarFotoGrande() {
+      const modal = $('photo-modal'), grande = $('full-pet-photo');
+      if (cerrandoFoto || modal.classList.contains('hidden')) return;
+      const c = cuadrosZoom();
+      const anims = [c && animar(grande, [c[1], c[0]], { duration: 320 }), animar(modal, [{ opacity: 1 }, { opacity: 0 }], { duration: 320 })].filter(Boolean);
+      if (!anims.length) { capa('photo-modal', false); return; }
+      cerrandoFoto = true;
+      Promise.all(anims.map(a => a.finished.catch(() => {}))).then(() => {
+        capa('photo-modal', false);
+        anims.forEach(a => a.cancel());   // sin dejar estilos pegados para la próxima vez
+        cerrandoFoto = false;
+      });
+    }
 
     // ==========================================
     // SEMÁFORO DE SALUD
@@ -1720,9 +1940,9 @@
     }
 
     // ==========================================
-    // INTERACCIÓN: onda al tocar, Escape, paralaje y barra de contacto
+    // INTERACCIÓN: onda al tocar, huellitas, Escape, paralaje, hoja que se arrastra y barra de contacto
     // ==========================================
-    // Onda que nace donde se tocó el botón (sin crear nodos: mueve el ::after con --x / --y)
+    // Onda que nace donde se tocó el botón (sin crear nodos: mueve el ::after con --x / --y) y su ícono reacciona
     document.addEventListener('pointerdown', e => {
       const b = e.target.closest && e.target.closest('.btn');
       if (!b || b.disabled) return;
@@ -1732,7 +1952,49 @@
       b.classList.remove('onda');
       void b.offsetWidth;
       b.classList.add('onda');
+      clearTimeout(b._onda);
+      b._onda = setTimeout(() => b.classList.remove('onda'), 700);   // así el ícono no repite su gesto al cambiar
+      if (b.matches('.btn-wa, .btn-call, .btn-gps')) vibrar(10);
     }, { passive: true });
+
+    // Al tocar un espacio vacío queda una huellita (no en botones, enlaces, campos ni ventanas)
+    document.addEventListener('click', e => {
+      if (sinMovimiento || (!e.clientX && !e.clientY)) return;   // sin coordenadas: «clic» del teclado
+      if (e.target.closest('a, button, input, select, textarea, label, .modal, .dock, .dato, #pet-photo, #pet-name')) return;
+      estamparHuella(e.clientX, e.clientY, !e.target.closest('.shell, .vacio, .card'));
+    });
+
+    // Tocar el nombre: las letras saltan y salen huellitas
+    $('pet-name').addEventListener('click', () => { ola(); lanzarHuellas($('pet-name'), 5); vibrar(12); });
+
+    // La hoja del historial se arrastra hacia abajo para cerrarla (como en las apps)
+    (function () {
+      const hoja = document.querySelector('#modal-medico .hoja'), asa = hoja.querySelector('.hoja-h');
+      let y0 = null, dy = 0;
+      asa.addEventListener('pointerdown', e => {
+        if (e.target.closest('button')) return;
+        y0 = e.clientY; dy = 0;
+        hoja.style.animation = 'none';   // la animación de entrada ya terminó: el arrastre manda
+        hoja.style.transition = 'none';
+        try { asa.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+      asa.addEventListener('pointermove', e => {
+        if (y0 === null) return;
+        dy = Math.max(0, e.clientY - y0);
+        hoja.style.transform = `translateY(${dy}px)`;
+      });
+      const soltar = () => {
+        if (y0 === null) return;
+        y0 = null;
+        hoja.style.transition = 'transform .25s cubic-bezier(.2,.8,.2,1)';
+        if (dy > 90) {
+          hoja.style.transform = 'translateY(110%)';
+          setTimeout(cerrarModalMedico, 230);
+        } else hoja.style.transform = '';
+      };
+      asa.addEventListener('pointerup', soltar);
+      asa.addEventListener('pointercancel', soltar);
+    })();
 
     // Escape cierra la ventana de arriba
     document.addEventListener('keydown', e => {
@@ -1745,7 +2007,6 @@
     });
 
     // Paralaje: el paisaje andino de la cabecera baja más lento que la página
-    const sinMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const paisaje = document.querySelector('.hero > img');
     if (paisaje && !sinMovimiento) {
       let pendiente = false;
