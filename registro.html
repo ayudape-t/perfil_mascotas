@@ -30,21 +30,22 @@
       --awayo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E"); }
     body { font-family: 'Fredoka', system-ui, sans-serif; color: var(--tinta); }
 
-    @keyframes subir { from { opacity: 0; transform: translateY(12px); } }
-    @keyframes abrir { from { opacity: 0; transform: translateY(-6px); } }
+    /* Como un awayo que se despliega desde arriba */
+    @keyframes desenrollar { from { opacity: 0; transform: perspective(800px) rotateX(-70deg); } 55% { opacity: 1; } }
+    @keyframes tejer { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }   /* la franja se teje hilo a hilo */
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-    /* Las tarjetas entran una tras otra (--i lo pone el script); al abrir un acordeón, su contenido baja suave */
-    #pet-form > * { animation: subir .45s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 55ms); }
-    details[open] > .card-b, details[open] > .sub-b { animation: abrir .28s ease-out both; }
+    /* Las tarjetas se despliegan una tras otra (--i lo pone el script); al abrir un acordeón, su contenido también */
+    #pet-form > * { transform-origin: 50% 0; animation: desenrollar .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+    details[open] > .card-b, details[open] > .sub-b { transform-origin: 50% 0; animation: desenrollar .45s cubic-bezier(.2,.8,.2,1) both; }
 
     /* Al tocar: onda desde el dedo, el botón se hunde y su ícono salta (ver «INTERACCIÓN» en el script) */
-    @keyframes onda { from { opacity: .3; transform: scale(0); } to { opacity: 0; transform: scale(32); } }
+    @keyframes onda { from { opacity: .32; transform: rotate(45deg) scale(0); } to { opacity: 0; transform: rotate(45deg) scale(30); } }   /* la onda es un rombo */
     @keyframes pop { 0%, 100% { transform: none; } 50% { transform: scale(1.35); } }
     @keyframes rebote { 0% { transform: scale(1); } 35% { transform: scale(.94); } 65% { transform: scale(1.04); } 100% { transform: scale(1); } }
     @keyframes girito { from { transform: rotate(-200deg) scale(.4); opacity: 0; } }
     .btn, #btn-save, .btn-mini, .btn-hecho, .btn-maps { position: relative; overflow: hidden; transition: transform .12s, filter .15s; }
     #btn-toggle-lost { position: relative; overflow: hidden; }   /* su transición de colores la pone Tailwind (transition-all) */
-    .btn::after, #btn-save::after, .btn-mini::after, .btn-hecho::after, #btn-toggle-lost::after, .btn-maps::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: currentColor; opacity: 0; pointer-events: none; }
+    .btn::after, #btn-save::after, .btn-mini::after, .btn-hecho::after, #btn-toggle-lost::after, .btn-maps::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 3px; background: currentColor; opacity: 0; pointer-events: none; }
     .onda::after { animation: onda .6s ease-out; }
     .onda > i:not(.fa-spin) { animation: pop .4s ease-out; }
     .btn:active, .btn-mini:active, .btn-hecho:active, #btn-toggle-lost:active { transform: scale(.97); }
@@ -52,14 +53,15 @@
     /* Interruptor de pérdida: rebota y su ícono entra girando; el recuadro de datos baja suave */
     #btn-toggle-lost.rebote { animation: rebote .45s cubic-bezier(.3,.7,.4,1.4); }
     #btn-toggle-lost.rebote > i { animation: girito .5s cubic-bezier(.2,.8,.2,1); }
-    .lost-box { animation: abrir .3s ease-out both; }
+    .lost-box { transform-origin: 50% 0; animation: desenrollar .45s cubic-bezier(.2,.8,.2,1) both; }
     /* Guardado: el botón se pone verde con un check antes de volver al perfil */
     #btn-save.ok { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 10px 20px -8px rgba(4,120,87,.75), inset 0 -3px 0 rgba(0,0,0,.14); animation: rebote .45s cubic-bezier(.3,.7,.4,1.4); }
     #btn-save.ok i { animation: girito .5s cubic-bezier(.2,.8,.2,1); }
     /* Foto nueva: el círculo da un saltito */
     .avatar.pop { animation: rebote .45s cubic-bezier(.3,.7,.4,1.4); }
-    /* Huellitas que salen volando (al guardar y al elegir foto) */
-    .huella { position: fixed; z-index: 70; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(255,253,248,.9)) drop-shadow(0 3px 4px rgba(59,36,32,.3)); }
+    /* Mixtura de chakanas, rombos y huellitas (al guardar y al elegir foto) */
+    .figura svg { display: block; width: 100%; height: 100%; }
+    .figura { position: fixed; z-index: 70; pointer-events: none; display: grid; place-items: center; filter: drop-shadow(0 1px 1px rgba(255,253,248,.9)) drop-shadow(0 3px 4px rgba(59,36,32,.3)); }
 
     /* Aviso breve (reemplaza a los alert) */
     .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 60; width: max-content; max-width: min(340px, calc(100% - 32px)); padding: 11px 16px 11px 14px; display: flex; align-items: center; gap: 9px; border-radius: 16px; font-size: 13.5px; font-weight: 500; line-height: 1.3; color: var(--crema); background: #2b1a12; border: 1px solid rgba(224,162,74,.45); box-shadow: 0 16px 34px -10px rgba(0,0,0,.7); opacity: 0; pointer-events: none; transform: translate(-50%, 16px); transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
@@ -71,7 +73,7 @@
     /* Contenedor principal */
     .shell { width: 100%; max-width: 384px; margin: 12px 0 20px; border-radius: 28px; overflow: clip; position: relative;
              background: var(--crema); border: 1px solid rgba(248,237,209,.35); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
-    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; }
+    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; animation: tejer .9s .2s cubic-bezier(.45,0,.2,1) both; }
     .top { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 16px 22px; color: var(--crema); border-radius: 28px 28px 0 0;
            background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.14), transparent 45%), linear-gradient(135deg, #3b2420, #8f3523 120%); }
     .top-logo { width: 46px; height: 46px; border-radius: 50%; background: var(--crema); padding: 2px; flex: none; box-shadow: 0 0 0 2px rgba(248,237,209,.5); }
@@ -607,24 +609,33 @@
       clearTimeout(el['_' + clase]);
       el['_' + clase] = setTimeout(() => el.classList.remove(clase), ms);
     }
-    // Huellitas que salen volando en abanico desde un elemento
-    const COLORES_HUELLA = ['#b4452b', '#e0a24a', '#7f9a3e', '#3b2420'];
-    function lanzarHuellas(el, cantidad = 7) {
+    // Mixtura: chakanas (cruz escalonada), rombos y huellitas que saltan en abanico y caen meciéndose,
+    // como la mixtura que se lanza en los carnavales andinos (la misma del perfil)
+    const CHAKANA = 'M9 0h6v3h3v3h3v3h3v6h-3v3h-3v3h-3v3H9v-3H6v-3H3v-3H0V9h3V6h3V3h3zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z';
+    const ROMBO = 'M12 0l12 12-12 12L0 12zM12 7l-5 5 5 5 5-5z';
+    const svgFigura = d => `<svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="${d}"/></svg>`;
+    const FIGURAS = [svgFigura(CHAKANA), svgFigura(ROMBO), '<i class="fa-solid fa-paw"></i>'];
+    const COLORES_TEJIDO = ['#b4452b', '#e0a24a', '#7f9a3e', '#3b2420'];
+    function lanzarFiguras(el, cantidad = 8) {
       if (sinMovimiento || !el || !el.animate) return;
       const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
       for (let k = 0; k < cantidad; k++) {
-        const h = document.createElement('i');
-        h.className = 'fa-solid fa-paw huella';
-        h.style.cssText = `left:${x}px;top:${y}px;color:${COLORES_HUELLA[k % COLORES_HUELLA.length]};font-size:${18 + Math.random() * 12}px`;
-        document.body.appendChild(h);
+        const f = document.createElement('span');
+        f.className = 'figura';
+        f.innerHTML = FIGURAS[k % FIGURAS.length];
+        const tam = 15 + Math.random() * 11;
+        f.style.cssText = `left:${x}px;top:${y}px;width:${tam}px;height:${tam}px;font-size:${tam}px;color:${COLORES_TEJIDO[(k + 1) % COLORES_TEJIDO.length]}`;
+        document.body.appendChild(f);
         const ang = (-90 + (k - (cantidad - 1) / 2) * (170 / cantidad)) * Math.PI / 180;
-        const dist = 90 + Math.random() * 60, giro = Math.random() * 90 - 45;
-        h.animate([
-          { transform: 'translate(-50%, -50%) scale(.3)', opacity: 0, easing: 'cubic-bezier(.2,.8,.2,1)' },
-          { transform: `translate(-50%, -50%) translate(${Math.cos(ang) * dist * .5}px, ${Math.sin(ang) * dist * .5}px) rotate(${giro / 2}deg) scale(1.15)`, opacity: 1, offset: .25 },
-          { transform: `translate(-50%, -50%) translate(${Math.cos(ang) * dist * .85}px, ${Math.sin(ang) * dist * .85 - 10}px) rotate(${giro * .8}deg) scale(1)`, opacity: 1, offset: .6, easing: 'ease-in' },
-          { transform: `translate(-50%, -50%) translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist - 24}px) rotate(${giro}deg) scale(.9)`, opacity: 0 }
-        ], { duration: 1000 + Math.random() * 300, delay: k * 30, fill: 'both' }).finished.then(() => h.remove(), () => h.remove());
+        const dist = 80 + Math.random() * 60, giro = (Math.random() < .5 ? -1 : 1) * (140 + Math.random() * 160);
+        const mece = 14 + Math.random() * 14, dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist;
+        const pos = (px, py, g, e) => `translate(-50%, -50%) translate(${px}px, ${py}px) rotate(${g}deg) scale(${e})`;
+        f.animate([
+          { transform: pos(0, 0, 0, .3), opacity: 0, easing: 'cubic-bezier(.2,.8,.2,1)' },
+          { transform: pos(dx, dy, giro * .4, 1.1), opacity: 1, offset: .3, easing: 'ease-in-out' },
+          { transform: pos(dx * 1.15 + mece, dy + 34, giro * .75, 1), opacity: 1, offset: .65, easing: 'ease-in' },
+          { transform: pos(dx * 1.25 - mece / 2, dy + 78, giro, .9), opacity: 0 }
+        ], { duration: 1300 + Math.random() * 400, delay: k * 28, fill: 'both' }).finished.then(() => f.remove(), () => f.remove());
       }
     }
     // Onda que nace donde se tocó el botón; su ícono salta
@@ -848,8 +859,8 @@
         p.classList.remove('hidden');
         $('placeholder-icon').classList.add('hidden');
         const avatar = p.closest('.avatar');
-        repetir(avatar, 'pop', 500);   // la foto nueva entra con un saltito y huellitas
-        lanzarHuellas(avatar, 6);
+        repetir(avatar, 'pop', 500);   // la foto nueva entra con un saltito y mixtura
+        lanzarFiguras(avatar, 7);
       };
       reader.readAsDataURL(file);
     });
@@ -940,10 +951,10 @@
           if (res.dispositivo) localStorage.setItem(`disp_${tagId}`, res.dispositivo);
           localStorage.setItem(`dueno_${tagId}`, '1');
         } catch (e) {}   // este dispositivo es del dueño (también al activar la placa)
-        // Guardado: el botón se pone verde con un check y salen huellitas; luego vuelve al perfil
+        // Guardado: el botón se pone verde con un check y sale mixtura; luego vuelve al perfil
         btn.classList.add('ok');
         btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ¡Guardado!`;
-        lanzarHuellas(btn, 8);
+        lanzarFiguras(btn, 9);
         vibrar(25);
         await espera(750);
         window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;

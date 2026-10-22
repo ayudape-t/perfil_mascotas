@@ -31,6 +31,7 @@
     .hidden { display: none !important; }
     a { color: inherit; }
     @keyframes subir { from { opacity: 0; transform: translateY(14px); } }
+    @keyframes tejer { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }   /* la franja se teje hilo a hilo */
     @keyframes girar { to { transform: rotate(1turn); } }
     @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
     @keyframes pop { from { opacity: 0; transform: scale(.5); } 70% { transform: scale(1.08); } }
@@ -38,7 +39,7 @@
 
     .shell { width: 100%; max-width: 384px; margin: 12px 0 20px; border-radius: 28px; overflow: hidden; background: var(--crema); border: 1px solid rgba(248,237,209,.35); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .5s cubic-bezier(.2,.8,.2,1) both; }
     .top { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 16px 22px; color: var(--crema); background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.14), transparent 45%), linear-gradient(135deg, #3b2420, #8f3523 120%); }
-    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; }
+    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; animation: tejer .9s .2s cubic-bezier(.45,0,.2,1) both; }
     .top-logo { width: 46px; height: 46px; border-radius: 50%; background: var(--crema); padding: 2px; flex: none; box-shadow: 0 0 0 2px rgba(248,237,209,.5); }
     .top-txt { min-width: 0; flex: 1; }
     .top h1 { margin: 0; font: 800 18px/1.15 'DynaPuff', 'Fredoka', sans-serif; }
@@ -63,10 +64,10 @@
     .btn:disabled { opacity: .65; }
     /* Al tocar: onda desde el dedo y el ícono salta */
     @keyframes salto { 0%, 100% { transform: none; } 50% { transform: scale(1.35); } }
-    @keyframes onda { from { opacity: .3; transform: scale(0); } to { opacity: 0; transform: scale(32); } }
+    @keyframes onda { from { opacity: .32; transform: rotate(45deg) scale(0); } to { opacity: 0; transform: rotate(45deg) scale(30); } }   /* la onda es un rombo */
     @keyframes rebote { 0% { transform: scale(1); } 35% { transform: scale(.94); } 65% { transform: scale(1.04); } 100% { transform: scale(1); } }
     @keyframes girito { from { transform: rotate(-200deg) scale(.4); opacity: 0; } }
-    .btn::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: currentColor; opacity: 0; pointer-events: none; }
+    .btn::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 3px; background: currentColor; opacity: 0; pointer-events: none; }
     .btn.onda::after { animation: onda .6s ease-out; }
     .btn.onda > i:not(.fa-spin) { animation: salto .4s ease-out; }
     .btn.ok { animation: rebote .45s cubic-bezier(.3,.7,.4,1.4); }
@@ -79,7 +80,7 @@
     .enlace { margin: 0 auto; padding: 4px 8px; border: 0; background: none; font: 500 12.5px 'Fredoka', sans-serif; color: var(--suave); text-decoration: underline; cursor: pointer; }
 
     .separador { display: flex; align-items: center; gap: 10px; margin: 4px 0; font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #a09182; }
-    .separador::before, .separador::after { content: ""; flex: 1; height: 6px; opacity: .5; background: var(--awayo) repeat-x left center / auto 6px; border-radius: 3px; }
+    .separador::before, .separador::after { content: ""; flex: 1; height: 6px; opacity: .5; background: var(--awayo) repeat-x left center / auto 6px; border-radius: 3px; animation: tejer .8s .4s cubic-bezier(.45,0,.2,1) both; }
 
     /* Espera / listo: anillo tejido */
     .centro { text-align: center; justify-items: center; }
