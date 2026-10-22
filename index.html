@@ -103,7 +103,6 @@
     @keyframes onda { from { opacity: .32; transform: rotate(45deg) scale(0); } to { opacity: 0; transform: rotate(45deg) scale(30); } }   /* la onda es un rombo */
     @keyframes sacudir { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
     @keyframes brincar { 0%, 100% { transform: none; } 40% { transform: translateY(-4px) rotate(-8deg); } 70% { transform: rotate(6deg); } }
-    @keyframes brillo { from { transform: translateX(-120%) skewX(-20deg); } 60%, to { transform: translateX(260%) skewX(-20deg); } }
     /* Lenguaje andino del movimiento: tejer (franjas que avanzan hilo a hilo), desenrollar (como un awayo que se
        despliega), la pushka (el huso de hilar que gira y se frena), puntadas (bordado) y la mixtura del carnaval */
     @keyframes tejer { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
@@ -275,16 +274,6 @@
     .dato.ancho { grid-column: 1 / -1; }
     .dato small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); line-height: 1.1; }
     .dato b { display: block; margin-top: 1px; font-size: 14.5px; font-weight: 600; line-height: 1.15; color: var(--cafe); overflow-wrap: anywhere; }
-
-    /* Mascota perdida: dónde, cuándo, señas y recompensa */
-    .perdida-card { border-color: #fecaca; }
-    .perdida-card .card-h { background: linear-gradient(to right, #fff1f2, #fff); border-bottom-color: #fde0e0; }
-    .pista { display: flex; align-items: flex-start; gap: 9px; padding: 7px 10px; border-radius: 12px; background: #fff7f7; border: 1px solid #fde0e0; font-size: 13px; line-height: 1.3; }
-    .pista > i { width: 16px; margin-top: 2px; text-align: center; color: #e11d48; flex: none; }
-    .pista small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #9f1239; }
-    .pista p { margin: 0; font-weight: 500; color: #4a2a2a; overflow-wrap: anywhere; }
-    .recompensa { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px; border-radius: 12px; font-size: 13.5px; font-weight: 600; color: #7c2d12; background: linear-gradient(135deg, #fde68a, #f59e0b); box-shadow: 0 6px 14px -8px rgba(194,65,12,.7); }
-    .recompensa::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent); animation: brillo 3.2s ease-in-out infinite; }
 
     /* Salud */
     .sem { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
@@ -533,20 +522,6 @@
         </div>
       </section>
 
-      <!-- 2b. Mascota perdida: dónde, cuándo y cómo reconocerla (lo ve quien llega desde el canal o un enlace compartido) -->
-      <section id="lost-card" class="card perdida-card hidden">
-        <div class="card-h">
-          <span class="ico rose"><i class="fa-solid fa-magnifying-glass-location"></i></span>
-          <div class="ttl"><small>¿La viste?</small><b>Así se perdió</b></div>
-        </div>
-        <div class="card-b">
-          <div id="lost-where-row" class="pista hidden"><i class="fa-solid fa-location-dot"></i><div><small>Zona</small><p id="lost-where"></p></div></div>
-          <div id="lost-when-row" class="pista hidden"><i class="fa-regular fa-calendar"></i><div><small>Cuándo</small><p id="lost-when"></p></div></div>
-          <div id="lost-signs-row" class="pista hidden"><i class="fa-solid fa-paw"></i><div><small>Señas</small><p id="lost-signs"></p></div></div>
-          <div id="lost-reward" class="recompensa hidden"><i class="fa-solid fa-gift"></i> Se ofrece recompensa</div>
-        </div>
-      </section>
-
       <!-- 3. Difusión -->
       <div class="fila">
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="btn btn-afiche hidden"><i class="fa-solid fa-bullhorn"></i> Crear afiche</button>
@@ -624,7 +599,7 @@
         </div>
       </div>
 
-      <!-- Comunidad: aparece para todos cuando hay mascotas perdidas publicadas en el canal -->
+      <!-- Comunidad: SOLO el dueño (en su celular), cuando hay mascotas perdidas publicadas en el canal -->
       <section id="canal-banner" class="card fila-canal hidden">
         <span class="ico sky"><i class="fa-brands fa-telegram"></i></span>
         <div class="ttl"><small>Comunidad Helpet</small><b>Ayuda a las mascotas a reencontrarse</b></div>
@@ -1079,7 +1054,6 @@
           subStatus.textContent = descripcion || "🚨 Mascota perdida";
           indicator.className = 'punto perdida';
           $('app-container').classList.add('perdida');
-          llenarPerdida(data);
 
           await pedirUbicacionSiPerdida(); // el navegador pregunta ANTES de mostrar la ficha
 
@@ -1146,20 +1120,6 @@
       } finally {
         $('cargando').classList.add('hidden');
       }
-    }
-
-    // Mascota perdida: zona, fecha, señas (raza, color, peso, edad) y recompensa. Solo lo que el dueño escribió.
-    function llenarPerdida(d) {
-      const cuando = [d.lost_date, d.lost_time].map(v => String(v || '').trim()).filter(Boolean).join(', ');
-      const senas = [d.breed, d.color, fmtPeso(d.weight), d.age].map(v => String(v || '').trim()).filter(Boolean).join(' · ');
-      let algo = false;
-      [['lost-where', String(d.lost_location || '').trim()], ['lost-when', cuando], ['lost-signs', senas]].forEach(([id, texto]) => {
-        $(id).textContent = texto;
-        $(`${id}-row`).classList.toggle('hidden', !texto);
-        if (texto) algo = true;
-      });
-      $('lost-reward').classList.toggle('hidden', !d.reward);
-      $('lost-card').classList.toggle('hidden', !algo && !d.reward);
     }
 
     // ==========================================
@@ -1369,20 +1329,30 @@
       setTimeout(() => n.classList.remove('resalta'), 4000);
     }
 
+    // Enlace limpio del perfil (solo el id): sin canal=1, visitante=1 ni otros parámetros de quien lo abrió
+    function enlacePerfil() {
+      const u = new URL(window.location.href);
+      u.search = '';
+      u.hash = '';
+      u.searchParams.set('id', tagId);
+      return u.toString();
+    }
+
     async function compartirPerfil() {
+      const enlace = enlacePerfil();
       const shareData = {
         title: `Perfil Helpet - ${petData ? petData.pet : 'Mascota'}`,
         text: `Conoce la ficha oficial de ${petData ? petData.pet : 'esta mascota'} protegida con Helpet:`,
-        url: window.location.href
+        url: enlace
       };
       if (navigator.share) {
         try { await navigator.share(shareData); confirmarBoton($('btn-share-profile'), '¡Compartido!'); } catch (e) {}
       } else {
         try {
-          await navigator.clipboard.writeText(window.location.href);
-          confirmarBoton($('btn-share-profile'), '¡Enlace copiado!');
+          await navigator.clipboard.writeText(enlace);
+          confirmarBoton($('btn-share-profile'), '¡Copiado!');
         } catch (e) {
-          window.prompt("Copia este enlace:", window.location.href);
+          window.prompt("Copia este enlace:", enlace);
         }
       }
     }
@@ -1392,11 +1362,7 @@
       if (!box) return;
       await cargarLib(LIB_QR);
       box.innerHTML = '';
-      const u = new URL(window.location.href);
-      u.search = '';
-      u.hash = '';
-      u.searchParams.set('id', tagId);
-      new QRCode(box, { text: u.toString(), width: tam, height: tam, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      new QRCode(box, { text: enlacePerfil(), width: tam, height: tam, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
     }
 
     async function descargarCarnetDigital() {
@@ -1609,8 +1575,9 @@
     // ==========================================
     // CANAL DE AVISOS (@HelpetAvisos)
     // ==========================================
-    // Dueño con la mascota perdida: tarjeta para publicar el aviso (el PIN y los límites los valida el servidor).
-    // Resto de visitas: invitación a unirse, solo si hay mascotas perdidas publicadas (la base responde solo sí/no).
+    // Todo lo del canal es solo para el dueño. Con la mascota perdida: tarjeta para publicar el aviso (el PIN y los
+    // límites los valida el servidor). Con la mascota en casa: invitación a unirse, solo si hay mascotas perdidas
+    // publicadas (la base responde solo sí/no). Los visitantes no ven nada del canal.
     let publicandoCanal = false;
     const zonaPerdida = () => String((petData && petData.lost_location) || '').trim();
     const fmtMin = m => { m = Math.max(1, Number(m) || 1); return m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}` : `${m} min`; };
@@ -1628,6 +1595,7 @@
         if (atajoCanal) setTimeout(() => $('canal-card').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
         return;
       }
+      if (!esDueno()) return;   // los visitantes no ven nada del canal
       Promise.resolve(db.rpc('canal_hay_avisos'))
         .then(({ data }) => { if (data === true) $('canal-banner').classList.remove('hidden'); })
         .catch(() => {});
