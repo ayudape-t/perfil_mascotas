@@ -17,243 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <style>
-    /* Fondo fijo y ajustado a la pantalla también en iPhone (Safari ignora background-attachment: fixed y lo estira a todo el largo) */
-    .paw-dark-body { background-color: #29170d; }
-    .paw-dark-body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("fondo-helpet.jpg") center top / cover no-repeat; }
-    *, *::before, *::after { box-sizing: border-box; }
-    .hidden { display: none !important; }
-    .rotate-180 { transform: rotate(180deg); }
-
-    :root { --cafe:#3b2420; --oxido:#b4452b; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#736255; --ocre:#e0a24a;
-      /* Anillo tejido de la foto (el mismo del perfil) */
-      --telar: repeating-conic-gradient(#b4452b 0 7.5deg, #e0a24a 7.5deg 15deg, #3b2420 15deg 22.5deg, #7f9a3e 22.5deg 30deg);
-      --anillo: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px));
-      /* Franja de awayo (rombos andinos): el mismo acento del perfil */
-      --awayo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E"); }
-    body { font-family: 'Fredoka', system-ui, sans-serif; color: var(--tinta); }
-
-    /* Como un awayo que se despliega desde arriba */
-    @keyframes desenrollar { from { opacity: 0; transform: perspective(800px) rotateX(-70deg); } 55% { opacity: 1; } }
-    @keyframes tejer { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }   /* la franja se teje hilo a hilo */
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-    /* Las tarjetas se despliegan una tras otra (--i lo pone el script); al abrir un acordeón, su contenido también */
-    #pet-form > * { transform-origin: 50% 0; animation: desenrollar .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 60ms); }
-    details[open] > .card-b, details[open] > .sub-b { transform-origin: 50% 0; animation: desenrollar .45s cubic-bezier(.2,.8,.2,1) both; }
-
-    /* Al tocar: onda desde el dedo, el botón se hunde y su ícono salta (ver «INTERACCIÓN» en el script) */
-    @keyframes onda { from { opacity: .32; transform: rotate(45deg) scale(0); } to { opacity: 0; transform: rotate(45deg) scale(30); } }   /* la onda es un rombo */
-    @keyframes pop { 0%, 100% { transform: none; } 50% { transform: scale(1.35); } }
-    @keyframes rebote { 0% { transform: scale(1); } 35% { transform: scale(.94); } 65% { transform: scale(1.04); } 100% { transform: scale(1); } }
-    @keyframes girito { from { transform: rotate(-200deg) scale(.4); opacity: 0; } }
-    .btn, #btn-save, .btn-mini, .btn-hecho, .btn-maps { position: relative; overflow: hidden; transition: transform .12s, filter .15s; }
-    #btn-toggle-lost { position: relative; overflow: hidden; }
-    .btn::after, #btn-save::after, .btn-mini::after, .btn-hecho::after, #btn-toggle-lost::after, .btn-maps::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 3px; background: currentColor; opacity: 0; pointer-events: none; }
-    .onda::after { animation: onda .6s ease-out; }
-    .onda > i:not(.fa-spin) { animation: pop .4s ease-out; }
-    .btn:active, .btn-mini:active, .btn-hecho:active, #btn-toggle-lost:active { transform: scale(.97); }
-    @media (hover: hover) { .btn:hover, .btn-mini:hover, .btn-hecho:hover, #btn-save:hover { filter: brightness(1.06); } }
-    /* Interruptor de pérdida: rebota y su ícono entra girando; el recuadro de datos baja suave */
-    #btn-toggle-lost.rebote { animation: rebote .45s cubic-bezier(.3,.7,.4,1.4); }
-    #btn-toggle-lost.rebote > i { animation: girito .5s cubic-bezier(.2,.8,.2,1); }
-    .lost-box { transform-origin: 50% 0; animation: desenrollar .45s cubic-bezier(.2,.8,.2,1) both; }
-    /* Guardado: el botón se pone verde con un check antes de volver al perfil */
-    #btn-save.ok { background: linear-gradient(135deg, #047857, #065f46); box-shadow: 0 10px 20px -8px rgba(6,95,70,.75), inset 0 -3px 0 rgba(0,0,0,.14); animation: rebote .45s cubic-bezier(.3,.7,.4,1.4); }
-    #btn-save.ok i { animation: girito .5s cubic-bezier(.2,.8,.2,1); }
-    /* Foto nueva: el círculo da un saltito */
-    .avatar.pop { animation: rebote .45s cubic-bezier(.3,.7,.4,1.4); }
-    /* Mixtura de chakanas, rombos y huellitas (al guardar y al elegir foto) */
-    .figura svg { display: block; width: 100%; height: 100%; }
-    .figura { position: fixed; z-index: 70; pointer-events: none; display: grid; place-items: center; filter: drop-shadow(0 1px 1px rgba(255,253,248,.9)) drop-shadow(0 3px 4px rgba(59,36,32,.3)); }
-
-    /* Aviso breve (reemplaza a los alert) */
-    .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 60; width: max-content; max-width: min(340px, calc(100% - 32px)); padding: 11px 16px 11px 14px; display: flex; align-items: center; gap: 9px; border-radius: 16px; font-size: 13.5px; font-weight: 500; line-height: 1.3; color: var(--crema); background: #2b1a12; border: 1px solid rgba(224,162,74,.45); box-shadow: 0 16px 34px -10px rgba(0,0,0,.7); opacity: 0; pointer-events: none; transform: translate(-50%, 16px); transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
-    .toast.ver { opacity: 1; transform: translate(-50%, 0); }
-    .toast i { flex: none; font-size: 17px; color: var(--ocre); }
-    .toast.ok i { color: #34d399; }
-    .toast.error i { color: #fb7185; }
-
-    /* Contenedor principal */
-    .shell { width: 100%; max-width: 384px; margin: 12px 0 20px; border-radius: 28px; overflow: clip; position: relative;
-             background: var(--crema); border: 1px solid rgba(248,237,209,.35); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
-    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; animation: tejer .9s .2s cubic-bezier(.45,0,.2,1) both; }
-    .top { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 16px 22px; color: var(--crema); border-radius: 28px 28px 0 0;
-           background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.14), transparent 45%), linear-gradient(135deg, #3b2420, #8f3523 120%); }
-    .top-logo { width: 46px; height: 46px; border-radius: 50%; background: var(--crema); padding: 2px; flex: none; box-shadow: 0 0 0 2px rgba(248,237,209,.5); }
-    .top-txt { min-width: 0; flex: 1; }
-    .top h1 { font-family: 'DynaPuff', 'Fredoka', sans-serif; font-weight: 800; font-size: 17px; line-height: 1.15; margin: 0; }
-    .top p { margin: 1px 0 0; font-size: 11px; color: #e8c9a0; }
-    .chip-id { display: flex; align-items: center; gap: 5px; max-width: 98px; padding: 4px 9px; border-radius: 999px; background: rgba(0,0,0,.28); border: 1px solid rgba(248,237,209,.25); font-size: 10px; color: #f3d9a8; }
-    .chip-id input { width: 100%; min-width: 0; background: transparent; border: 0; outline: 0; color: inherit; font: 600 11px ui-monospace, monospace; letter-spacing: .02em; text-overflow: ellipsis; cursor: default; padding: 0; }
-
-    #pet-form { padding: 12px 12px 0; display: grid; gap: 10px; }
-
-    /* Tarjetas */
-    .card { background: #fff; border: 1px solid var(--arena); border-radius: 20px; box-shadow: 0 1px 0 rgba(59,36,32,.05), 0 10px 22px -16px rgba(59,36,32,.5); overflow: hidden; }
-    .card-h { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: linear-gradient(to right, #fffaf0, #fff); border-bottom: 1px solid #f3eadb; }
-    .card-h h2 { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--cafe); flex: 1; }
-    .card-b { padding: 11px 12px 12px; display: grid; gap: 9px; }
-    .pill { font-size: 9.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #f5ece0; color: var(--suave); white-space: nowrap; }
-    .pill.req { background: #ffe9d6; color: var(--oxido2); }
-    .ico { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 13px; flex: none; box-shadow: inset 0 -2px 0 rgba(0,0,0,.16); }
-    .ico.amber { background: linear-gradient(135deg, #fbbf24, #d97706); }
-    .ico.sky { background: linear-gradient(135deg, #38bdf8, #0369a1); }
-    .ico.violet { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
-    .ico.rose { background: linear-gradient(135deg, #fb7185, #be123c); }
-    .ico.green { background: linear-gradient(135deg, #34d399, #047857); }
-    .ico.blue { background: linear-gradient(135deg, #60a5fa, #1d4ed8); }
-
-    /* Acordeones (details) */
-    details.card > summary { list-style: none; cursor: pointer; user-select: none; }
-    details.card > summary::-webkit-details-marker { display: none; }
-    details.card > summary.card-h { border-bottom: 0; }
-    details.card[open] > summary.card-h { border-bottom: 1px solid #f3eadb; }
-    .chev { color: #b3a496; font-size: 12px; transition: transform .25s; }
-    details[open] > summary .chev { transform: rotate(180deg); }
-    details.sub { border: 1.5px solid #f0e6d6; border-radius: 14px; background: #fffdf8; }
-    details.sub > summary { list-style: none; cursor: pointer; padding: 8px 11px; font-size: 13px; font-weight: 600; color: var(--cafe); display: flex; align-items: center; gap: 8px; }
-    details.sub > summary::-webkit-details-marker { display: none; }
-    details.sub > summary .chev { margin-left: auto; }
-    details.sub > .sub-b { padding: 2px 11px 11px; display: grid; gap: 8px; }
-    #seccion-medica { scroll-margin-top: 10px; }
-
-    /* Campos */
-    .lbl { display: block; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--suave); margin: 0 0 3px 3px; }
-    .fld { width: 100%; padding: 8px 11px; border-radius: 12px; border: 1.5px solid var(--arena); background: #fffdf8; font: 400 16px/1.25 'Fredoka', system-ui, sans-serif; color: var(--tinta); outline: none; transition: border-color .15s, box-shadow .15s; }
-    .fld:focus { border-color: #e08a2c; box-shadow: 0 0 0 3px rgba(224,138,44,.2); background: #fff; }
-    .fld::placeholder { color: #b9ab9d; }
-    textarea.fld { resize: none; }
-    .fld.center { text-align: center; font-family: ui-monospace, monospace; font-weight: 700; letter-spacing: .22em; }
-    .fld.key { border-color: #e9c27a; background: #fffaf0; }
-    .g2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
-    .g3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
-    .hint { font-size: 10.5px; color: var(--suave); margin: 0; line-height: 1.3; }
-    .hint i { color: #e0a24a; margin-right: 3px; }
-
-    /* Foto + nombre */
-    .pet-row { display: flex; gap: 11px; align-items: center; }
-    .avatar { position: relative; width: 82px; height: 82px; flex: none; border-radius: 50%; cursor: pointer; border: 2.5px dashed #e8a94b; background: #fff7e6; display: grid; place-items: center; overflow: visible; box-shadow: inset 0 2px 6px rgba(180,100,20,.12); }
-    .avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .avatar .cam { color: #e8a94b; font-size: 24px; }
-    .avatar .edit { position: absolute; right: -2px; bottom: -2px; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; display: grid; place-items: center; font-size: 11px; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,.25); }
-    .pet-row .stack { flex: 1; min-width: 0; display: grid; gap: 7px; }
-
-    /* Estado perdida / avisos */
-    .alarm { background: #fff; border: 1.5px solid #f3d9c6; border-radius: 20px; padding: 10px; display: grid; gap: 8px; box-shadow: 0 10px 22px -16px rgba(59,36,32,.5); }
-    .lost-box { background: #fff1f0; border: 1px solid #fecaca; border-radius: 14px; padding: 10px; display: grid; gap: 8px; }
-    .lost-box .lbl { color: #9f1239; }
-    .lost-box .fld { border-color: #fecaca; font-size: 15px; }
-    .lost-box h3 { margin: 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #be123c; display: flex; align-items: center; gap: 6px; }
-
-    /* Estado de la mascota (en casa / perdida): el cambio se guarda al tocar, sin esperar a «Guardar Cambios» */
-    @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-    @keyframes soplar { 0%, 100% { transform: none; } 20% { transform: rotate(-18deg) scale(1.15); } 45% { transform: rotate(10deg); } 70% { transform: rotate(-5deg); } }
-    @keyframes ola-pututu { from { opacity: .6; transform: rotate(45deg) scale(.7); } to { opacity: 0; transform: rotate(45deg) scale(5.5); } }
-    @keyframes temblor { 0%, 100% { transform: none; } 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } }
-    @keyframes brillo-casa { from { box-shadow: inset 0 -3px 0 rgba(0,0,0,.16), 0 0 0 0 rgba(4,120,87,.5); } to { box-shadow: inset 0 -3px 0 rgba(0,0,0,.16), 0 0 0 16px rgba(4,120,87,0); } }
-    .estado { display: flex; align-items: center; gap: 11px; padding: 2px 2px 0; }
-    .estado .txt { flex: 1; min-width: 0; }
-    .estado .t { font-size: 14px; font-weight: 600; line-height: 1.2; color: var(--cafe); }
-    .estado .s { margin: 2px 0 0; font-size: 11.5px; line-height: 1.3; color: var(--suave); }
-    .estado-ico { position: relative; width: 42px; height: 42px; flex: none; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: #fff; background: linear-gradient(135deg, #047857, #065f46); box-shadow: inset 0 -3px 0 rgba(0,0,0,.16); }
-    .estado-ico i { position: relative; z-index: 1; }
-    .estado-ico .ola { position: absolute; inset: 7px; border: 2.5px solid #dc2626; border-radius: 6px; opacity: 0; pointer-events: none; }
-    .estado-ico .ola:nth-of-type(2) { border-color: var(--ocre); }
-    .btn-alarma { width: 100%; padding: 11px 12px; border-radius: 14px; border: 1.5px solid #fca5a5; background: #fff; color: #b91c1c; font: 600 14px 'Fredoka', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform .12s; }
-    .btn-alarma:disabled { opacity: .7; }
-    .alarm.perdida { background: linear-gradient(to bottom, #fff1f0, #fff 70%); border-color: #fca5a5; }
-    .alarm.perdida .estado-ico { background: linear-gradient(135deg, #dc2626, #991b1b); animation: latido 1.3s ease-in-out infinite; }
-    .alarm.perdida .estado .t { color: #991b1b; }
-    .alarm.perdida .btn-alarma { border-color: transparent; background: linear-gradient(135deg, #047857, #065f46); color: #fff; box-shadow: 0 6px 14px -6px rgba(6,95,70,.7); }
-    /* Al activar, el pututu llama a la comunidad: ondas en rombo, el ícono sopla y la tarjeta tiembla */
-    .alarm.llamado .estado { animation: temblor .45s ease-in-out; }
-    .alarm.llamado .estado-ico i { animation: soplar .9s ease-in-out; }
-    .alarm.llamado .ola { animation: ola-pututu 1.5s cubic-bezier(.2,.7,.3,1) both; }
-    .alarm.llamado .ola:nth-of-type(2) { animation-delay: .25s; }
-    .alarm.llamado .ola:nth-of-type(3) { animation-delay: .5s; }
-    /* Al volver a casa: brillo verde, el ícono entra girando y cae mixtura (en el script) */
-    .alarm.en-casa .estado-ico { animation: brillo-casa .9s ease-out; }
-    .alarm.en-casa .estado-ico i { animation: girito .5s cubic-bezier(.2,.8,.2,1); }
-    .row-mini { display: flex; align-items: center; gap: 10px; padding: 9px 12px; }
-    .row-mini .txt { flex: 1; min-width: 0; }
-    .row-mini .t { font-size: 13px; font-weight: 600; color: var(--cafe); line-height: 1.2; }
-    .chev-btn { flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -8px -8px -8px -6px; border-radius: 50%; }
-    .row-mini .s { font-size: 11px; color: var(--suave); line-height: 1.25; margin: 1px 0 0; }
-    .btn-mini { flex: none; padding: 7px 12px; border-radius: 12px; border: 0; background: linear-gradient(135deg, #0369a1, #075985); color: #fff; font: 600 12px 'Fredoka', sans-serif; cursor: pointer; white-space: nowrap; box-shadow: 0 3px 8px -2px rgba(7,89,133,.55); }
-    .btn-maps { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 11px; background: linear-gradient(135deg, #2563eb, #1e40af); color: #fff; font-size: 12px; font-weight: 600; text-decoration: none; }
-
-    /* Consentimiento */
-    .consent { display: flex; gap: 8px; align-items: flex-start; font-size: 11.5px; color: #5d4d43; line-height: 1.35; cursor: pointer; background: #f8f4ff; border: 1px solid #e4dcf7; border-radius: 12px; padding: 8px 10px; }
-    .consent input { width: 17px; height: 17px; margin-top: 1px; accent-color: #7c3aed; flex: none; }
-
-    /* Botones */
-    .btn { width: 100%; padding: 10px 12px; border-radius: 14px; border: 0; font: 600 14px 'Fredoka', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-dark { background: linear-gradient(135deg, #3b2420, #6b3a2c); color: #fff3d6; box-shadow: 0 6px 14px -6px rgba(59,36,32,.7); }
-    .btn-green { background: linear-gradient(135deg, #047857, #065f46); color: #fff; box-shadow: 0 6px 14px -6px rgba(6,95,70,.7); }
-    .btn-ghost { background: #fff; color: #be123c; border: 1.5px solid #fda4af; padding: 7px 12px; font-size: 12.5px; }
-    .btn-wa { background: linear-gradient(135deg, #047857, #065f46); color: #fff; text-decoration: none; padding: 8px 12px; font-size: 13px; }
-    .btn-tg { background: linear-gradient(135deg, #0369a1, #075985); color: #fff; box-shadow: 0 6px 14px -6px rgba(7,89,133,.7); }
-    .btn-line { background: #fff; color: var(--cafe); border: 1.5px solid var(--arena); }
-    .btn:disabled { opacity: .6; }
-    .btn.listo:disabled { opacity: 1; cursor: default; }   /* hecho, no apagado */
-    .pill.reco { margin-left: 4px; vertical-align: 1px; background: #e0f2fe; color: #075985; }
-
-    /* Carnet: frecuencia y «Ya lo hice» · historial: eliminar */
-    .carnet-col { display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; align-content: start; min-width: 0; }
-    /* Si un título se parte en dos líneas (celulares angostos), las dos columnas siguen alineadas fila por fila */
-    @supports (grid-template-rows: subgrid) {
-      .carnet-grid { grid-template-rows: repeat(4, auto); row-gap: 6px; }
-      .carnet-grid > .carnet-col { grid-row: span 4; grid-template-rows: subgrid; }
-    }
-    .btn-hecho { width: 100%; padding: 7px 10px; border-radius: 12px; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font: 600 12.5px 'Fredoka', sans-serif; color: #fff; background: linear-gradient(135deg, #047857, #065f46); box-shadow: 0 4px 10px -4px rgba(6,95,70,.7); }
-    .btn-hecho:disabled { opacity: .6; }
-    .btn-borrar { flex: none; width: 28px; height: 28px; border-radius: 9px; border: 1px solid #fecaca; background: #fff; color: #be123c; cursor: pointer; display: grid; place-items: center; font-size: 12px; }
-    .btn-borrar:disabled { opacity: .5; }
-
-    /* Barra de guardado fija */
-    .savebar { position: sticky; bottom: 0; z-index: 20; padding: 18px 12px 12px; margin-top: 4px; background: linear-gradient(to top, #f8edd1 62%, rgba(248,237,209,0)); }
-    #btn-save { width: 100%; padding: 13px 14px; border-radius: 16px; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 16px 'Fredoka', sans-serif; color: #fff;
-                background: linear-gradient(135deg, #c2410c, #9a3412); box-shadow: 0 10px 20px -8px rgba(154,52,18,.75), inset 0 -3px 0 rgba(0,0,0,.14); }
-    #btn-save:active { transform: translateY(1px); }
-    #btn-save:disabled { opacity: .7; }
-
-    .vet-code { font: 800 30px ui-monospace, monospace; letter-spacing: .18em; color: #c2410c; margin: 0; }
-    .scroll-y { max-height: 260px; overflow-y: auto; }
-
-    /* Bienvenida al activar: la manta se despliega, el anillo tejido gira como pushka, cae mixtura, se estampa el sello
-       y los pasos suben uno tras otro. Cada paso lleva su número en una chakana */
-    html.bloqueo { overflow: hidden; }
-    @keyframes velo { from { opacity: 0; } }
-    @keyframes subir { from { opacity: 0; transform: translateY(14px); } }
-    @keyframes foto-pop { from { opacity: 0; transform: scale(.5); } 70% { transform: scale(1.05); } }
-    @keyframes pushka { from { transform: rotate(0); } to { transform: rotate(3turn); } }
-    @keyframes estampar { 0% { opacity: 0; transform: rotate(-32deg) scale(2.6); } 60% { opacity: 1; transform: rotate(-10deg) scale(.92); } 100% { opacity: 1; transform: rotate(-12deg) scale(1); } }
-    .bienvenida { position: fixed; inset: 0; z-index: 65; display: flex; padding: 16px; overflow-y: auto; background: rgba(20,10,6,.86); animation: velo .3s cubic-bezier(.2,.8,.2,1) both; }
-    .bv-hoja { position: relative; width: 100%; max-width: 360px; margin: auto; padding: 0 16px 16px; border-radius: 26px; overflow: hidden; text-align: center; background: var(--crema); box-shadow: 0 30px 60px -15px rgba(0,0,0,.7); transform-origin: 50% 0; animation: desenrollar .7s .1s cubic-bezier(.2,.8,.2,1) both; }
-    .bv-franja { height: 10px; margin: 0 -16px; background: var(--awayo) repeat-x left center / auto 10px; animation: tejer 1s .35s cubic-bezier(.45,0,.2,1) both; }
-    .bv-foto { position: relative; width: 104px; height: 104px; margin: 24px auto 14px; border-radius: 50%; display: grid; place-items: center; background: #fff1d6; color: var(--ocre); font-size: 40px; animation: foto-pop .6s .45s cubic-bezier(.2,.8,.2,1) both; }
-    .bv-foto::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; background: var(--telar); -webkit-mask: var(--anillo); mask: var(--anillo); animation: pushka 1.8s .45s cubic-bezier(.15,.75,.25,1) both; }
-    .bv-foto img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #fff; }
-    .bv-sello { position: absolute; right: -30px; bottom: 2px; padding: 3px 9px; border: 2.5px solid #047857; border-radius: 8px; background: rgba(255,253,248,.94); color: #047857; font: 800 13px 'DynaPuff', 'Fredoka', sans-serif; letter-spacing: .08em; transform: rotate(-12deg); animation: estampar .55s 1.05s cubic-bezier(.3,.7,.4,1.3) both; }
-    .bv-hoja h2 { margin: 0; font: 800 19px/1.2 'DynaPuff', 'Fredoka', sans-serif; color: var(--cafe); animation: subir .5s .7s cubic-bezier(.2,.8,.2,1) both; }
-    .bv-sub { margin: 6px 4px 14px; font-size: 13px; line-height: 1.4; color: var(--suave); animation: subir .5s .8s cubic-bezier(.2,.8,.2,1) both; }
-    .bv-pasos { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; text-align: left; }
-    .bv-paso { display: flex; align-items: flex-start; gap: 10px; padding: 9px 11px; border-radius: 14px; background: #fff; border: 1px solid var(--arena); transition: background .3s, border-color .3s; animation: subir .5s 1.2s cubic-bezier(.2,.8,.2,1) both; }
-    .bv-paso:nth-child(2) { animation-delay: 1.35s; }
-    .bv-paso:nth-child(3) { animation-delay: 1.5s; }
-    .bv-paso b { display: block; font-size: 13px; font-weight: 600; color: var(--cafe); }
-    .bv-paso small { display: block; margin-top: 1px; font-size: 11.5px; line-height: 1.35; color: var(--suave); }
-    .bv-num { position: relative; flex: none; width: 26px; height: 26px; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #fff; }
-    .bv-num::before { content: ""; position: absolute; inset: 0; background: var(--oxido); transition: background .3s;
-      clip-path: polygon(37.5% 0, 62.5% 0, 62.5% 12.5%, 75% 12.5%, 75% 25%, 87.5% 25%, 87.5% 37.5%, 100% 37.5%, 100% 62.5%, 87.5% 62.5%, 87.5% 75%, 75% 75%, 75% 87.5%, 62.5% 87.5%, 62.5% 100%, 37.5% 100%, 37.5% 87.5%, 25% 87.5%, 25% 75%, 12.5% 75%, 12.5% 62.5%, 0 62.5%, 0 37.5%, 12.5% 37.5%, 12.5% 25%, 25% 25%, 25% 12.5%, 37.5% 12.5%); }
-    .bv-num > * { position: relative; }
-    .bv-num i, .bv-paso.hecho .bv-num span { display: none; }
-    .bv-paso.hecho { background: #ecfdf5; border-color: #a7f3d0; }
-    .bv-paso.hecho .bv-num::before { background: #047857; }
-    .bv-paso.hecho .bv-num i { display: block; animation: girito .5s cubic-bezier(.2,.8,.2,1); }
-    .bv-botones { display: grid; gap: 8px; animation: subir .5s 1.65s cubic-bezier(.2,.8,.2,1) both; }
-    @media (max-width: 340px) { .g3 { grid-template-columns: 1fr 1fr; } .chip-id { display: none; } }
-  </style>
+  <link rel="stylesheet" href="css/panel.css?v=1">
   <!-- Tailwind compilado (v3.4.17): si agregas clases nuevas de Tailwind, regenera tailwind.css (ver tailwind.config.js) -->
   <link rel="stylesheet" href="tailwind.css">
 </head>
@@ -270,7 +34,7 @@
       <label class="chip-id" title="Código de placa"><i class="fa-solid fa-tag"></i><input type="text" id="input-id" readonly aria-label="Código de placa"></label>
     </header>
 
-    <form id="pet-form" onsubmit="return false;">
+    <form id="pet-form">
 
       <!-- ESTADO DE PÉRDIDA (solo al editar): se guarda al tocar el botón -->
       <div id="lost-toggle-box" class="hidden alarm">
@@ -284,7 +48,7 @@
             <p id="estado-texto" class="s">Si se pierde, activa la alarma: quien escanee su placa lo sabrá al instante.</p>
           </div>
         </div>
-        <button id="btn-toggle-lost" type="button" onclick="toggleMascotaPerdida()" class="btn-alarma">
+        <button id="btn-toggle-lost" type="button" class="btn-alarma">
           <i class="fa-solid fa-bullhorn"></i> <span>¿Se perdió? Activar alarma</span>
         </button>
 
@@ -327,7 +91,7 @@
           <div class="t">Avisos por Telegram <span id="tg-reco" class="pill reco hidden">Recomendado</span></div>
           <p id="telegram-estado" class="s">Avisos de escaneos y de vacunas.</p>
         </div>
-        <button type="button" id="btn-telegram" onclick="accionTelegram()" class="btn-mini">Vincular</button>
+        <button type="button" id="btn-telegram" class="btn-mini">Vincular</button>
       </div>
 
       <!-- DISPOSITIVOS CON ACCESO (solo al editar) -->
@@ -337,7 +101,7 @@
           <div class="t">Dispositivos con acceso</div>
           <p id="disp-estado" class="s">Cargando...</p>
         </div>
-        <button type="button" id="btn-disp" onclick="quitarOtrosDispositivos()" class="btn-mini hidden">Quitar otros</button>
+        <button type="button" id="btn-disp" class="btn-mini hidden">Quitar otros</button>
       </div>
 
       <!-- COMUNIDAD: solo cuando hay mascotas perdidas publicadas en el canal -->
@@ -352,13 +116,13 @@
 
       <!-- ÚLTIMA UBICACIÓN / ESCANEOS (no aparece al activar una placa nueva) -->
       <div id="escaneos-card" class="card">
-        <div onclick="toggleHistorialEscaneos()" class="row-mini" style="cursor:pointer;user-select:none">
+        <div id="fila-escaneos" class="row-mini" style="cursor:pointer;user-select:none">
           <div class="ico blue"><i class="fa-solid fa-location-dot"></i></div>
           <div class="txt">
             <div class="t">Última ubicación</div>
             <p id="preview-ultimo-escaneo" class="s">Cargando...</p>
           </div>
-          <a id="btn-ultimo-maps" href="#" target="_blank" rel="noopener" onclick="event.stopPropagation();" class="btn-maps hidden">
+          <a id="btn-ultimo-maps" href="#" target="_blank" rel="noopener" class="btn-maps hidden">
             <i class="fa-solid fa-map-location-dot"></i> Maps
           </a>
           <button type="button" id="btn-escaneos" class="chev-btn" aria-expanded="false" aria-controls="desplegable-escaneos" aria-label="Ver escaneos anteriores">
@@ -490,7 +254,7 @@
                 <option value="6">Cada 6 meses</option>
                 <option value="12">Cada año</option>
               </select>
-              <button type="button" id="btn-hecho-vacuna" class="btn-hecho hidden" onclick="marcarCarnetHecho('vacuna')"><i class="fa-solid fa-check"></i> Ya lo hice</button>
+              <button type="button" id="btn-hecho-vacuna" class="btn-hecho hidden"><i class="fa-solid fa-check"></i> Ya lo hice</button>
             </div>
             <div class="carnet-col">
               <label for="input-next-deworming" class="lbl">Próx. desparasitación</label>
@@ -502,7 +266,7 @@
                 <option value="6">Cada 6 meses</option>
                 <option value="12">Cada año</option>
               </select>
-              <button type="button" id="btn-hecho-desparasitacion" class="btn-hecho hidden" onclick="marcarCarnetHecho('desparasitacion')"><i class="fa-solid fa-check"></i> Ya lo hice</button>
+              <button type="button" id="btn-hecho-desparasitacion" class="btn-hecho hidden"><i class="fa-solid fa-check"></i> Ya lo hice</button>
             </div>
           </div>
           <p class="hint"><i class="fa-solid fa-rotate"></i>Si se repite, la fecha avanza sola y el aviso de Telegram sigue. «Ya lo hice» (aparece con la fecha ya guardada) lo anota en el historial y pasa a la siguiente.</p>
@@ -573,7 +337,7 @@
                 <input type="date" id="med-next" class="fld">
                 <p class="hint" style="margin-top:4px"><i class="fa-solid fa-circle-info"></i>Es solo para esta atención. Para la vacuna o la desparasitación de siempre usa el carnet de salud: ahí se repite sola y te avisa.</p>
               </div>
-              <button type="button" id="btn-save-med" onclick="guardarRegistroMedico()" class="btn btn-green">
+              <button type="button" id="btn-save-med" class="btn btn-green">
                 <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
               </button>
             </div>
@@ -583,14 +347,14 @@
             <summary><i class="fa-solid fa-user-doctor" style="color:#d97706"></i> Código para el veterinario <i class="fa-solid fa-chevron-down chev"></i></summary>
             <div class="sub-b">
               <p class="hint"><i class="fa-solid fa-clock"></i>Vence en 24 h y permite 5 registros. El anterior deja de servir.</p>
-              <button type="button" id="btn-gen-vet" onclick="generarCodigoVet()" class="btn btn-dark"><i class="fa-solid fa-key"></i> Generar código</button>
+              <button type="button" id="btn-gen-vet" class="btn btn-dark"><i class="fa-solid fa-key"></i> Generar código</button>
               <div id="vet-result" class="hidden" style="text-align:center;display:grid;gap:6px">
                 <p id="vet-code" class="vet-code"></p>
                 <p id="vet-exp" class="hint"></p>
                 <a id="vet-wa" target="_blank" class="btn btn-wa"><i class="fa-brands fa-whatsapp"></i> Enviar al veterinario</a>
               </div>
               <p id="vet-err" class="hidden" style="text-align:center;font-size:12px;font-weight:600;color:#be123c;margin:0"></p>
-              <button type="button" onclick="revocarCodigoVet()" class="btn btn-ghost"><i class="fa-solid fa-ban"></i> Revocar autorización del veterinario</button>
+              <button id="btn-revocar-vet" type="button" class="btn btn-ghost"><i class="fa-solid fa-ban"></i> Revocar autorización del veterinario</button>
             </div>
           </details>
 
@@ -606,7 +370,7 @@
 
       <!-- GUARDAR (barra fija abajo) -->
       <div class="savebar">
-        <button id="btn-save" type="button" onclick="guardarDatos()">
+        <button id="btn-save" type="button">
           <i class="fa-solid fa-floppy-disk"></i> <span>Guardar Cambios</span>
         </button>
       </div>
@@ -642,764 +406,13 @@
         </li>
       </ol>
       <div class="bv-botones">
-        <button id="bv-telegram" type="button" onclick="accionTelegram()" class="btn btn-tg"><i class="fa-brands fa-telegram"></i> <span>Vincular Telegram</span></button>
-        <button id="bv-perfil" type="button" onclick="irAlPerfil()" class="btn btn-line"><i class="fa-solid fa-paw"></i> <span>Ver su perfil</span></button>
+        <button id="bv-telegram" type="button" class="btn btn-tg"><i class="fa-brands fa-telegram"></i> <span>Vincular Telegram</span></button>
+        <button id="bv-perfil" type="button" class="btn btn-line"><i class="fa-solid fa-paw"></i> <span>Ver su perfil</span></button>
       </div>
     </div>
   </div>
 
-  <script>
-    const SUPABASE_URL = "https://cjxcqdgtchhtfowreuca.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o";
-
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const db = client;
-    const $ = id => document.getElementById(id);
-    const val = id => ($(id) || {}).value || '';
-    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const fmtFecha = iso => {
-      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
-      return m ? `${m[3]}/${m[2]}/${m[1]}` : String(iso || '');
-    };
-    const soloFecha = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '') ? v : '';
-    let tagId = '';
-    let existingPhotoUrl = "";
-    let savedPin = null;
-    let isLostState = false;
-    let pinSesion = '';
-    let esPlacaNueva = false;   // se está activando la placa (aún no tiene mascota)
-    const nombreMascota = () => val('input-pet').trim() || 'tu mascota';
-    const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
-    const msgEstado = e =>
-      e === 'bloqueado' ? 'Demasiados intentos: espera 15 minutos.' :
-      e === 'incorrecto' ? 'Tu sesión venció: vuelve a entrar con tu PIN desde el perfil.' :
-      e === 'pin_debil' ? MSG_PIN_FACIL :
-      e === 'no_existe' ? 'Primero guarda los datos de la placa.' :
-      e === 'pin_invalido' ? 'El PIN debe ser de 4 números.' :
-      e === 'codigo_incorrecto' ? 'El código de activación es incorrecto.' :
-      e === 'placa_invalida' ? 'Esta placa no es válida o ya fue activada.' :
-      e === 'telefono_invalido' ? 'Revisa los teléfonos: usa solo números, con código de país (ej. 51987654321).' :
-      e === 'sin_fecha' ? 'Primero guarda una fecha en el carnet.' :
-      e === 'ya_registrado' ? 'Ya lo anotaste hoy en el historial.' :
-      e === 'no_encontrado' ? 'Ese registro ya no existe.' :
-      'Revisa los datos (' + e + ').';
-    // Mismas reglas que el servidor (pin_es_debil): solo para avisar antes de enviar
-    const MSG_PIN_FACIL = 'Ese PIN es muy fácil de adivinar (como 1234, 0000, un año o los últimos 4 dígitos de tu teléfono). Elige otro.';
-    function pinFacil(p, ...tels) {
-      if (!/^[0-9]{4}$/.test(p)) return true;
-      if (/^(\d\d)\1$/.test(p) || /^(\d)\1(\d)\2$/.test(p) || /^(\d)(\d)\2\1$/.test(p) || /^(19|20)\d\d$/.test(p)) return true;
-      if ('01234567890'.includes(p) || '09876543210'.includes(p)) return true;
-      if (['2580','0852','1357','2468','1470','0741','3690','0963','1478','8741','3214','1236','1004','6969','1590'].includes(p)) return true;
-      return tels.some(t => { const d = String(t || '').replace(/\D/g, ''); return d.length >= 4 && d.slice(-4) === p; });
-    }
-    function etiquetaDispositivo() {
-      const u = navigator.userAgent || '';
-      const so = /Android/i.test(u) ? 'Android' : /iPhone|iPad|iPod/i.test(u) ? 'iPhone' : /Windows/i.test(u) ? 'Windows' : /Mac OS/i.test(u) ? 'Mac' : /Linux/i.test(u) ? 'Linux' : 'Otro';
-      const nav = /Edg\//.test(u) ? 'Edge' : /OPR\/|Opera/.test(u) ? 'Opera' : /SamsungBrowser/.test(u) ? 'Samsung Internet'
-        : /Firefox|FxiOS/.test(u) ? 'Firefox' : /Chrome|CriOS/.test(u) ? 'Chrome' : /Safari/.test(u) ? 'Safari' : 'Navegador';
-      return `${nav} · ${so}`;
-    }
-    const hoyLima = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });   // AAAA-MM-DD
-
-    // Aviso breve abajo de la pantalla (en lugar de los alert, que bloquean la página)
-    let toastTimer = null;
-    function aviso(texto, tipo = 'info') {
-      const t = $('toast');
-      const ico = { ok: 'fa-circle-check', error: 'fa-circle-exclamation' }[tipo] || 'fa-paw';
-      t.className = `toast ${tipo}`;
-      t.innerHTML = `<i class="fa-solid ${ico}"></i><span></span>`;
-      t.querySelector('span').textContent = texto;
-      requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('ver')));
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('ver'), tipo === 'error' ? 5000 : 3200);
-    }
-    [...document.querySelectorAll('#pet-form > *')].forEach((el, i) => el.style.setProperty('--i', i));
-
-    // ---- Animaciones al tocar (todas se apagan con «reducir movimiento») ----
-    const sinMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    const vibrar = patron => { try { if (!sinMovimiento && navigator.vibrate) navigator.vibrate(patron); } catch (e) {} };
-    const espera = ms => new Promise(r => setTimeout(r, sinMovimiento ? 0 : ms));
-    // Reinicia una animación de CSS (quita la clase, fuerza el recálculo y la vuelve a poner)
-    function repetir(el, clase, ms) {
-      el.classList.remove(clase);
-      void el.offsetWidth;
-      el.classList.add(clase);
-      clearTimeout(el['_' + clase]);
-      el['_' + clase] = setTimeout(() => el.classList.remove(clase), ms);
-    }
-    // Mixtura: chakanas (cruz escalonada), rombos y huellitas que saltan en abanico y caen meciéndose,
-    // como la mixtura que se lanza en los carnavales andinos (la misma del perfil)
-    const CHAKANA = 'M9 0h6v3h3v3h3v3h3v6h-3v3h-3v3h-3v3H9v-3H6v-3H3v-3H0V9h3V6h3V3h3zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z';
-    const ROMBO = 'M12 0l12 12-12 12L0 12zM12 7l-5 5 5 5 5-5z';
-    const svgFigura = d => `<svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="${d}"/></svg>`;
-    const FIGURAS = [svgFigura(CHAKANA), svgFigura(ROMBO), '<i class="fa-solid fa-paw"></i>'];
-    const COLORES_TEJIDO = ['#b4452b', '#e0a24a', '#7f9a3e', '#3b2420'];
-    function lanzarFiguras(el, cantidad = 8) {
-      if (sinMovimiento || !el || !el.animate) return;
-      const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-      for (let k = 0; k < cantidad; k++) {
-        const f = document.createElement('span');
-        f.className = 'figura';
-        f.innerHTML = FIGURAS[k % FIGURAS.length];
-        const tam = 15 + Math.random() * 11;
-        f.style.cssText = `left:${x}px;top:${y}px;width:${tam}px;height:${tam}px;font-size:${tam}px;color:${COLORES_TEJIDO[(k + 1) % COLORES_TEJIDO.length]}`;
-        document.body.appendChild(f);
-        const ang = (-90 + (k - (cantidad - 1) / 2) * (170 / cantidad)) * Math.PI / 180;
-        const dist = 80 + Math.random() * 60, giro = (Math.random() < .5 ? -1 : 1) * (140 + Math.random() * 160);
-        const mece = 14 + Math.random() * 14, dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist;
-        const pos = (px, py, g, e) => `translate(-50%, -50%) translate(${px}px, ${py}px) rotate(${g}deg) scale(${e})`;
-        f.animate([
-          { transform: pos(0, 0, 0, .3), opacity: 0, easing: 'cubic-bezier(.2,.8,.2,1)' },
-          { transform: pos(dx, dy, giro * .4, 1.1), opacity: 1, offset: .3, easing: 'ease-in-out' },
-          { transform: pos(dx * 1.15 + mece, dy + 34, giro * .75, 1), opacity: 1, offset: .65, easing: 'ease-in' },
-          { transform: pos(dx * 1.25 - mece / 2, dy + 78, giro, .9), opacity: 0 }
-        ], { duration: 1300 + Math.random() * 400, delay: k * 28, fill: 'both' }).finished.then(() => f.remove(), () => f.remove());
-      }
-    }
-    // Onda que nace donde se tocó el botón; su ícono salta
-    document.addEventListener('pointerdown', e => {
-      const b = e.target.closest && e.target.closest('.btn, #btn-save, .btn-mini, .btn-hecho, #btn-toggle-lost, .btn-maps');
-      if (!b || b.disabled) return;
-      const r = b.getBoundingClientRect();
-      b.style.setProperty('--x', `${e.clientX - r.left}px`);
-      b.style.setProperty('--y', `${e.clientY - r.top}px`);
-      repetir(b, 'onda', 700);
-    }, { passive: true });
-
-    // «+ Registrar» del perfil llega con #registrar-medico (#seccion-medica en enlaces anteriores):
-    // se abre el formulario «Agregar atención o vacuna» y se baja hasta él.
-    let tocoPantalla = false;
-    function mostrarFormularioMedico(suave) {
-      const seccion = $('seccion-medica'), form = $('form-medical-record');
-      if (!seccion || !form || seccion.classList.contains('hidden')) return;
-      seccion.open = true;
-      const sub = form.closest('details');
-      if (sub) sub.open = true;
-      seccion.scrollIntoView({ behavior: suave && !sinMovimiento ? 'smooth' : 'auto', block: 'start' });
-    }
-    function vigilarToque() {   // si ya tocó la pantalla, no se le vuelve a mover la vista
-      ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(ev =>
-        window.addEventListener(ev, () => { tocoPantalla = true; }, { once: true, passive: true }));
-    }
-
-    // ---- Carnet: frecuencia y «Ya lo hice» ----
-    const CARNET = {
-      vacuna:          { fecha: 'input-next-vaccine',   cada: 'input-vaccine-every',   btn: 'btn-hecho-vacuna',          nombre: 'la vacuna',          guardada: { fecha: '', cada: '' } },
-      desparasitacion: { fecha: 'input-next-deworming', cada: 'input-deworming-every', btn: 'btn-hecho-desparasitacion', nombre: 'la desparasitación', guardada: { fecha: '', cada: '' } }
-    };
-    function ponerFrecuencia(id, n) {   // si la base trae una frecuencia que la lista no tiene (2 meses, 2 años...), se agrega como opción
-      const sel = $(id), v = n ? String(n) : '';
-      if (v && ![...sel.options].some(o => o.value === v)) {
-        const o = document.createElement('option');
-        o.value = v;
-        o.textContent = n % 12 === 0 ? `Cada ${n / 12} años` : `Cada ${n} meses`;
-        sel.appendChild(o);
-      }
-      sel.value = v;
-    }
-    function recordarCarnet(tipo) {      // lo que ya está guardado en el servidor
-      const c = CARNET[tipo];
-      c.guardada = { fecha: val(c.fecha), cada: val(c.cada) };
-    }
-    function actualizarBotonesCarnet() { // «Ya lo hice» solo con la fecha ya guardada: el servidor usa lo guardado, no lo que está a medio cambiar
-      Object.values(CARNET).forEach(c => {
-        const igual = val(c.fecha) === c.guardada.fecha && val(c.cada) === c.guardada.cada;
-        $(c.btn).classList.toggle('hidden', !(c.guardada.fecha && igual));
-      });
-    }
-    Object.values(CARNET).forEach(c => [c.fecha, c.cada].forEach(id =>
-      ['input', 'change'].forEach(ev => $(id).addEventListener(ev, actualizarBotonesCarnet))));
-
-    async function marcarCarnetHecho(tipo) {
-      const c = CARNET[tipo], btn = $(c.btn);
-      if (!pinSesion) { aviso('Vuelve a entrar con tu PIN desde el perfil.', 'error'); return; }
-      const sigue = !!c.guardada.cada;
-      if (!confirm(`¿Ya aplicaste ${c.nombre}? Se anotará en el historial con la fecha de hoy` +
-          (sigue ? ' y la fecha del carnet pasará a la siguiente.' : '. Como no se repite, la fecha del carnet se quitará.'))) return;
-      const original = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Anotando...`;
-      try {
-        const { data, error } = await db.rpc('marcar_carnet_hecho', { p_id: tagId, p_pin: pinSesion, p_tipo: tipo });
-        if (error || !data) throw new Error('No se pudo anotar. Revisa tu conexión e intenta de nuevo.');
-        if (data.estado !== 'ok') throw new Error(msgEstado(data.estado));
-        $(c.fecha).value = soloFecha(data.proxima);
-        recordarCarnet(tipo);
-        aviso(data.proxima
-          ? `Anotado en el historial. Próxima fecha: ${fmtFecha(data.proxima)}.`
-          : 'Anotado en el historial. Como no se repite, la fecha del carnet se quitó: pon la próxima cuando la tengas.', 'ok');
-        await cargarHistorialPrivado();
-      } catch (err) {
-        aviso(err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = original;
-        actualizarBotonesCarnet();
-      }
-    }
-
-    async function inicializar() {
-      tagId = new URLSearchParams(window.location.search).get('id') || '';
-      $('input-id').value = tagId;
-      if (!tagId) { aviso('Enlace de placa no válido.', 'error'); return; }
-      revisarCanal();
-      const irAMedico = ['#registrar-medico', '#seccion-medica'].includes(window.location.hash);
-
-      const { data: existe } = await client.rpc('obtener_mascota', { p_id: tagId });
-      if (existe) {
-        pinSesion = sessionStorage.getItem(`pin_${tagId}`) || '';
-        const { data: priv } = pinSesion
-          ? await client.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion })
-          : { data: null };
-        if (!priv || priv.estado !== 'ok') {
-          sessionStorage.removeItem(`pin_${tagId}`);
-          window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
-          return;
-        }
-        const data = priv.mascota;
-
-        $('form-title').innerText = "Editar Placa";
-        $('pin-creation-box').classList.add('hidden');
-        $('lost-toggle-box').classList.remove('hidden');
-        $('seguridad-card').classList.add('hidden');
-        $('seccion-medica').classList.remove('hidden');
-
-        const campos = {
-          'input-pet': 'pet', 'input-breed': 'breed', 'input-color': 'color', 'input-weight': 'weight',
-          'input-age': 'age', 'input-description': 'description', 'input-owner': 'owner',
-          'input-phone': 'phone', 'input-phone-secondary': 'phone_secondary',
-          'input-lost-location': 'lost_location', 'input-lost-date': 'lost_date', 'input-lost-time': 'lost_time',
-          'input-allergies': 'allergies', 'input-medical': 'medical_notes', 'input-diet': 'diet',
-          'input-vet-name': 'vet_name', 'input-vet-phone': 'vet_phone'
-        };
-        for (const [idEl, col] of Object.entries(campos)) { if ($(idEl)) $(idEl).value = data[col] || ''; }
-        // Las fechas antiguas escritas como texto ("15 de Octubre") no se pueden convertir: quedan vacías
-        $('input-next-vaccine').value = soloFecha(data.next_vaccine);
-        $('input-next-deworming').value = soloFecha(data.next_deworming);
-        ponerFrecuencia('input-vaccine-every', data.vaccine_every);
-        ponerFrecuencia('input-deworming-every', data.deworming_every);
-        recordarCarnet('vacuna'); recordarCarnet('desparasitacion'); actualizarBotonesCarnet();
-        $('input-reward').checked = data.reward || false;
-
-        savedPin = pinSesion;
-        isLostState = data.is_lost || false;
-        actualizarBotonAlarmaUI();
-
-        if (data.photo) {
-          existingPhotoUrl = data.photo;
-          const p = $('preview-photo');
-          p.src = data.photo;
-          p.classList.remove('hidden');
-          $('placeholder-icon').classList.add('hidden');
-        }
-        if (irAMedico) { mostrarFormularioMedico(true); vigilarToque(); }
-      } else {
-        const { data: est } = await client.rpc('estado_placa', { p_id: tagId });
-        if (est !== 'sin_activar') { window.location.href = `index.html?id=${encodeURIComponent(tagId)}`; return; }
-        // Placa nueva: solo lo necesario para activarla, en 3 pasos (lo del canal y los escaneos aparece después)
-        esPlacaNueva = true;
-        $('activation-box').classList.remove('hidden');
-        $('form-title').innerText = 'Activar placa';
-        $('form-subtitle').innerText = 'Ten a mano la tarjeta del empaque';
-        $('escaneos-card').classList.add('hidden');
-        document.querySelectorAll('#pet-form .pill.req').forEach((p, i) => { p.textContent = `Paso ${i + 1} de 3`; });
-        $('btn-save').innerHTML = textoBotonGuardar();
-        actualizarBannerCanal();
-      }
-      let telegram = null;
-      if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); telegram = refrescarTelegram().catch(() => {}).then(cargarDispositivos); }   // aparecen juntos: un solo empujón que se corrige abajo
-      await cargarHistorialPrivado();
-      await cargarHistorialEscaneos();
-      // El aviso de Telegram y el último escaneo pueden mover lo de arriba: si no tocó nada, el formulario vuelve a quedar a la vista
-      if (irAMedico && existe) {
-        try { await telegram; } catch (e) {}
-        if (!tocoPantalla) mostrarFormularioMedico(false);
-      }
-    }
-
-    // Celulares que pueden entrar con el PIN (el que activó la placa y los verificados con Telegram o la tarjeta)
-    async function cargarDispositivos() {
-      if (!pinSesion) return;
-      let r = null;
-      try { const { data } = await client.rpc('mis_dispositivos', { p_id: tagId, p_sesion: pinSesion }); r = data; } catch (e) {}
-      if (!r || r.estado !== 'ok') return;
-      const lista = r.dispositivos || [];
-      const otros = lista.filter(d => !d.este);
-      $('disp-estado').textContent = otros.length === 0
-        ? 'Solo este celular puede entrar con tu PIN. En otro te pediremos un código.'
-        : `Este y ${otros.length === 1 ? '1 más' : otros.length + ' más'}: ${otros.slice(0, 3).map(d => d.etiqueta).join(', ')}${otros.length > 3 ? '…' : ''}.`;
-      $('btn-disp').classList.toggle('hidden', otros.length === 0);
-      $('disp-box').classList.remove('hidden');
-    }
-    async function quitarOtrosDispositivos() {
-      if (!confirm('¿Quitar el acceso a los demás celulares? Para volver a entrar desde ellos tendrán que confirmar con un código.')) return;
-      const btn = $('btn-disp');
-      btn.disabled = true;
-      let r = null;
-      try { const { data } = await client.rpc('cerrar_otros_dispositivos', { p_id: tagId, p_sesion: pinSesion }); r = data; } catch (e) {}
-      btn.disabled = false;
-      if (!r || r.estado !== 'ok') { aviso('No se pudo quitar el acceso. ' + msgEstado(r ? r.estado : 'sin_conexion'), 'error'); return; }
-      await cargarDispositivos();
-    }
-
-    // La alarma se guarda en el momento (sin esperar a «Guardar Cambios»): así nunca queda a medias si se cierra la página.
-    // Al activarla, el pututu llama a la comunidad; al volver a casa, cae mixtura.
-    let guardandoAlarma = false;
-    async function toggleMascotaPerdida() {
-      if (guardandoAlarma) return;
-      const activar = !isLostState, nombre = nombreMascota();
-      if (activar && !confirm(`¿Activar la alarma? Quien escanee la placa de ${nombre} verá que se perdió y podrá avisarte dónde está.`)) return;
-      guardandoAlarma = true;
-      const btn = $('btn-toggle-lost');
-      btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${activar ? 'Activando la alarma...' : 'Guardando...'}</span>`;
-      isLostState = activar;
-      try {
-        await enviarDatos();
-      } catch (err) {
-        isLostState = !activar;
-        aviso((activar ? 'No se pudo activar la alarma: ' : 'No se pudo guardar: ') + err.message, 'error');
-        return;
-      } finally {
-        guardandoAlarma = false;
-        btn.disabled = false;
-        actualizarBotonAlarmaUI();
-      }
-      const caja = $('lost-toggle-box');
-      repetir(btn, 'rebote', 520);
-      if (activar) {
-        repetir(caja, 'llamado', 2100);
-        vibrar([60, 50, 60, 50, 140]);
-        aviso('Alarma activada. Completa dónde se perdió y toca «Guardar Cambios» para el afiche y el canal.', 'ok');
-      } else {
-        repetir(caja, 'en-casa', 950);
-        lanzarFiguras($('estado-ico'), 12);
-        vibrar(25);
-        aviso(`¡Qué alegría! ${nombre} ya está en casa.`, 'ok');
-      }
-    }
-
-    // Invitación al canal para todos cuando hay mascotas perdidas publicadas (con la alarma activa ya va dentro del recuadro rojo;
-    // al activar una placa nueva no aparece: primero lo primero)
-    let hayAvisosCanal = false;
-    function revisarCanal() {
-      Promise.resolve(client.rpc('canal_hay_avisos'))
-        .then(({ data }) => { hayAvisosCanal = data === true; actualizarBannerCanal(); })
-        .catch(() => {});
-    }
-    function actualizarBannerCanal() { $('canal-banner').classList.toggle('hidden', !hayAvisosCanal || isLostState || esPlacaNueva); }
-
-    function actualizarBotonAlarmaUI() {
-      actualizarBannerCanal();
-      const nombre = val('input-pet').trim();
-      $('lost-toggle-box').classList.toggle('perdida', isLostState);
-      $('estado-i').className = 'fa-solid ' + (isLostState ? 'fa-bullhorn' : 'fa-house-chimney');
-      $('estado-titulo').textContent = isLostState ? `Alarma activa: buscando a ${nombre || 'tu mascota'}` : `${nombre || 'Tu mascota'} está en casa`;
-      $('estado-texto').textContent = isLostState
-        ? 'Quien escanee su placa verá que se perdió y podrá enviarte su ubicación.'
-        : 'Si se pierde, activa la alarma: quien escanee su placa lo sabrá al instante.';
-      $('btn-toggle-lost').innerHTML = isLostState
-        ? '<i class="fa-solid fa-house-chimney"></i> <span>¡Ya volvió a casa!</span>'
-        : '<i class="fa-solid fa-bullhorn"></i> <span>¿Se perdió? Activar alarma</span>';
-      $('lost-details-box').classList.toggle('hidden', !isLostState);
-    }
-
-    $('input-photo').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const p = $('preview-photo');
-        p.src = ev.target.result;
-        p.classList.remove('hidden');
-        $('placeholder-icon').classList.add('hidden');
-        const avatar = p.closest('.avatar');
-        repetir(avatar, 'pop', 500);   // la foto nueva entra con un saltito y mixtura
-        lanzarFiguras(avatar, 7);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    async function comprimirImagen(file, maxLado = 900, calidad = 0.82) {
-      if (!file.type.startsWith('image/')) return file;
-      const url = URL.createObjectURL(file);
-      try {
-        const img = await new Promise((ok, fail) => {
-          const i = new Image();
-          i.onload = () => ok(i);
-          i.onerror = fail;
-          i.src = url;
-        });
-        const escala = Math.min(1, maxLado / Math.max(img.naturalWidth, img.naturalHeight));
-        const w = Math.round(img.naturalWidth * escala);
-        const h = Math.round(img.naturalHeight * escala);
-        const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, w, h);
-        ctx.drawImage(img, 0, 0, w, h);
-        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', calidad));
-        return blob && blob.size < file.size ? new File([blob], 'foto.jpg', { type: 'image/jpeg' }) : file;
-      } catch (e) {
-        return file;
-      } finally {
-        URL.revokeObjectURL(url);
-      }
-    }
-
-    const textoBotonGuardar = () => esPlacaNueva
-      ? '<i class="fa-solid fa-shield-dog"></i> <span>Activar mi placa</span>'
-      : '<i class="fa-solid fa-floppy-disk"></i> <span>Guardar Cambios</span>';
-
-    // Lo que falta o está mal en el formulario ('' si todo está bien)
-    function revisarDatos() {
-      const phone = normalizarTel(val('input-phone'));
-      const finalPin = savedPin ? savedPin : val('input-pin').trim();
-      if (!val('input-pet').trim() || !val('input-owner').trim() || !phone || !finalPin) return 'Completa los campos obligatorios (*).';
-      if (phone.length < 8 || phone.length > 15) return 'Revisa el teléfono principal: usa solo números, con código de país (ej. 51987654321).';
-      if (!savedPin && !/^[0-9]{4}$/.test(finalPin)) return 'El PIN debe ser de 4 números.';
-      if (!savedPin && pinFacil(finalPin, phone, normalizarTel(val('input-phone-secondary')))) return MSG_PIN_FACIL;
-      if (esPlacaNueva && !$('input-consent').checked) return 'Para activar la placa debes aceptar el aviso de privacidad y los términos.';
-      return '';
-    }
-
-    // Sube la foto (si hay una nueva) y guarda todo el formulario. La usan «Guardar Cambios» y la alarma.
-    // Devuelve la respuesta del servidor o lanza un error con el motivo.
-    async function enviarDatos() {
-      const falta = revisarDatos();
-      if (falta) throw new Error(falta);
-      const pet = val('input-pet').trim();
-      const owner = val('input-owner').trim();
-      const phone = normalizarTel(val('input-phone'));
-      const finalPin = savedPin ? savedPin : val('input-pin').trim();
-      const photoInput = $('input-photo');
-      const esNueva = esPlacaNueva;
-      let photoPublicUrl = existingPhotoUrl;
-
-      if (photoInput.files && photoInput.files[0]) {
-        const file = await comprimirImagen(photoInput.files[0]);
-        const ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }[file.type];
-        if (!ext) throw new Error('Formato de imagen no compatible. Usa una foto JPG o PNG.');
-        if (file.size > 1048576) throw new Error('La foto pesa más de 1 MB. Elige otra o recórtala.');
-        const fileName = `${tagId}_${Date.now()}.${ext}`;
-        const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false, contentType: file.type });
-        if (uploadError) throw new Error('No se pudo subir la foto: ' + uploadError.message);
-        photoPublicUrl = client.storage.from('pet-photos').getPublicUrl(fileName).data.publicUrl;
-      }
-      const v = id => val(id).trim();
-      const { data: res, error: dbError } = await client.rpc('guardar_mascota', {
-        p_id: tagId, p_pin: finalPin, p_codigo: val('input-codigo').trim() || null,
-        p_datos: {
-          pet, owner, phone,
-          breed: v('input-breed'), color: v('input-color'),
-          weight: v('input-weight').replace(/\s*kg$/i, ''), age: v('input-age'),
-          description: v('input-description'), phone_secondary: normalizarTel(v('input-phone-secondary')),
-          is_lost: isLostState, lost_location: v('input-lost-location'),
-          lost_date: v('input-lost-date'), lost_time: v('input-lost-time'),
-          reward: $('input-reward').checked, photo: photoPublicUrl,
-          next_vaccine: v('input-next-vaccine'), next_deworming: v('input-next-deworming'),
-          vaccine_every: Number(v('input-vaccine-every')) || null, deworming_every: Number(v('input-deworming-every')) || null,
-          allergies: v('input-allergies'), medical_notes: v('input-medical'), diet: v('input-diet'),
-          vet_name: v('input-vet-name'), vet_phone: v('input-vet-phone'),
-          ...(esNueva ? { _etiqueta: etiquetaDispositivo() } : {}),
-        }
-      });
-      if (dbError) throw dbError;
-      if (res.estado !== 'ok') throw new Error(msgEstado(res.estado));
-
-      // Placa nueva: el servidor devuelve la sesión y deja este celular como dispositivo del dueño
-      sessionStorage.setItem(`pin_${tagId}`, res.sesion || finalPin);
-      try {
-        if (res.dispositivo) localStorage.setItem(`disp_${tagId}`, res.dispositivo);
-        localStorage.setItem(`dueno_${tagId}`, '1');
-      } catch (e) {}   // este dispositivo es del dueño (también al activar la placa)
-      if (esNueva) { pinSesion = res.sesion || finalPin; savedPin = pinSesion; }
-      if (photoInput.files && photoInput.files[0]) { existingPhotoUrl = photoPublicUrl; photoInput.value = ''; }   // no se vuelve a subir
-      cambiosSinGuardar = false;
-      return res;
-    }
-
-    async function guardarDatos() {
-      const btn = $('btn-save');
-      const falta = revisarDatos();
-      if (falta) { aviso(falta, 'error'); return; }
-      const esNueva = esPlacaNueva;
-      btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${esNueva ? 'Activando...' : 'Guardando...'}</span>`;
-      try {
-        await enviarDatos();
-      } catch (err) {
-        aviso((esNueva ? 'No se pudo activar: ' : 'No se pudo guardar: ') + err.message, 'error');
-        btn.disabled = false;
-        btn.innerHTML = textoBotonGuardar();
-        return;
-      }
-      // Guardado: el botón se pone verde con un check y sale mixtura; luego la bienvenida (placa nueva) o el perfil
-      btn.classList.add('ok');
-      btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${esNueva ? '¡Activada!' : '¡Guardado!'}</span>`;
-      lanzarFiguras(btn, 9);
-      vibrar(25);
-      if (esNueva) { await espera(650); mostrarBienvenida(); return; }
-      await espera(750);
-      irAlPerfil();
-    }
-
-    // Cambios sin guardar: el navegador pregunta antes de salir (el historial médico y el código del veterinario se guardan aparte)
-    let cambiosSinGuardar = false, saliendo = false;
-    ['input', 'change'].forEach(ev => $('pet-form').addEventListener(ev, e => {
-      if (!e.target.closest('#form-medical-record')) cambiosSinGuardar = true;
-    }));
-    window.addEventListener('beforeunload', e => {
-      if (cambiosSinGuardar && !saliendo) { e.preventDefault(); e.returnValue = ''; }
-    });
-    function irAlPerfil() {
-      saliendo = true;
-      window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
-    }
-
-    // ---- Bienvenida al activar: la placa ya funciona; estos pasos le sacan provecho desde el primer día ----
-    function mostrarBienvenida() {
-      const nombre = val('input-pet').trim(), foto = $('preview-photo');
-      $('bv-titulo').textContent = `¡${nombre} ya tiene su placa activa!`;
-      $('bv-prueba').textContent = `Pide a alguien que escanee la placa: verás lo mismo que verá quien encuentre a ${nombre}.`;
-      $('bv-perfil').querySelector('span').textContent = `Ver el perfil de ${nombre}`;
-      if (!foto.classList.contains('hidden') && foto.src) {
-        $('bv-img').src = foto.src;
-        $('bv-img').classList.remove('hidden');
-        $('bv-huella').classList.add('hidden');
-      }
-      marcarPasoTelegram(telegramVinculado);
-      $('bienvenida').classList.remove('hidden');
-      document.documentElement.classList.add('bloqueo');
-      setTimeout(() => { lanzarFiguras($('bv-foto'), 14); vibrar([20, 40, 30]); }, sinMovimiento ? 0 : 650);
-      setTimeout(() => { if (!$('bv-telegram').disabled) $('bv-telegram').focus({ preventScroll: true }); }, sinMovimiento ? 0 : 1700);
-    }
-    function marcarPasoTelegram(hecho) {
-      const paso = $('bv-paso-tg'), b = $('bv-telegram');
-      const antes = paso.classList.contains('hecho');
-      paso.classList.toggle('hecho', hecho);
-      b.disabled = hecho;
-      b.className = 'btn ' + (hecho ? 'btn-green listo' : 'btn-tg');
-      b.innerHTML = hecho ? '<i class="fa-solid fa-circle-check"></i> <span>Telegram conectado</span>' : '<i class="fa-brands fa-telegram"></i> <span>Vincular Telegram</span>';
-      $('bv-perfil').className = 'btn ' + (hecho ? 'btn-dark' : 'btn-line');
-      if (hecho && !antes && !$('bienvenida').classList.contains('hidden')) { lanzarFiguras(paso.querySelector('.bv-num'), 9); vibrar(25); }
-    }
-
-    window.guardarRegistroMedico = async function () {
-      const btn = $('btn-save-med');
-      const textOriginal = btn ? btn.innerHTML : '';
-      const visitDate = val('med-date'), vetName = val('med-vet'), reason = val('med-reason');
-
-      if (!visitDate || !vetName || !reason) {
-        aviso('Completa la fecha, la veterinaria y el motivo.', 'error');
-        return;
-      }
-      if (btn) { btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`; btn.disabled = true; }
-
-      try {
-        const { data, error } = await db.rpc('agregar_registro_medico', {
-          p_id: tagId, p_pin: pinSesion, p_fecha: visitDate, p_vet: vetName, p_motivo: reason,
-          p_diagnostico: val('med-diagnosis') || null,
-          p_receta: val('med-prescription') || null,
-          p_proxima: val('med-next') || null
-        });
-        if (error) throw error;
-        if (data.estado !== 'ok') throw new Error(msgEstado(data.estado));
-        aviso('¡Registro médico guardado!', 'ok');
-        ['med-date', 'med-vet', 'med-reason', 'med-diagnosis', 'med-prescription', 'med-next'].forEach(id => { if ($(id)) $(id).value = ''; });
-        await cargarHistorialPrivado();
-      } catch (err) {
-        aviso('No se pudo guardar: ' + err.message, 'error');
-      } finally {
-        if (btn) { btn.innerHTML = textOriginal; btn.disabled = false; }
-      }
-    };
-
-    // Historial completo (con diagnóstico y receta): solo el dueño, con su PIN
-    async function cargarHistorialPrivado() {
-      const box = $('historial-privado');
-      if (!box) return;
-      if (!pinSesion) {
-        box.innerHTML = `<p class="text-xs text-slate-500 italic">Guarda los datos de la placa para empezar tu historial.</p>`;
-        return;
-      }
-      const { data: res, error } = await db.rpc('obtener_historial_medico_privado', { p_id: tagId, p_pin: pinSesion });
-      if (error || !res || res.estado !== 'ok') {
-        box.innerHTML = `<p class="text-xs text-slate-500">No se pudo cargar el historial.</p>`;
-        return;
-      }
-      const regs = res.registros || [];
-      const hoy = hoyLima(), scroll = box.scrollTop;
-      box.innerHTML = regs.length ? regs.map(r => {
-        const hecha = !!r.proxima_hecha_en;
-        const vencido = !!r.next_due_date && !hecha && r.next_due_date < hoy;
-        const id = esc(r.id);
-        return `
-        <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-100 text-left">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-xs font-bold text-amber-950 uppercase min-w-0 flex-1 truncate">${esc(r.vet_name)}</span>
-            <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(fmtFecha(r.visit_date))}</span>
-            <button type="button" class="btn-borrar" title="Eliminar este registro" aria-label="Eliminar este registro" onclick="eliminarRegistro('${id}')"><i class="fa-regular fa-trash-can"></i></button>
-          </div>
-          <p class="text-xs text-slate-700 font-medium"><strong>Motivo:</strong> ${esc(r.reason || 'Consulta general')}</p>
-          ${r.diagnosis ? `<p class="text-xs text-slate-600 mt-1"><strong>Diagnóstico:</strong> ${esc(r.diagnosis)}</p>` : ''}
-          ${r.prescription ? `<p class="text-xs text-emerald-800 bg-emerald-50/90 p-2 rounded-xl border border-emerald-100 mt-1.5"><strong>Receta/Tratamiento:</strong> ${esc(r.prescription)}</p>` : ''}
-          ${r.next_due_date ? `
-          <label class="flex items-center gap-2 text-xs text-emerald-800 mt-1.5 cursor-pointer">
-            <input type="checkbox" class="chk-refuerzo" ${hecha ? 'checked' : ''} onchange="marcarRefuerzo('${id}', this)" style="width:17px;height:17px;accent-color:#059669;flex:none">
-            <span><strong>Próximo refuerzo:</strong> <span class="${hecha ? 'line-through opacity-60' : ''}">${esc(fmtFecha(r.next_due_date))}</span>${hecha ? ` · ✓ hecho el ${esc(fmtFecha(r.proxima_hecha_en))}` : vencido ? ' · <b class="text-rose-600">vencido: ¿ya lo hiciste?</b>' : ''}</span>
-          </label>` : ''}
-        </div>`;
-      }).join('') : `<p class="text-xs text-slate-500 italic">Sin registros aún.</p>`;
-      box.scrollTop = scroll;   // al marcar o eliminar, la lista no salta al inicio
-    }
-
-    // Solo el dueño (PIN en el servidor): el registro se oculta del historial y del perfil público
-    async function eliminarRegistro(id) {
-      if (!pinSesion) { aviso('Vuelve a entrar con tu PIN desde el perfil.', 'error'); return; }
-      if (!confirm('¿Eliminar este registro del historial? Dejará de verse aquí y en el perfil de tu mascota.')) return;
-      try {
-        const { data, error } = await db.rpc('eliminar_registro_medico', { p_id: tagId, p_pin: pinSesion, p_registro: id });
-        if (error || !data) throw new Error('No se pudo eliminar. Revisa tu conexión e intenta de nuevo.');
-        if (data.estado !== 'ok' && data.estado !== 'no_encontrado') throw new Error(msgEstado(data.estado));
-      } catch (err) {
-        aviso(err.message, 'error');
-      }
-      await cargarHistorialPrivado();
-    }
-
-    // Check del «Próximo refuerzo»: marcado = ya se hizo (deja de avisar y de contar como pendiente)
-    async function marcarRefuerzo(id, chk) {
-      const hecho = chk.checked;
-      chk.disabled = true;
-      try {
-        const { data, error } = await db.rpc('marcar_proxima_hecha', { p_id: tagId, p_pin: pinSesion, p_registro: id, p_hecho: hecho });
-        if (error || !data) throw new Error('No se pudo guardar. Revisa tu conexión e intenta de nuevo.');
-        if (data.estado !== 'ok' && data.estado !== 'no_encontrado') throw new Error(msgEstado(data.estado));
-      } catch (err) {
-        aviso(err.message, 'error');
-      }
-      await cargarHistorialPrivado();   // se muestra lo que quedó guardado de verdad
-    }
-
-    function toggleHistorialEscaneos() {
-      const c = $('desplegable-escaneos'), f = $('flecha-escaneos');
-      if (!c) return;
-      const abierto = !c.classList.contains('hidden');
-      c.classList.toggle('hidden', abierto);
-      if (f) f.classList.toggle('rotate-180', !abierto);
-      $('btn-escaneos').setAttribute('aria-expanded', String(!abierto));
-    }
-
-    async function cargarHistorialEscaneos() {
-  const previewTxt = $('preview-ultimo-escaneo'), btnMaps = $('btn-ultimo-maps'), lista = $('escaneos-lista-anteriores');
-  const fmt = f => f ? new Date(f).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente';
-  const url = s => `https://maps.google.com/?q=${Number(s.latitude)},${Number(s.longitude)}`;
-
-  let escaneos = [];
-  if (pinSesion) {
-    const { data: res } = await db.rpc('obtener_escaneos', { p_id: tagId, p_pin: pinSesion });
-    if (res && res.estado === 'ok') escaneos = res.escaneos || [];
-  }
-
-  if (escaneos.length === 0) {
-    previewTxt.textContent = 'Sin registros de ubicación aún.';
-    btnMaps.classList.add('hidden');
-    lista.innerHTML = `<p class="text-slate-500 italic text-xs py-1">Sin historial disponible.</p>`;
-    return;
-  }
-
-  const [ultimo, ...anteriores] = escaneos;
-  previewTxt.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${fmt(ultimo.created_at)}${ultimo.con_ubicacion ? '' : ' · sin ubicación'}`;
-  if (ultimo.con_ubicacion) { btnMaps.href = url(ultimo); btnMaps.classList.remove('hidden'); }
-  else btnMaps.classList.add('hidden');
-
-  lista.innerHTML = anteriores.length
-    ? anteriores.map((s, i) => `
-      <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
-          <p class="text-[10px] text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
-        </div>
-        ${s.con_ubicacion
-          ? `<a href="${url(s)}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Maps</a>`
-          : `<span class="text-[10px] font-bold text-slate-500">Sin ubicación</span>`}
-      </div>`).join('')
-    : `<p class="text-slate-500 italic text-xs py-1">No hay escaneos anteriores.</p>`;
-}
-    const BOT_TELEGRAM = 'Ayudapetbot';
-    let telegramVinculado = false;
-
-    async function refrescarTelegram() {
-      if (!pinSesion) return;
-      const { data } = await db.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion });
-      if (!data || data.estado !== 'ok') return;
-      telegramVinculado = !!data.telegram_vinculado;
-      $('telegram-box').classList.remove('hidden');
-      $('telegram-estado').textContent = telegramVinculado
-        ? '✅ Conectado: recibirás avisos de escaneos y recordatorios.'
-        : 'Avisos de escaneos y de vacunas.';
-      $('btn-telegram').textContent = telegramVinculado ? 'Desvincular' : 'Vincular';
-      $('tg-reco').classList.toggle('hidden', telegramVinculado);
-      if (!$('bienvenida').classList.contains('hidden')) marcarPasoTelegram(telegramVinculado);   // volvió de Telegram con la bienvenida abierta
-    }
-
-    async function accionTelegram() {
-      if (telegramVinculado) {
-        if (!confirm('¿Dejar de recibir avisos en Telegram?')) return;
-        await db.rpc('desvincular_telegram', { p_id: tagId, p_pin: pinSesion });
-        return refrescarTelegram();
-      }
-      const w = window.open('', '_blank');
-      const { data, error } = await db.rpc('crear_vinculo_telegram', { p_id: tagId, p_pin: pinSesion });
-      if (error || !data || data.estado !== 'ok') {
-        if (w) w.close();
-        aviso('No se pudo crear el enlace. Vuelve a entrar con tu PIN.', 'error');
-        return;
-      }
-      const url = `https://t.me/${BOT_TELEGRAM}?start=${data.token}`;
-      if (w) w.location.href = url; else window.location.href = url;
-    }
-
-    // ---- Código para el veterinario (24 h, 5 registros) ----
-    // Usan la sesión del dueño (un token, no el PIN de 4 dígitos), igual que el resto del panel
-    const MSG_VET = { incorrecto: 'Tu sesión venció: vuelve a entrar con tu PIN desde el perfil.', bloqueado: 'Demasiados intentos. Espera 15 minutos.', pin_debil: MSG_PIN_FACIL };
-    function errorVet(texto) { const e = $('vet-err'); e.textContent = texto; e.classList.remove('hidden'); }
-
-    async function revocarCodigoVet() {
-      $('vet-result').classList.add('hidden');
-      $('vet-err').classList.add('hidden');
-      if (!pinSesion) { errorVet('Vuelve a entrar con tu PIN desde el perfil.'); return; }
-      if (!confirm('¿Revocar la autorización del veterinario?')) return;
-      let data = null;
-      try { ({ data } = await db.rpc('revocar_codigo_vet', { p_id: tagId, p_pin: pinSesion })); } catch (e) {}
-      if (data && data.estado === 'ok') aviso(data.revocado ? 'Autorización revocada.' : 'No había una autorización vigente.', 'ok');
-      else errorVet((data && MSG_VET[data.estado]) || 'No se pudo revocar. Revisa tu conexión.');
-    }
-
-    async function generarCodigoVet() {
-      const err = $('vet-err'), res = $('vet-result'), btn = $('btn-gen-vet');
-      err.classList.add('hidden'); res.classList.add('hidden');
-      if (!pinSesion) { errorVet('Vuelve a entrar con tu PIN desde el perfil.'); return; }
-
-      btn.disabled = true;
-      let data = null;
-      try { ({ data } = await db.rpc('crear_codigo_vet', { p_id: tagId, p_pin: pinSesion })); } catch (e) {}
-      btn.disabled = false;
-
-      if (!data || data.estado !== 'ok') { errorVet((data && MSG_VET[data.estado]) || 'No se pudo generar el código. Revisa tu conexión.'); return; }
-      $('vet-code').textContent = data.codigo;
-      $('vet-exp').textContent = 'Vence: ' + new Date(data.expira_en).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' });
-      const link = new URL('vet.html?id=' + encodeURIComponent(tagId), location.href).href;
-      const texto = `Código para registrar la consulta de mi mascota: ${data.codigo} (vence en 24 h). Ingresa aquí: ${link}`;
-      $('vet-wa').href = 'https://wa.me/?text=' + encodeURIComponent(texto);
-      res.classList.remove('hidden');
-    }
-
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarTelegram(); });
-    inicializar();
-  </script>
+  <script src="js/comun.js?v=1"></script>
+  <script src="js/panel.js?v=1"></script>
 </body>
 </html>

@@ -1,0 +1,61 @@
+/*
+  © 2026 Helpet. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+*/
+/* Estilos de restablecer el PIN (recuperar.html) */
+
+/* Mismo lenguaje visual que registro.html y el perfil (sin Tailwind) */
+*, *::before, *::after { box-sizing: border-box; }
+:root { --cafe:#3b2420; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#736255;
+  --awayo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E"); }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; min-height: 100vh; min-height: 100dvh; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta); background-color: #29170d; -webkit-tap-highlight-color: transparent; }
+/* Fondo fijo y ajustado a la pantalla también en iPhone */
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("../fondo-helpet.jpg") center top / cover no-repeat; }
+.hidden { display: none !important; }
+a { color: inherit; }
+@keyframes subir { from { opacity: 0; transform: translateY(14px); } }
+@keyframes tejer { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }   /* la franja se teje hilo a hilo */
+@keyframes pop { from { opacity: 0; transform: scale(.5); } 70% { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+.shell { width: 100%; max-width: 384px; margin: 12px 0 20px; border-radius: 28px; overflow: hidden; background: var(--crema); border: 1px solid rgba(248,237,209,.35); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .5s cubic-bezier(.2,.8,.2,1) both; }
+.top { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 16px 22px; color: var(--crema); background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.14), transparent 45%), linear-gradient(135deg, #3b2420, #8f3523 120%); }
+.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; animation: tejer .9s .2s cubic-bezier(.45,0,.2,1) both; }
+.top-logo { width: 46px; height: 46px; border-radius: 50%; background: var(--crema); padding: 2px; flex: none; box-shadow: 0 0 0 2px rgba(248,237,209,.5); }
+.top-txt { min-width: 0; flex: 1; }
+.top h1 { margin: 0; font: 800 18px/1.15 'DynaPuff', 'Fredoka', sans-serif; }
+.top p { margin: 1px 0 0; font-size: 11px; color: #e8c9a0; }
+.top-ico { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 12px; font-size: 17px; color: #fff3d6; background: rgba(0,0,0,.25); border: 1px solid rgba(248,237,209,.25); }
+
+.cuerpo { padding: 16px 14px 14px; display: grid; gap: 12px; }
+.paso { display: grid; gap: 10px; }
+.intro { margin: 0; font-size: 13px; line-height: 1.4; color: var(--suave); }
+.fld { width: 100%; padding: 9px 11px; border-radius: 12px; border: 1.5px solid var(--arena); background: #fffdf8; font: 400 16px/1.25 'Fredoka', system-ui, sans-serif; color: var(--tinta); outline: none; transition: border-color .15s, box-shadow .15s; }
+.fld:focus { border-color: #e08a2c; box-shadow: 0 0 0 3px rgba(224,138,44,.2); background: #fff; }
+.fld::placeholder { color: #b9ab9d; }
+.fld.clave { padding: 12px; text-align: center; font: 700 24px ui-monospace, monospace; letter-spacing: .25em; border-color: #e9c27a; background: #fffaf0; }
+.fld.clave::placeholder { letter-spacing: .12em; font-weight: 600; }
+
+.btn { position: relative; overflow: hidden; width: 100%; padding: 11px 12px; border: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 15px 'Fredoka', system-ui, sans-serif; text-align: center; text-decoration: none; color: #fff; cursor: pointer; transition: transform .12s, filter .15s; }
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .65; }
+/* Al tocar: onda desde el dedo y el ícono salta */
+@keyframes salto { 0%, 100% { transform: none; } 50% { transform: scale(1.35); } }
+@keyframes onda { from { opacity: .32; transform: rotate(45deg) scale(0); } to { opacity: 0; transform: rotate(45deg) scale(30); } }   /* la onda es un rombo */
+.btn::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 3px; background: currentColor; opacity: 0; pointer-events: none; }
+.btn.onda::after { animation: onda .6s ease-out; }
+.btn.onda > i:not(.fa-spin) { animation: salto .4s ease-out; }
+@media (hover: hover) { .btn:hover { filter: brightness(1.06); } }
+.btn-ambar { background: linear-gradient(135deg, #c2410c, #9a3412); box-shadow: 0 8px 16px -8px rgba(154,52,18,.75), inset 0 -3px 0 rgba(0,0,0,.14); }
+
+/* PIN guardado */
+.centro { text-align: center; justify-items: center; }
+.centro b { font-size: 15px; font-weight: 600; color: var(--cafe); }
+.centro p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--suave); }
+.listo { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 50%; font-size: 30px; color: #fff; background: linear-gradient(135deg, #34d399, #047857); box-shadow: 0 0 0 5px #d1fae5, 0 12px 22px -10px rgba(4,120,87,.8); animation: pop .5s cubic-bezier(.2,.8,.2,1) both; }
+
+.msg { margin: 0; padding: 10px 12px; border-radius: 12px; text-align: center; font-size: 12.5px; font-weight: 600; line-height: 1.35; animation: subir .3s ease-out both; }
+.legal { margin: 0; text-align: center; font-size: 11px; line-height: 1.4; color: var(--suave); }
+.legal a { color: #8f3523; font-weight: 600; }
+.msg.error { color: #9f1239; background: #ffe4e6; border: 1px solid #fecdd3; }

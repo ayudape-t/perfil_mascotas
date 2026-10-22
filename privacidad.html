@@ -16,35 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root { --cafe:#3b2420; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#6b5a4e; }
-    *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
-    body { margin: 0; padding: 16px; min-height: 100vh; font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta); background: #29170d; }
-    /* Fondo fijo y ajustado a la pantalla también en iPhone (Safari ignora background-attachment: fixed y lo estira a todo el largo) */
-    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("fondo-helpet.jpg") center top / cover no-repeat; }
-    .cab::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E") repeat-x left center / auto 8px; }   /* franja de awayo */
-    a { color: var(--oxido2); font-weight: 600; }
-    .hoja { max-width: 720px; margin: 12px auto 24px; background: #fffdf8; border: 1px solid var(--arena); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); overflow: hidden; }
-    .cab { position: relative; padding: 22px 20px 26px; color: var(--crema); background: linear-gradient(135deg, #3b2420, #8f3523 120%); }
-    .cab h1 { margin: 0; font: 800 24px/1.15 'DynaPuff', 'Fredoka', sans-serif; }
-    .cab p { margin: 6px 0 0; font-size: 13px; color: #ecd3a6; }
-    .indice { margin: 0; padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; line-height: 1.5; background: #fff8ea; border-bottom: 1px solid #f0e6d6; }
-    .indice a { font-weight: 500; text-decoration: none; white-space: nowrap; }
-    .cuerpo { padding: 18px 20px 8px; font-size: 15px; line-height: 1.55; color: #3a2a24; }
-    .cuerpo h2 { margin: 26px 0 8px; padding-top: 14px; border-top: 1px solid #f0e6d6; font-size: 18px; color: var(--cafe); scroll-margin-top: 12px; }
-    .cuerpo h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
-    .cuerpo h3 { margin: 14px 0 4px; font-size: 15px; color: var(--oxido2); }
-    .cuerpo p, .cuerpo li { margin: 0 0 8px; }
-    .cuerpo ul { margin: 0 0 10px; padding-left: 20px; }
-    .tabla { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 14px; }
-    .tabla th, .tabla td { text-align: left; vertical-align: top; padding: 7px 8px; border-bottom: 1px solid #f0e6d6; }
-    .tabla th { color: var(--cafe); background: #fff8ea; font-weight: 600; }
-    .dato { display: inline-block; padding: 1px 7px; border-radius: 8px; background: #fff1d6; color: var(--cafe); font-weight: 600; }
-    .pie { padding: 14px 20px 20px; font-size: 13px; color: var(--suave); border-top: 1px solid #f0e6d6; }
-    .volver { display: inline-block; margin-top: 12px; padding: 8px 14px; border-radius: 999px; background: #fff; border: 1.5px solid #e6d9c4; text-decoration: none; color: var(--cafe); }
-    @media (max-width: 420px) { .tabla { font-size: 13px; } .tabla th, .tabla td { padding: 6px 5px; } }
-  </style>
+  <link rel="stylesheet" href="css/privacidad.css?v=1">
 </head>
 <body>
   <main class="hoja">
@@ -208,9 +180,8 @@
       <h2 id="ley">15. Ley aplicable</h2>
       <p>Este aviso se rige por las leyes de la República del Perú, en especial la Ley 29733 de Protección de Datos Personales y su reglamento, y el Código de Protección y Defensa del Consumidor. Si tienes un reclamo como consumidor, también puedes acudir al Indecopi.</p>
 
-      <a id="volver" class="volver" href="#" onclick="history.back(); return false;">← Volver</a>
-      <script>(function () { var r = ''; try { r = document.referrer ? new URL(document.referrer).origin : ''; } catch (e) {}
-        if (history.length <= 1 || r !== location.origin) document.getElementById('volver').style.display = 'none'; })();</script>
+      <a id="volver" class="volver" href="#">← Volver</a>
+      <script src="js/privacidad.js?v=1"></script>
     </div>
 
     <p class="pie">© 2026 Helpet · Todos los derechos reservados</p>
