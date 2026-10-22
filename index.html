@@ -48,7 +48,7 @@
 
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <link rel="stylesheet" href="css/perfil.css?v=1">
+  <link rel="stylesheet" href="css/perfil.css?v=2">
 </head>
 <body>
 
@@ -165,7 +165,7 @@
         </div>
       </section>
 
-      <!-- 5. Ficha médica básica. En modo perdido quedan solo los cuidados (alergias, medicación, alimentación) para quien la tenga mientras vuelve -->
+      <!-- 5. Ficha médica básica. En modo perdido quedan solo las alergias, para que quien la tenga no le dé algo que le haga daño -->
       <section id="medical-card" class="card hidden">
         <div class="card-h">
           <span class="ico rose"><i class="fa-solid fa-kit-medical"></i></span>
@@ -173,7 +173,7 @@
           <span id="medical-pill" class="pill req">Importante</span>
         </div>
         <div class="card-b">
-          <p id="cuidados-nota" class="hint hidden"><i class="fa-solid fa-hand-holding-heart"></i>Si está contigo mientras vuelve a casa, ten esto en cuenta:</p>
+          <p id="cuidados-nota" class="hint hidden"><i class="fa-solid fa-hand-holding-heart"></i>No le des nada de esto: le hace daño.</p>
           <div id="row-allergies" class="med hidden"><span class="em">⚠️</span><div><small>Alergias</small><p id="txt-allergies"></p></div></div>
           <div id="row-medical" class="med hidden"><span class="em">💊</span><div><small>Cuidados / medicación</small><p id="txt-medical"></p></div></div>
           <div id="row-diet" class="med hidden"><span class="em">🍖</span><div><small>Alimentación</small><p id="txt-diet"></p></div></div>
@@ -358,6 +358,6 @@
   </div>
 
   <script src="js/comun.js?v=1"></script>
-  <script src="js/perfil.js?v=1"></script>
+  <script src="js/perfil.js?v=2"></script>
 </body>
 </html>
