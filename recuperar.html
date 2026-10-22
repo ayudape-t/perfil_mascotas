@@ -18,63 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <style>
-    /* Mismo lenguaje visual que registro.html y el perfil (sin Tailwind) */
-    *, *::before, *::after { box-sizing: border-box; }
-    :root { --cafe:#3b2420; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#736255;
-      --awayo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E"); }
-    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-    body { margin: 0; min-height: 100vh; min-height: 100dvh; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta); background-color: #29170d; -webkit-tap-highlight-color: transparent; }
-    /* Fondo fijo y ajustado a la pantalla también en iPhone */
-    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("fondo-helpet.jpg") center top / cover no-repeat; }
-    .hidden { display: none !important; }
-    a { color: inherit; }
-    @keyframes subir { from { opacity: 0; transform: translateY(14px); } }
-    @keyframes tejer { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }   /* la franja se teje hilo a hilo */
-    @keyframes pop { from { opacity: 0; transform: scale(.5); } 70% { transform: scale(1.08); } }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-
-    .shell { width: 100%; max-width: 384px; margin: 12px 0 20px; border-radius: 28px; overflow: hidden; background: var(--crema); border: 1px solid rgba(248,237,209,.35); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .5s cubic-bezier(.2,.8,.2,1) both; }
-    .top { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 16px 22px; color: var(--crema); background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.14), transparent 45%), linear-gradient(135deg, #3b2420, #8f3523 120%); }
-    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; animation: tejer .9s .2s cubic-bezier(.45,0,.2,1) both; }
-    .top-logo { width: 46px; height: 46px; border-radius: 50%; background: var(--crema); padding: 2px; flex: none; box-shadow: 0 0 0 2px rgba(248,237,209,.5); }
-    .top-txt { min-width: 0; flex: 1; }
-    .top h1 { margin: 0; font: 800 18px/1.15 'DynaPuff', 'Fredoka', sans-serif; }
-    .top p { margin: 1px 0 0; font-size: 11px; color: #e8c9a0; }
-    .top-ico { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 12px; font-size: 17px; color: #fff3d6; background: rgba(0,0,0,.25); border: 1px solid rgba(248,237,209,.25); }
-
-    .cuerpo { padding: 16px 14px 14px; display: grid; gap: 12px; }
-    .paso { display: grid; gap: 10px; }
-    .intro { margin: 0; font-size: 13px; line-height: 1.4; color: var(--suave); }
-    .fld { width: 100%; padding: 9px 11px; border-radius: 12px; border: 1.5px solid var(--arena); background: #fffdf8; font: 400 16px/1.25 'Fredoka', system-ui, sans-serif; color: var(--tinta); outline: none; transition: border-color .15s, box-shadow .15s; }
-    .fld:focus { border-color: #e08a2c; box-shadow: 0 0 0 3px rgba(224,138,44,.2); background: #fff; }
-    .fld::placeholder { color: #b9ab9d; }
-    .fld.clave { padding: 12px; text-align: center; font: 700 24px ui-monospace, monospace; letter-spacing: .25em; border-color: #e9c27a; background: #fffaf0; }
-    .fld.clave::placeholder { letter-spacing: .12em; font-weight: 600; }
-
-    .btn { position: relative; overflow: hidden; width: 100%; padding: 11px 12px; border: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 15px 'Fredoka', system-ui, sans-serif; text-align: center; text-decoration: none; color: #fff; cursor: pointer; transition: transform .12s, filter .15s; }
-    .btn:active { transform: scale(.98); }
-    .btn:disabled { opacity: .65; }
-    /* Al tocar: onda desde el dedo y el ícono salta */
-    @keyframes salto { 0%, 100% { transform: none; } 50% { transform: scale(1.35); } }
-    @keyframes onda { from { opacity: .32; transform: rotate(45deg) scale(0); } to { opacity: 0; transform: rotate(45deg) scale(30); } }   /* la onda es un rombo */
-    .btn::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 3px; background: currentColor; opacity: 0; pointer-events: none; }
-    .btn.onda::after { animation: onda .6s ease-out; }
-    .btn.onda > i:not(.fa-spin) { animation: salto .4s ease-out; }
-    @media (hover: hover) { .btn:hover { filter: brightness(1.06); } }
-    .btn-ambar { background: linear-gradient(135deg, #c2410c, #9a3412); box-shadow: 0 8px 16px -8px rgba(154,52,18,.75), inset 0 -3px 0 rgba(0,0,0,.14); }
-
-    /* PIN guardado */
-    .centro { text-align: center; justify-items: center; }
-    .centro b { font-size: 15px; font-weight: 600; color: var(--cafe); }
-    .centro p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--suave); }
-    .listo { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 50%; font-size: 30px; color: #fff; background: linear-gradient(135deg, #34d399, #047857); box-shadow: 0 0 0 5px #d1fae5, 0 12px 22px -10px rgba(4,120,87,.8); animation: pop .5s cubic-bezier(.2,.8,.2,1) both; }
-
-    .msg { margin: 0; padding: 10px 12px; border-radius: 12px; text-align: center; font-size: 12.5px; font-weight: 600; line-height: 1.35; animation: subir .3s ease-out both; }
-    .legal { margin: 0; text-align: center; font-size: 11px; line-height: 1.4; color: var(--suave); }
-    .legal a { color: #8f3523; font-weight: 600; }
-    .msg.error { color: #9f1239; background: #ffe4e6; border: 1px solid #fecdd3; }
-  </style>
+  <link rel="stylesheet" href="css/recuperar.css?v=1">
 </head>
 <body>
   <main class="shell">
@@ -91,8 +35,8 @@
       <section id="paso-form" class="paso">
         <p class="intro">Elige un PIN nuevo de 4 dígitos. Este enlace funciona una sola vez.</p>
         <input type="password" id="pin1" maxlength="4" inputmode="numeric" autocomplete="new-password" placeholder="Nuevo PIN" aria-label="Nuevo PIN" class="fld clave">
-        <input type="password" id="pin2" maxlength="4" inputmode="numeric" autocomplete="new-password" placeholder="Repítelo" aria-label="Repite el PIN" class="fld clave" onkeydown="if (event.key === 'Enter') cambiarPIN()">
-        <button id="btn" type="button" onclick="cambiarPIN()" class="btn btn-ambar"><i class="fa-solid fa-floppy-disk"></i> Guardar nuevo PIN</button>
+        <input type="password" id="pin2" maxlength="4" inputmode="numeric" autocomplete="new-password" placeholder="Repítelo" aria-label="Repite el PIN" class="fld clave">
+        <button id="btn" type="button" class="btn btn-ambar"><i class="fa-solid fa-floppy-disk"></i> Guardar nuevo PIN</button>
       </section>
 
       <section id="paso-ok" class="paso centro hidden">
@@ -107,76 +51,7 @@
     </div>
   </main>
 
-  <script>
-    const sb = supabase.createClient(
-      "https://cjxcqdgtchhtfowreuca.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o"
-    );
-    const token = new URLSearchParams(location.search).get('t') || '';
-    const $ = id => document.getElementById(id);
-
-    // Mismas reglas que el servidor (pin_es_debil); los 4 últimos del teléfono los revisa el servidor
-    const MSG_PIN_FACIL = 'Ese PIN es muy fácil de adivinar (como 1234, 0000, un año o los últimos 4 dígitos de tu teléfono). Elige otro.';
-    function pinFacil(p) {
-      if (!/^[0-9]{4}$/.test(p)) return true;
-      if (/^(\d\d)\1$/.test(p) || /^(\d)\1(\d)\2$/.test(p) || /^(\d)(\d)\2\1$/.test(p) || /^(19|20)\d\d$/.test(p)) return true;
-      if ('01234567890'.includes(p) || '09876543210'.includes(p)) return true;
-      return ['2580','0852','1357','2468','1470','0741','3690','0963','1478','8741','3214','1236','1004','6969','1590'].includes(p);
-    }
-
-    function error(texto) {
-      const el = $('msg');
-      el.textContent = texto;
-      el.classList.remove('hidden');
-    }
-
-    if (!token) { $('paso-form').classList.add('hidden'); error('Enlace incompleto. Pide uno nuevo al bot de Telegram con /recuperar.'); }
-
-    async function cambiarPIN() {
-      $('msg').classList.add('hidden');
-      const p1 = $('pin1').value.trim(), p2 = $('pin2').value.trim();
-      if (!/^[0-9]{4}$/.test(p1)) return error('El PIN debe tener 4 números.');
-      if (p1 !== p2) return error('Los PIN no coinciden.');
-      if (pinFacil(p1)) return error(MSG_PIN_FACIL);
-
-      $('btn').disabled = true;
-      const { data, error: err } = await sb.rpc('canjear_token_pin', { p_token: token, p_nuevo_pin: p1 });
-      $('btn').disabled = false;
-
-      if (err || !data) return error('Error de conexión. Intenta de nuevo.');
-      if (data.estado === 'token_invalido') {
-        return error('El enlace venció o ya fue usado. Escribe /recuperar al bot para recibir uno nuevo.');
-      }
-      if (data.estado === 'pin_debil') return error(MSG_PIN_FACIL);
-      if (data.estado !== 'ok') return error('No se pudo cambiar el PIN.');
-
-      // El enlace llegó al Telegram del dueño: este celular queda como suyo y entra directo
-      try {
-        if (data.id && data.dispositivo) localStorage.setItem(`disp_${data.id}`, data.dispositivo);
-        if (data.id && data.sesion) sessionStorage.setItem(`pin_${data.id}`, data.sesion);
-        if (data.id) localStorage.setItem(`dueno_${data.id}`, '1');
-      } catch (e) {}
-      if (data.id) $('ir-panel').href = `registro.html?id=${encodeURIComponent(data.id)}`;
-      else $('ir-panel').classList.add('hidden');
-      $('pet-nombre').textContent = data.pet || '';
-      $('paso-form').classList.add('hidden');
-      $('paso-ok').classList.remove('hidden');
-      history.replaceState(null, '', location.pathname); // quita el token de la barra de direcciones
-    }
-
-    // Onda que nace donde se tocó el botón (se apaga con «reducir movimiento», como todas las animaciones de CSS)
-    document.addEventListener('pointerdown', e => {
-      const b = e.target.closest && e.target.closest('.btn');
-      if (!b || b.disabled) return;
-      const r = b.getBoundingClientRect();
-      b.style.setProperty('--x', `${e.clientX - r.left}px`);
-      b.style.setProperty('--y', `${e.clientY - r.top}px`);
-      b.classList.remove('onda');
-      void b.offsetWidth;
-      b.classList.add('onda');
-      clearTimeout(b._onda);
-      b._onda = setTimeout(() => b.classList.remove('onda'), 700);
-    }, { passive: true });
-  </script>
+  <script src="js/comun.js?v=1"></script>
+  <script src="js/recuperar.js?v=1"></script>
 </body>
 </html>
