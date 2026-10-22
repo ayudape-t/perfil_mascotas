@@ -10,88 +10,156 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
+  <meta name="theme-color" content="#3b2420">
+  <meta name="color-scheme" content="light">
   <title>Helpet - Registro Veterinario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
-  <!-- Tailwind compilado (v3.4.17): si agregas clases nuevas de Tailwind, regenera tailwind.css (ver tailwind.config.js) -->
-  <link rel="stylesheet" href="tailwind.css">
+  <style>
+    /* Mismo lenguaje visual que registro.html y el perfil (sin Tailwind) */
+    *, *::before, *::after { box-sizing: border-box; }
+    :root { --cafe:#3b2420; --oxido:#b4452b; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#7c6a5d; --ocre:#e0a24a;
+      --awayo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E");
+      --telar: repeating-conic-gradient(#b4452b 0 7.5deg, #e0a24a 7.5deg 15deg, #3b2420 15deg 22.5deg, #7f9a3e 22.5deg 30deg); }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta); background-color: #29170d; -webkit-tap-highlight-color: transparent; }
+    /* Fondo fijo y ajustado a la pantalla también en iPhone */
+    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("fondo-helpet.jpg") center top / cover no-repeat; }
+    .hidden { display: none !important; }
+    a { color: inherit; }
+    @keyframes subir { from { opacity: 0; transform: translateY(14px); } }
+    @keyframes girar { to { transform: rotate(1turn); } }
+    @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+    @keyframes pop { from { opacity: 0; transform: scale(.5); } 70% { transform: scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+    .shell { width: 100%; max-width: 384px; margin: 12px 0 20px; border-radius: 28px; overflow: hidden; background: var(--crema); border: 1px solid rgba(248,237,209,.35); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .5s cubic-bezier(.2,.8,.2,1) both; }
+    .top { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 16px 22px; color: var(--crema); background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.14), transparent 45%), linear-gradient(135deg, #3b2420, #8f3523 120%); }
+    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; }
+    .top-logo { width: 46px; height: 46px; border-radius: 50%; background: var(--crema); padding: 2px; flex: none; box-shadow: 0 0 0 2px rgba(248,237,209,.5); }
+    .top-txt { min-width: 0; flex: 1; }
+    .top h1 { margin: 0; font: 800 18px/1.15 'DynaPuff', 'Fredoka', sans-serif; }
+    .top p { margin: 1px 0 0; font-size: 11px; color: #e8c9a0; }
+    .top-ico { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 12px; font-size: 17px; color: #fff3d6; background: rgba(0,0,0,.25); border: 1px solid rgba(248,237,209,.25); }
+
+    .cuerpo { padding: 16px 14px 14px; display: grid; gap: 12px; }
+    .paso { display: grid; gap: 10px; }
+    .intro { margin: 0; font-size: 13px; line-height: 1.4; color: var(--suave); }
+    .card { padding: 12px; display: grid; gap: 10px; background: #fff; border: 1px solid var(--arena); border-radius: 20px; box-shadow: 0 1px 0 rgba(59,36,32,.05), 0 10px 22px -16px rgba(59,36,32,.5); }
+    .lbl { display: block; margin: 0 0 3px 3px; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--suave); }
+    .fld { width: 100%; padding: 9px 11px; border-radius: 12px; border: 1.5px solid var(--arena); background: #fffdf8; font: 400 16px/1.25 'Fredoka', system-ui, sans-serif; color: var(--tinta); outline: none; transition: border-color .15s, box-shadow .15s; }
+    .fld:focus { border-color: #e08a2c; box-shadow: 0 0 0 3px rgba(224,138,44,.2); background: #fff; }
+    .fld::placeholder { color: #b9ab9d; }
+    textarea.fld { resize: none; }
+    .fld.clave { padding: 12px; text-align: center; font: 700 24px ui-monospace, monospace; letter-spacing: .25em; border-color: #e9c27a; background: #fffaf0; }
+    .fld.clave::placeholder { letter-spacing: .12em; font-weight: 600; }
+    .g2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
+
+    .btn { position: relative; overflow: hidden; width: 100%; padding: 11px 12px; border: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 15px 'Fredoka', system-ui, sans-serif; text-align: center; text-decoration: none; color: #fff; cursor: pointer; transition: transform .12s, filter .15s; }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .65; }
+    @media (hover: hover) { .btn:hover { filter: brightness(1.06); } }
+    .btn-ambar { background: linear-gradient(135deg, #f59e0b, #c2410c); box-shadow: 0 8px 16px -8px rgba(194,65,12,.75), inset 0 -3px 0 rgba(0,0,0,.14); }
+    .btn-green { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 8px 16px -8px rgba(4,120,87,.75), inset 0 -3px 0 rgba(0,0,0,.14); }
+    .btn-line { background: #fff; color: var(--cafe); border: 1.5px solid #e6d9c4; font-size: 14px; }
+    .btn-line i { color: #0284c7; }
+    .enlace { margin: 0 auto; padding: 4px 8px; border: 0; background: none; font: 500 12.5px 'Fredoka', sans-serif; color: var(--suave); text-decoration: underline; cursor: pointer; }
+
+    .separador { display: flex; align-items: center; gap: 10px; margin: 4px 0; font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #a09182; }
+    .separador::before, .separador::after { content: ""; flex: 1; height: 6px; opacity: .5; background: var(--awayo) repeat-x left center / auto 6px; border-radius: 3px; }
+
+    /* Espera / listo: anillo tejido */
+    .centro { text-align: center; justify-items: center; }
+    .centro b { font-size: 15px; font-weight: 600; color: var(--cafe); }
+    .centro p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--suave); }
+    .telar { position: relative; width: 72px; height: 72px; display: grid; place-items: center; font-size: 26px; color: var(--oxido); }
+    .telar::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--telar); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px)); animation: girar 2.4s linear infinite; }
+    .telar i { animation: latido 1.1s ease-in-out infinite; }
+    .listo { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 50%; font-size: 30px; color: #fff; background: linear-gradient(135deg, #34d399, #047857); box-shadow: 0 0 0 5px #d1fae5, 0 12px 22px -10px rgba(4,120,87,.8); animation: pop .5s cubic-bezier(.2,.8,.2,1) both; }
+
+    .paciente { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 16px; font-size: 14px; color: #14532d; background: #ecfdf5; border: 1px solid #a7f3d0; }
+    .paciente i { color: #059669; }
+    .paciente span { color: #047857; }
+    .msg { margin: 0; padding: 10px 12px; border-radius: 12px; text-align: center; font-size: 12.5px; font-weight: 600; line-height: 1.35; animation: subir .3s ease-out both; }
+    .msg.ok { color: #065f46; background: #d1fae5; border: 1px solid #a7f3d0; }
+    .msg.error { color: #9f1239; background: #ffe4e6; border: 1px solid #fecdd3; }
+    .legal { margin: 0; text-align: center; font-size: 11px; line-height: 1.4; color: #a09182; }
+    .legal a { color: var(--oxido2); font-weight: 600; }
+  </style>
 </head>
-<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 font-sans">
-  <main class="bg-slate-50 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden my-6">
-    <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-center text-white">
-      <h1 class="text-xl font-extrabold"><i class="fa-solid fa-stethoscope mr-1"></i> Registro Veterinario</h1>
-      <p class="text-amber-100 text-xs mt-1">Helpet · Historial médico</p>
-    </div>
+<body>
+  <main class="shell">
+    <header class="top">
+      <img src="logo.png" alt="Helpet" class="top-logo">
+      <div class="top-txt">
+        <h1>Registro veterinario</h1>
+        <p>Helpet · Historial médico</p>
+      </div>
+      <span class="top-ico" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
+    </header>
 
-    <div class="p-6 space-y-4">
-      <section id="paso-codigo" class="space-y-3">
-        <p class="text-xs text-slate-500">Ingresa el código temporal que te dio el dueño de la mascota.</p>
-        <input id="codigo" maxlength="7" autocomplete="off" placeholder="ABC-234"
-          class="w-full text-center text-2xl font-mono font-bold tracking-widest uppercase py-3 border-2 border-slate-200 rounded-2xl outline-none focus:border-amber-500 text-slate-800">
-        <button id="btn-validar" type="button" onclick="validarCodigo()"
-          class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg">Validar código</button>
+    <div class="cuerpo">
+      <section id="paso-codigo" class="paso">
+        <p class="intro">Ingresa el código temporal que te dio el dueño de la mascota.</p>
+        <input id="codigo" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-234" aria-label="Código del dueño" class="fld clave" style="text-transform:uppercase" onkeydown="if (event.key === 'Enter') validarCodigo()">
+        <button id="btn-validar" type="button" onclick="validarCodigo()" class="btn btn-ambar"><i class="fa-solid fa-unlock-keyhole"></i> Validar código</button>
 
-        <div class="relative my-2 flex items-center">
-          <div class="flex-grow border-t border-slate-300"></div>
-          <span class="mx-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">¿No tienes código?</span>
-          <div class="flex-grow border-t border-slate-300"></div>
-        </div>
+        <div class="separador">¿No tienes código?</div>
 
-        <input id="vet-nombre" maxlength="100" placeholder="Tu nombre o veterinaria"
-          class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
-        <button id="btn-solicitar" type="button" onclick="solicitarAutorizacion()"
-          class="w-full py-2.5 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 font-bold rounded-2xl text-sm">
-          <i class="fa-brands fa-telegram mr-1"></i> Solicitar autorización al dueño
+        <input id="vet-nombre" maxlength="100" placeholder="Tu nombre o veterinaria" aria-label="Tu nombre o veterinaria" class="fld">
+        <button id="btn-solicitar" type="button" onclick="solicitarAutorizacion()" class="btn btn-line">
+          <i class="fa-brands fa-telegram"></i> Solicitar autorización al dueño
         </button>
       </section>
 
-      <section id="paso-espera" class="hidden text-center space-y-3">
-        <i class="fa-solid fa-circle-notch fa-spin text-amber-500 text-2xl"></i>
-        <p class="text-sm font-bold text-slate-700">Esperando la respuesta del dueño…</p>
-        <p class="text-xs text-slate-500">Le enviamos la solicitud por Telegram. Tiene 10 minutos para responder.</p>
-        <button type="button" onclick="cancelarEspera()" class="text-xs text-slate-500 underline">Cancelar</button>
+      <section id="paso-espera" class="paso centro hidden" aria-live="polite">
+        <div class="telar"><i class="fa-solid fa-paw"></i></div>
+        <b>Esperando la respuesta del dueño…</b>
+        <p>Le enviamos la solicitud por Telegram. Tiene 10 minutos para responder.</p>
+        <button type="button" onclick="cancelarEspera()" class="enlace">Cancelar</button>
       </section>
 
-      <section id="paso-form" class="hidden space-y-3">
-        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-sm text-emerald-900">
-          <i class="fa-solid fa-paw mr-1"></i> Paciente: <b id="pac-nombre"></b>
-          <span id="pac-raza" class="text-emerald-700"></span>
-        </div>
+      <section id="paso-form" class="paso hidden">
+        <div class="paciente"><i class="fa-solid fa-paw"></i><div>Paciente: <b id="pac-nombre"></b><span id="pac-raza"></span></div></div>
 
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Fecha visita *</label>
-            <input type="date" id="f-fecha" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+        <div class="card">
+          <div class="g2">
+            <div>
+              <label for="f-fecha" class="lbl">Fecha visita *</label>
+              <input type="date" id="f-fecha" class="fld">
+            </div>
+            <div>
+              <label for="f-proxima" class="lbl">Próxima cita</label>
+              <input type="date" id="f-proxima" class="fld">
+            </div>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Próxima cita</label>
-            <input type="date" id="f-proxima" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+            <label for="f-vet" class="lbl">Veterinaria / Dr. *</label>
+            <input id="f-vet" maxlength="150" placeholder="Ej. Vet. San Martín" class="fld">
+          </div>
+          <div>
+            <label for="f-motivo" class="lbl">Motivo / tipo *</label>
+            <input id="f-motivo" maxlength="200" placeholder="Ej. Vacuna quíntuple" class="fld">
+          </div>
+          <div>
+            <label for="f-diag" class="lbl">Diagnóstico</label>
+            <input id="f-diag" maxlength="500" class="fld">
+          </div>
+          <div>
+            <label for="f-receta" class="lbl">Receta / tratamiento</label>
+            <textarea id="f-receta" rows="2" maxlength="1000" class="fld"></textarea>
           </div>
         </div>
-        <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Veterinaria / Dr. *</label>
-          <input id="f-vet" maxlength="150" placeholder="Ej. Vet. San Martín" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
-        </div>
-        <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Motivo / Tipo *</label>
-          <input id="f-motivo" maxlength="200" placeholder="Ej. Vacuna Quíntuple" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
-        </div>
-        <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Diagnóstico</label>
-          <input id="f-diag" maxlength="500" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">
-        </div>
-        <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Receta / Tratamiento</label>
-          <textarea id="f-receta" rows="2" maxlength="1000" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm"></textarea>
-        </div>
-        <button id="btn-guardar" type="button" onclick="guardarRegistro()"
-          class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2">
+        <button id="btn-guardar" type="button" onclick="guardarRegistro()" class="btn btn-green">
           <i class="fa-solid fa-floppy-disk"></i> Guardar en historial
         </button>
       </section>
 
-      <p id="msg" class="hidden text-center text-xs font-bold rounded-xl p-2.5"></p>
-      <p class="text-center text-[11px] text-slate-500 pt-1">Al guardar confirmas que la consulta es real y que el dueño te autorizó. Los datos se tratan según el <a href="privacidad.html" target="_blank" rel="noopener" class="underline font-semibold">aviso de privacidad</a>.</p>
+      <p id="msg" class="msg hidden" aria-live="polite"></p>
+      <p class="legal">Al guardar confirmas que la consulta es real y que el dueño te autorizó. Los datos se tratan según el <a href="privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</p>
     </div>
   </main>
 
@@ -128,8 +196,7 @@
     function msg(texto, ok) {
       const el = $('msg');
       el.textContent = texto;
-      el.className = 'text-center text-xs font-bold rounded-xl p-2.5 ' +
-        (ok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800');
+      el.className = 'msg ' + (ok ? 'ok' : 'error');
     }
 
     async function validarCodigo(codigoManual) {
