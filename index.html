@@ -51,13 +51,12 @@
   <!-- Fuentes: DynaPuff (nombre) + Fredoka (todo lo demás) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <!-- La conexión con la base se abre mientras baja supabase-js: la ficha llega antes -->
   <link rel="preconnect" href="https://cjxcqdgtchhtfowreuca.supabase.co" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://unpkg.com/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
+  <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
   <style>
     /* Sin Tailwind: todo el estilo vive aquí (la ficha carga más rápido en el celular de quien escanea) */
     *, *::before, *::after { box-sizing: border-box; }
@@ -1015,8 +1014,8 @@
     }
 
     // Librerías pesadas: se cargan solo cuando se usan
-    const LIB_QR = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-    const LIB_H2C = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    const LIB_QR = 'vendor/qrcodejs-1.0.0/qrcode.min.js';
+    const LIB_H2C = 'vendor/html2canvas-1.4.1/html2canvas.min.js';
     const _libs = {};
     function cargarLib(src) {
       if (!_libs[src]) {
