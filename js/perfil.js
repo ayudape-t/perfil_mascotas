@@ -232,10 +232,10 @@ async function cargarPerfil() {
 
     const isLost = data.is_lost || false;
 
-    // Ficha médica básica. Con la mascota perdida quedan solo los cuidados (alergias, medicación, alimentación):
-    // quien la tenga mientras vuelve a casa necesita saberlos. La veterinaria solo se muestra con la mascota en casa.
+    // Ficha médica básica. Con la mascota perdida queda solo lo que la protege: sus alergias, para que quien la tenga
+    // no le dé algo que le haga daño (el servidor tampoco manda lo demás). La veterinaria solo se muestra con la mascota en casa.
     let tieneMedicos = false;
-    [['row-allergies', 'txt-allergies', data.allergies], ['row-medical', 'txt-medical', data.medical_notes], ['row-diet', 'txt-diet', data.diet]].forEach(([fila, txt, valor]) => {
+    [['row-allergies', 'txt-allergies', data.allergies], ['row-medical', 'txt-medical', isLost ? '' : data.medical_notes], ['row-diet', 'txt-diet', isLost ? '' : data.diet]].forEach(([fila, txt, valor]) => {
       const texto = String(valor ?? '').trim();
       $(fila).classList.toggle('hidden', !texto);
       $(txt).textContent = texto;
@@ -248,7 +248,7 @@ async function cargarPerfil() {
       if (data.vet_name) $('txt-vet-name').textContent = `Llamar a ${data.vet_name}`;
       tieneMedicos = true;
     }
-    $('medical-titulo').textContent = isLost ? 'Cuidados importantes' : 'Ficha médica';
+    $('medical-titulo').textContent = isLost ? 'Si está contigo' : 'Ficha médica';
     $('medical-pill').classList.toggle('hidden', isLost);
     $('cuidados-nota').classList.toggle('hidden', !isLost);
     $('medical-card').classList.toggle('hidden', !tieneMedicos);
@@ -277,10 +277,9 @@ async function cargarPerfil() {
 
       badge.className = 'sello perdida';
       badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Buscando su hogar`;
-      // El banner y el sello ya dicen que se perdió: debajo del nombre va su descripción (ayuda a reconocerla)
-      const descripcion = String(data.description || '').trim();
-      subStatus.className = descripcion ? '' : 'perdida';
-      subStatus.textContent = descripcion || "🚨 Mascota perdida";
+      // Con la mascota perdida solo se muestra lo necesario para contactar al dueño (la descripción no va)
+      subStatus.className = 'perdida';
+      subStatus.textContent = "🚨 Mascota perdida";
       indicator.className = 'punto perdida';
       $('app-container').classList.add('perdida');
 

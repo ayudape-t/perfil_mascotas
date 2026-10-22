@@ -200,7 +200,7 @@ button { font-family: inherit; }
 .aviso-dueno { display: flex; align-items: center; justify-content: center; gap: 6px; width: max-content; max-width: calc(100% - 36px); margin: 10px auto 0; padding: 5px 12px; border-radius: 999px; border: 1.5px dashed #d9a35a; background: #fff8ea; font-size: 11.5px; font-weight: 500; line-height: 1.25; color: var(--cafe); text-align: center; animation: subir .5s .55s cubic-bezier(.2,.8,.2,1) both; }
 .aviso-dueno i { flex: none; color: var(--oxido); animation: parpadeo .5s 1.3s ease-in-out 2; }
 #cuidados-nota { text-align: left; font-size: 11.5px; }
-#sub-status.perdida { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #dc2626; animation: pulso 1.6s ease-in-out infinite; }
+#sub-status.perdida { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #b91c1c; animation: pulso 1.6s ease-in-out infinite; }
 
 .cuerpo { padding: 12px 12px 12px; display: grid; gap: 9px; }
 /* Las piezas entran una tras otra (--i lo pone mostrarPerfil). El carnet no: se captura como imagen */
