@@ -52,6 +52,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <!-- La conexión con la base se abre mientras baja supabase-js: la ficha llega antes -->
+  <link rel="preconnect" href="https://cjxcqdgtchhtfowreuca.supabase.co" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -59,15 +61,25 @@
   <style>
     /* Sin Tailwind: todo el estilo vive aquí (la ficha carga más rápido en el celular de quien escanea) */
     *, *::before, *::after { box-sizing: border-box; }
-    :root { --cafe:#3b2420; --oxido:#b4452b; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#7c6a5d; }
+    :root {
+      --cafe:#3b2420; --oxido:#b4452b; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#7c6a5d; --ocre:#e0a24a; --verde:#7f9a3e;
+      /* Franja de awayo (rombos andinos) y anillo tejido: los acentos que unen todas las piezas */
+      --awayo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E");
+      --telar: repeating-conic-gradient(#b4452b 0 7.5deg, #e0a24a 7.5deg 15deg, #3b2420 15deg 22.5deg, #7f9a3e 22.5deg 30deg);
+      --anillo: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px));
+    }
     html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    html.bloqueo, html.bloqueo body { overflow: hidden; }   /* con una ventana abierta, el fondo no se desplaza */
     body {
       margin: 0; min-height: 100vh; min-height: 100dvh; padding: 16px; position: relative; overflow-x: hidden;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta);
-      background-color: #29170d; background-image: url("fondo-helpet.jpg"); background-size: cover; background-attachment: fixed;   /* ajustado como en registro */
+      background-color: #29170d;
       -webkit-tap-highlight-color: transparent;
     }
+    /* Fondo fijo y ajustado a la pantalla también en iPhone (Safari ignora background-attachment: fixed y lo estira a todo el largo) */
+    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("fondo-helpet.jpg") center top / cover no-repeat; }
+    body.con-dock { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
     img { max-width: 100%; }
     a { color: inherit; text-decoration: none; }
     button { font-family: inherit; }
@@ -79,9 +91,25 @@
       0%, 100% { box-shadow: 0 8px 20px -6px rgba(220,38,38,.55), 0 0 0 0 rgba(248,113,113,.6); }
       50% { box-shadow: 0 8px 20px -6px rgba(220,38,38,.55), 0 0 0 7px rgba(248,113,113,0); }
     }
+    @keyframes girar { to { transform: rotate(1turn); } }
+    @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+    @keyframes subir { from { opacity: 0; transform: translateY(14px); } }
+    @keyframes aterrizar { from { opacity: 0; transform: translateY(-20px) scale(.94); } }
+    @keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes foto-pop { from { opacity: 0; transform: scale(.6); } 70% { transform: scale(1.04); } }
+    @keyframes surgir { from { opacity: 0; transform: translateY(18px) scale(.97); } }
+    @keyframes velo { from { opacity: 0; } }
+    @keyframes deslizar { from { transform: translateY(100%); } }
+    @keyframes onda { from { opacity: .3; transform: scale(0); } to { opacity: 0; transform: scale(32); } }
+    @keyframes sacudir { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+    @keyframes brincar { 0%, 100% { transform: none; } 40% { transform: translateY(-4px) rotate(-8deg); } 70% { transform: rotate(6deg); } }
+    @keyframes brillo { from { transform: translateX(-120%) skewX(-20deg); } 60%, to { transform: translateX(260%) skewX(-20deg); } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
-    .cargando { color: rgba(255,255,255,.7); font-size: 38px; }
+    /* Cargando: huella dentro de un anillo tejido que gira */
+    .cargando { position: relative; width: 84px; height: 84px; display: grid; place-items: center; color: var(--crema); font-size: 30px; }
+    .cargando::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--telar); -webkit-mask: var(--anillo); mask: var(--anillo); animation: girar 2.4s linear infinite; }
+    .cargando i { animation: latido 1.1s ease-in-out infinite; }
 
     /* ---------- Piezas reutilizables (mismo lenguaje visual que registro.html) ---------- */
     .card { background: #fff; border: 1px solid var(--arena); border-radius: 20px; box-shadow: 0 1px 0 rgba(59,36,32,.05), 0 10px 22px -16px rgba(59,36,32,.5); overflow: hidden; }
@@ -110,11 +138,16 @@
     .fld { width: 100%; padding: 10px 11px; border-radius: 12px; border: 1.5px solid var(--arena); background: #fffdf8; font: 400 16px/1.25 'Fredoka', system-ui, sans-serif; color: var(--tinta); outline: none; transition: border-color .15s, box-shadow .15s; }
     .fld:focus { border-color: #e08a2c; box-shadow: 0 0 0 3px rgba(224,138,44,.2); background: #fff; }
     .fld.center { text-align: center; font-family: ui-monospace, monospace; font-weight: 700; font-size: 24px; letter-spacing: .3em; }
+    .fld.mal { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225,29,72,.15); animation: sacudir .4s; }
 
-    /* Botones */
-    .btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 10px 12px; border: 0; border-radius: 14px; font: 600 14px/1.15 'Fredoka', system-ui, sans-serif; text-align: center; color: #fff; cursor: pointer; transition: transform .12s; }
+    /* Botones (con onda al tocar: ver «INTERACCIÓN» en el script) */
+    .btn { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 10px 12px; border: 0; border-radius: 14px; font: 600 14px/1.15 'Fredoka', system-ui, sans-serif; text-align: center; color: #fff; cursor: pointer; transition: transform .12s, filter .15s; }
+    .btn::after { content: ""; position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: currentColor; opacity: 0; pointer-events: none; }
+    .btn.onda::after { animation: onda .6s ease-out; }
     .btn:active { transform: scale(.98); }
     .btn:disabled { opacity: .65; }
+    .btn:focus-visible, .dueno:focus-visible, .x:focus-visible { outline: 3px solid rgba(224,138,44,.6); outline-offset: 2px; }
+    @media (hover: hover) { .btn:hover { filter: brightness(1.06); transform: translateY(-1px); } .btn:active { transform: scale(.98); } }
     .btn i { font-size: 16px; }
     .btn-wa { background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 6px 14px -6px rgba(5,150,105,.75); }
     .btn-call { background: linear-gradient(135deg, #60a5fa, #1d4ed8); box-shadow: 0 6px 14px -6px rgba(29,78,216,.7); }
@@ -128,10 +161,13 @@
     .btn-share i { color: var(--oxido); }
     .btn-vet { background: #fff; color: #be123c; border: 1.5px solid #fda4af; padding: 8px 12px; font-size: 13px; }
     .btn-vet i { color: #e11d48; }
+    .btn-mini { flex: none; width: auto; padding: 8px 12px; font-size: 12.5px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #0369a1); box-shadow: 0 6px 12px -6px rgba(3,105,161,.7); }
+    .btn-mini i { font-size: 13px; }
     .enlace { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--oxido); }
 
     /* ---------- Placa sin registrar / sin conexión ---------- */
-    .vacio { width: 100%; max-width: 384px; padding: 26px 22px; border-radius: 28px; text-align: center; display: grid; gap: 12px; background-color: #fbf6e3; background-image: url("fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
+    .vacio { position: relative; overflow: hidden; width: 100%; max-width: 384px; padding: 60px 22px 24px; border-radius: 28px; text-align: center; display: grid; gap: 12px; background-color: #fbf6e3; background-image: url("fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .5s cubic-bezier(.2,.8,.2,1) both; }
+    .vacio::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12px; background: var(--awayo) repeat-x left center / auto 12px; }
     .vacio h2 { margin: 0; font: 800 22px/1.15 'DynaPuff', 'Fredoka', sans-serif; color: var(--cafe); }
     .vacio p { margin: 0; font-size: 13px; color: var(--suave); }
 
@@ -142,40 +178,60 @@
     .alerta small { display: block; font-size: 12px; font-weight: 500; line-height: 1.2; opacity: .95; }
 
     /* ---------- Corona Helpet (insignia con alas) ---------- */
-    #corona-helpet { position: relative; z-index: 30; width: 92%; max-width: 340px; margin: 0 auto -46px; pointer-events: none; user-select: none; -webkit-user-select: none; }
-    #corona-helpet img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 1.5px rgba(248,237,209,.95)) drop-shadow(0 6px 10px rgba(0,0,0,.4)); }
+    #corona-helpet { position: relative; z-index: 30; width: 92%; max-width: 340px; margin: 0 auto -46px; pointer-events: none; user-select: none; -webkit-user-select: none; animation: aterrizar .6s cubic-bezier(.2,.8,.2,1) both; }
+    #corona-helpet img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 1.5px rgba(248,237,209,.95)) drop-shadow(0 6px 10px rgba(0,0,0,.4)); animation: flotar 6s ease-in-out .6s infinite; }
 
     /* ---------- Tarjeta principal ---------- */
-    .shell { width: 100%; max-width: 384px; margin: 16px 0 4px; border-radius: 28px; overflow: hidden; position: relative; background-color: #fbf6e3; background-image: url("fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
+    .shell { width: 100%; max-width: 384px; margin: 16px 0 4px; border-radius: 28px; overflow: hidden; position: relative; background-color: #fbf6e3; background-image: url("fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .55s cubic-bezier(.2,.8,.2,1) both; }
     .hero { position: relative; height: 142px; overflow: hidden; display: flex; align-items: flex-start; justify-content: center; padding-top: 36px; background: #3b2420; }
-    .hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+    /* La imagen es 36 px más alta que la cabecera: al bajar se desliza más lento que la página (paralaje) */
+    .hero > img { position: absolute; left: 0; top: -36px; width: 100%; height: calc(100% + 36px); object-fit: cover; object-position: center bottom; will-change: transform; }
     .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(59,36,32,.3), transparent 50%); pointer-events: none; }
+    .awayo { position: relative; z-index: 1; height: 12px; background: var(--awayo) repeat-x left center / auto 12px; box-shadow: 0 3px 6px -2px rgba(59,36,32,.35); }
     .sello { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; color: var(--cafe); background: rgba(255,255,255,.96); border: 1px solid rgba(252,211,77,.9); box-shadow: 0 4px 10px -2px rgba(59,36,32,.4); }
     .sello i { color: #d97706; }
     .sello.perdida { color: #fff; background: rgba(220,38,38,.97); border-color: #fca5a5; animation: pulso 1.6s ease-in-out infinite; }
     .sello.perdida i { color: #fff; }
 
-    .foto { position: relative; z-index: 2; display: flex; justify-content: center; margin-top: -58px; }
-    .foto-box { position: relative; }
-    #pet-photo { display: block; width: 128px; height: 128px; border-radius: 50%; object-fit: cover; background: #fff1d6; border: 4px solid #fff; cursor: pointer; box-shadow: 0 0 0 2px rgba(180,69,43,.6), 0 14px 26px -8px rgba(59,36,32,.65); transition: transform .2s; }
-    #pet-photo:active { transform: scale(.97); }
+    .foto { position: relative; z-index: 2; display: flex; justify-content: center; margin-top: -66px; }
+    .foto-box { position: relative; animation: foto-pop .6s .15s cubic-bezier(.2,.8,.2,1) both; }
+    /* Anillo tejido alrededor de la foto (en modo perdido: franjas de alerta que giran más rápido) */
+    .foto-box::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; background: var(--telar); -webkit-mask: var(--anillo); mask: var(--anillo); animation: girar 60s linear infinite; pointer-events: none; }
+    .shell.perdida .foto-box::before { background: repeating-conic-gradient(#dc2626 0 10deg, #fde047 10deg 20deg); animation-duration: 14s; }
+    #pet-photo { display: block; width: 128px; height: 128px; border-radius: 50%; object-fit: cover; background: #fff1d6; border: 4px solid #fff; cursor: zoom-in; box-shadow: 0 14px 26px -8px rgba(59,36,32,.65); transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+    @media (hover: hover) { #pet-photo:hover { transform: scale(1.04) rotate(-2deg); } }
+    #pet-photo:active { transform: scale(.96); }
     .punto { position: absolute; right: 6px; bottom: 6px; width: 24px; height: 24px; border-radius: 50%; background: #10b981; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .punto.perdida { background: #dc2626; animation: ping 1.4s cubic-bezier(0,0,.2,1) infinite; }
 
-    #pet-name { margin: 8px 0 0; padding: 0 14px; text-align: center; font-family: 'DynaPuff', 'Fredoka', cursive; font-weight: 800; font-size: 30px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; color: var(--cafe); text-shadow: 0 2px 0 #fff, 0 4px 0 var(--arena), 0 7px 10px rgba(59,36,32,.22); overflow-wrap: anywhere; text-wrap: balance; }
-    #sub-status { margin: 5px 0 0; padding: 0 18px; text-align: center; font-size: 13px; font-weight: 500; letter-spacing: .01em; line-height: 1.3; color: var(--oxido); text-wrap: balance; }
+    #pet-name { margin: 10px 0 0; padding: 0 14px; text-align: center; font-family: 'DynaPuff', 'Fredoka', cursive; font-weight: 800; font-size: 30px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; color: var(--cafe); text-shadow: 0 2px 0 #fff, 0 4px 0 var(--arena), 0 7px 10px rgba(59,36,32,.22); overflow-wrap: anywhere; text-wrap: balance; animation: subir .5s .25s cubic-bezier(.2,.8,.2,1) both; }
+    #sub-status { margin: 5px 0 0; padding: 0 18px; text-align: center; font-size: 13px; font-weight: 500; letter-spacing: .01em; line-height: 1.3; color: var(--oxido); text-wrap: balance; animation: subir .5s .3s cubic-bezier(.2,.8,.2,1) both; }
     #sub-status.perdida { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #dc2626; animation: pulso 1.6s ease-in-out infinite; }
 
     .cuerpo { padding: 12px 12px 12px; display: grid; gap: 9px; }
+    /* Las piezas entran una tras otra (--i lo pone mostrarPerfil). El carnet no: se captura como imagen */
+    .cuerpo > :not(.carnet) { animation: subir .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.32s + var(--i, 0) * 70ms); }
 
     /* Ficha técnica 2×2 */
     .datos { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
-    .dato { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 7px 9px; background: #fff; border: 1px solid var(--arena); border-radius: 16px; box-shadow: 0 1px 0 rgba(59,36,32,.04), 0 8px 16px -14px rgba(59,36,32,.5); }
+    .dato { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 7px 9px; background: #fff; border: 1px solid var(--arena); border-radius: 16px; box-shadow: 0 1px 0 rgba(59,36,32,.04), 0 8px 16px -14px rgba(59,36,32,.5); transition: transform .18s, box-shadow .18s; }
     .dato .ico { width: 28px; height: 28px; border-radius: 9px; font-size: 12px; }
+    .dato:active .ico { animation: brincar .45s; }
+    @media (hover: hover) { .dato:hover { transform: translateY(-2px); box-shadow: 0 1px 0 rgba(59,36,32,.04), 0 12px 20px -12px rgba(59,36,32,.45); } .dato:hover .ico { animation: brincar .45s; } }
     .dato > div { min-width: 0; }
     .dato.ancho { grid-column: 1 / -1; }
     .dato small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); line-height: 1.1; }
     .dato b { display: block; margin-top: 1px; font-size: 14.5px; font-weight: 600; line-height: 1.15; color: var(--cafe); overflow-wrap: anywhere; }
+
+    /* Mascota perdida: dónde, cuándo, señas y recompensa */
+    .perdida-card { border-color: #fecaca; }
+    .perdida-card .card-h { background: linear-gradient(to right, #fff1f2, #fff); border-bottom-color: #fde0e0; }
+    .pista { display: flex; align-items: flex-start; gap: 9px; padding: 7px 10px; border-radius: 12px; background: #fff7f7; border: 1px solid #fde0e0; font-size: 13px; line-height: 1.3; }
+    .pista > i { width: 16px; margin-top: 2px; text-align: center; color: #e11d48; flex: none; }
+    .pista small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #9f1239; }
+    .pista p { margin: 0; font-weight: 500; color: #4a2a2a; overflow-wrap: anywhere; }
+    .recompensa { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px; border-radius: 12px; font-size: 13.5px; font-weight: 600; color: #7c2d12; background: linear-gradient(135deg, #fde68a, #f59e0b); box-shadow: 0 6px 14px -8px rgba(194,65,12,.7); }
+    .recompensa::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent); animation: brillo 3.2s ease-in-out infinite; }
 
     /* Salud */
     .sem { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
@@ -188,7 +244,11 @@
     .fecha { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 12px; background: #f1faf5; border: 1px solid #cdeedd; font-size: 12.5px; color: #14532d; }
     .fecha i { width: 16px; text-align: center; color: #059669; }
     .fecha span { flex: 1; font-weight: 500; }
+    .fecha span small { display: block; font-size: 10.5px; font-weight: 600; color: #059669; }
+    .fecha span small:empty { display: none; }
     .fecha b { font-weight: 600; color: #065f46; }
+    .fecha.warn { background: #fffbeb; border-color: #fde68a; color: #78350f; } .fecha.warn i, .fecha.warn small { color: #d97706; } .fecha.warn b { color: #92400e; }
+    .fecha.bad { background: #fff1f2; border-color: #fecdd3; color: #881337; } .fecha.bad i, .fecha.bad small { color: #e11d48; } .fecha.bad b { color: #9f1239; }
 
     /* Ficha médica básica */
     .med { display: flex; gap: 8px; padding: 7px 10px; border-radius: 12px; background: #fff7f7; border: 1px solid #fde0e0; font-size: 12.5px; line-height: 1.3; }
@@ -196,7 +256,11 @@
     .med small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #9f1239; }
     .med p { margin: 0; color: #4a2a2a; overflow-wrap: anywhere; }
 
-    .dueno { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto; padding: 6px 10px; border: 0; background: none; font-size: 12px; font-weight: 500; color: var(--suave); cursor: pointer; }
+    /* Invitación al canal: una sola fila, sin robarle protagonismo a la ficha */
+    .fila-canal { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+    .fila-canal .ttl b { font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--cafe); }
+
+    .dueno { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto; padding: 6px 10px; border: 0; border-radius: 10px; background: none; font-size: 12px; font-weight: 500; color: var(--suave); cursor: pointer; }
     .dueno:hover { color: var(--oxido); }
 
     /* ---------- Carnet digital (se exporta como imagen) ---------- */
@@ -222,24 +286,41 @@
     #carnet-qrcode { padding: 6px; border-radius: 12px; background: #f1f5f9; }
 
     /* ---------- Pie ---------- */
-    .pie { width: 100%; max-width: 384px; margin: 16px 0 4px; padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; text-align: center; font-size: 12px; color: #ead8b8; background: rgba(26,14,9,.68); border: 1px solid rgba(248,237,209,.14); border-radius: 20px; }
-    .pie .soporte { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; font-weight: 600; color: #a7f3d0; background: rgba(16,185,129,.16); border: 1px solid rgba(110,231,183,.45); }
+    .pie { position: relative; overflow: hidden; width: 100%; max-width: 384px; margin: 16px 0 4px; padding: 16px 14px 10px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; text-align: center; font-size: 12px; color: #ead8b8; background: rgba(26,14,9,.68); border: 1px solid rgba(248,237,209,.14); border-radius: 20px; }
+    .pie::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--awayo) repeat-x left center / auto 6px; opacity: .85; }
+    .pie .soporte { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; font-weight: 600; color: #a7f3d0; background: rgba(16,185,129,.16); border: 1px solid rgba(110,231,183,.45); transition: background .15s; }
+    .pie .soporte:hover { background: rgba(16,185,129,.28); }
     .pie small { flex-basis: 100%; font-size: 10.5px; color: #a8917a; }
     .pie .legal { color: inherit; font-weight: 500; text-decoration: underline; }
 
+    /* ---------- Barra de contacto flotante (aparece al bajar más allá de la tarjeta del dueño) ---------- */
+    .dock { position: fixed; left: 50%; bottom: 0; z-index: 40; width: min(384px, calc(100% - 24px)); margin-bottom: calc(10px + env(safe-area-inset-bottom)); padding: 14px 8px 8px; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; overflow: hidden; border-radius: 22px; background: rgba(41,23,13,.84); border: 1px solid rgba(248,237,209,.18); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 18px 40px -12px rgba(0,0,0,.75); transform: translate(-50%, calc(100% + 40px)); transition: transform .38s cubic-bezier(.2,.8,.2,1); }
+    .dock::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--awayo) repeat-x left center / auto 6px; }
+    .dock.ver { transform: translate(-50%, 0); }
+
+    /* ---------- Aviso breve (reemplaza a los alert) ---------- */
+    .toast { position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); z-index: 60; width: max-content; max-width: min(340px, calc(100% - 32px)); padding: 11px 16px 11px 14px; display: flex; align-items: center; gap: 9px; border-radius: 16px; font-size: 13.5px; font-weight: 500; line-height: 1.3; color: var(--crema); background: #2b1a12; border: 1px solid rgba(224,162,74,.45); box-shadow: 0 16px 34px -10px rgba(0,0,0,.7); opacity: 0; pointer-events: none; transform: translate(-50%, 16px); transition: opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1); }
+    .toast.ver { opacity: 1; transform: translate(-50%, 0); }
+    .toast i { flex: none; font-size: 17px; color: var(--ocre); }
+    .toast.ok i { color: #34d399; }
+    .toast.error i { color: #fb7185; }
+
     /* ---------- Ventanas (modales) ---------- */
-    .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20,10,6,.84); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-    .sheet { position: relative; width: 100%; max-width: 320px; padding: 22px 18px 18px; display: grid; gap: 12px; text-align: center; background: #fffdf8; border: 1px solid var(--arena); border-radius: 24px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
+    .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20,10,6,.84); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: velo .2s ease-out both; }
+    .sheet { position: relative; overflow: hidden; width: 100%; max-width: 320px; padding: 30px 18px 18px; display: grid; gap: 12px; text-align: center; background: #fffdf8; border: 1px solid var(--arena); border-radius: 24px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); animation: surgir .32s cubic-bezier(.2,.8,.2,1) both; }
+    .sheet::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; }
     .sheet h3 { margin: 0; font-size: 17px; font-weight: 600; color: var(--cafe); }
     .sheet p { margin: 3px 0 0; font-size: 12.5px; color: var(--suave); }
     .sheet .paso { display: grid; gap: 12px; }
     .fld.center.codigo { font-size: 20px; letter-spacing: .15em; }
     .fld.center.ph::placeholder { letter-spacing: .02em; font: 500 15px 'Fredoka', system-ui, sans-serif; }
-    .x { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #f3eadb; color: var(--suave); font-size: 14px; cursor: pointer; }
+    .x { position: absolute; top: 16px; right: 10px; width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #f3eadb; color: var(--suave); font-size: 14px; cursor: pointer; transition: transform .2s; }
+    .x:hover { transform: rotate(90deg); }
 
     #modal-medico { align-items: flex-end; padding: 0; }
-    .hoja { width: 100%; max-width: 440px; max-height: 86vh; max-height: 86dvh; display: flex; flex-direction: column; overflow: hidden; background: #fffdf8; border-radius: 26px 26px 0 0; box-shadow: 0 -20px 50px -20px rgba(0,0,0,.6); }
-    @media (min-width: 640px) { #modal-medico { align-items: center; padding: 16px; } .hoja { border-radius: 26px; } }
+    .hoja { width: 100%; max-width: 440px; max-height: 86vh; max-height: 86dvh; display: flex; flex-direction: column; overflow: hidden; background: #fffdf8; border-radius: 26px 26px 0 0; box-shadow: 0 -20px 50px -20px rgba(0,0,0,.6); animation: deslizar .38s cubic-bezier(.2,.8,.2,1) both; }
+    .hoja::before { content: ""; flex: none; height: 8px; background: var(--awayo) repeat-x left center / auto 8px; }
+    @media (min-width: 640px) { #modal-medico { align-items: center; padding: 16px; } .hoja { border-radius: 26px; animation-name: surgir; } }
     .hoja-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: linear-gradient(to right, #fffaf0, #fff); border-bottom: 1px solid #f3eadb; }
     .hoja-h .ttl small { font-size: 9.5px; }
     .hoja-h h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--cafe); line-height: 1.15; }
@@ -248,7 +329,11 @@
     #modal-medical-list { flex: 1; overflow-y: auto; padding: 12px 14px; display: grid; gap: 8px; align-content: start; }
     .hoja-vet { margin: 0 14px 12px; }
     .hoja-nota { margin: 0; padding: 8px 14px 10px; border-top: 1px solid #f3eadb; font-size: 10.5px; color: #a09182; }
-    .rec { display: grid; gap: 4px; padding: 10px 12px; text-align: left; background: #fffaf0; border: 1px solid #f3e3c4; border-radius: 16px; }
+    /* Historial como línea de tiempo: hilo punteado y una cuenta por consulta */
+    .linea { display: grid; gap: 8px; margin-left: 9px; padding-left: 16px; border-left: 2px dashed #e7cfa5; }
+    .rec { position: relative; display: grid; gap: 4px; padding: 10px 12px; text-align: left; background: #fffaf0; border: 1px solid #f3e3c4; border-radius: 16px; animation: subir .4s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+    .rec::before { content: ""; position: absolute; left: -24px; top: 16px; width: 12px; height: 12px; border-radius: 50%; background: var(--ocre); border: 3px solid #fffdf8; box-shadow: 0 0 0 1.5px #e7cfa5; }
+    .rec:first-child::before { background: var(--oxido); }
     .rec-h { display: flex; align-items: center; gap: 8px; }
     .rec-h b { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 600; text-transform: uppercase; color: var(--cafe); overflow-wrap: anywhere; }
     .rec p { margin: 0; font-size: 12.5px; color: #4a3b33; overflow-wrap: anywhere; }
@@ -259,8 +344,8 @@
     .lista-vacia i { display: block; margin-bottom: 4px; font-size: 22px; color: #e0b66a; }
     .lista-vacia b { display: block; font-weight: 600; color: var(--cafe); }
 
-    #photo-modal { background: rgba(0,0,0,.9); cursor: pointer; }
-    .foto-grande { position: relative; width: 100%; max-width: 384px; text-align: center; cursor: default; }
+    #photo-modal { background: rgba(0,0,0,.9); cursor: zoom-out; }
+    .foto-grande { position: relative; width: 100%; max-width: 384px; text-align: center; cursor: default; animation: foto-pop .4s cubic-bezier(.2,.8,.2,1) both; }
     .foto-grande .x { top: -42px; right: 0; width: 38px; height: 38px; background: rgba(40,28,24,.85); color: #fff; font-size: 18px; }
     .foto-grande img { display: block; width: 100%; max-height: 80vh; object-fit: contain; border-radius: 24px; border: 2px solid rgba(255,255,255,.2); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); }
 
@@ -274,6 +359,7 @@
     .btn-gris { background: #4b3a33; }
     .poster { flex: none; position: relative; width: 100%; max-width: 384px; padding: 24px; overflow: hidden; text-align: center; color: #0f172a; font-family: 'Fredoka', system-ui, sans-serif; background-color: #fff; border: 4px solid #dc2626; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Cg fill='%23cbd5e1' opacity='0.45'%3E%3Cpath d='M30 18c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Cpath d='M80 68c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3C/g%3E%3C/svg%3E"); }
+    #afiche-modal .poster { animation: surgir .4s cubic-bezier(.2,.8,.2,1) both; }
     .poster-titulo { margin: 0 0 14px; font: 900 38px/1.1 'Arial Black', Impact, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: #fbbf24; -webkit-text-stroke: 2px #dc2626; text-shadow: 0 4px 0 #b91c1c; }
     .poster-foto { width: 208px; height: 256px; margin: 0 auto 14px; overflow: hidden; background: #f1f5f9; border: 4px solid #dc2626; border-radius: 24px; box-shadow: 0 12px 24px -10px rgba(0,0,0,.35); }
     .poster-foto img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -294,28 +380,21 @@
 
     @media print {
       @page { margin: 10mm; }
-      html, body { background: #fff !important; }
+      html, body { background: #fff !important; overflow: visible !important; }
+      body::before { display: none !important; }
       /* Solo se imprime el afiche, grande y centrado en la hoja */
-      body { display: block !important; min-height: 0 !important; padding: 0 !important; overflow: visible !important; }
+      body { display: block !important; min-height: 0 !important; padding: 0 !important; }
       body > *:not(#afiche-modal) { display: none !important; }
-      #afiche-modal { position: static; display: block; padding: 0; overflow: visible; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+      #afiche-modal { position: static; display: block; padding: 0; overflow: visible; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; animation: none; }
       .no-print { display: none !important; }
-      #printable-poster { zoom: var(--zoom-afiche, 1.25); width: 384px; max-width: none; margin: 0 auto; box-shadow: none; break-inside: avoid; }
+      #printable-poster { zoom: var(--zoom-afiche, 1.25); width: 384px; max-width: none; margin: 0 auto; box-shadow: none; break-inside: avoid; animation: none; }
     }
   </style>
 </head>
 <body>
 
   <!-- Indicador mínimo mientras carga / mientras el navegador pregunta por la ubicación -->
-  <div id="cargando" class="cargando" role="status" aria-label="Cargando"><i class="fa-solid fa-paw fa-beat"></i></div>
-
-  <!-- Placa no registrada / no válida / sin conexión -->
-  <section id="unregistered-card" class="vacio hidden">
-    <div class="ico amber grande"><i class="fa-solid fa-qrcode"></i></div>
-    <h2>Placa sin registrar</h2>
-    <p>Esta placa aún no tiene una mascota asignada.</p>
-    <a id="link-register" href="#" class="btn btn-ambar"><i class="fa-solid fa-plus"></i> Registrar esta placa</a>
-  </section>
+  <div id="cargando" class="cargando" role="status" aria-label="Cargando"><i class="fa-solid fa-paw"></i></div>
 
   <!-- Aviso de pérdida -->
   <div id="lost-alert-banner" class="alerta hidden" role="alert">
@@ -328,6 +407,14 @@
     <img src="helpet-alas.svg" alt="Helpet" width="340" height="138" decoding="async">
   </div>
 
+  <!-- Placa no registrada / no válida / sin conexión -->
+  <section id="unregistered-card" class="vacio hidden">
+    <div class="ico amber grande"><i class="fa-solid fa-qrcode"></i></div>
+    <h2>Placa sin registrar</h2>
+    <p>Esta placa aún no tiene una mascota asignada.</p>
+    <a id="link-register" href="#" class="btn btn-ambar"><i class="fa-solid fa-plus"></i> Registrar esta placa</a>
+  </section>
+
   <!-- Tarjeta principal del perfil -->
   <main id="app-container" class="shell hidden">
 
@@ -335,10 +422,11 @@
       <img src="cabecera-paisaje.jpg" alt="" width="1036" height="518">
       <span id="header-status-badge" class="sello"><i class="fa-solid fa-paw"></i> Perfil y ficha médica</span>
     </div>
+    <div class="awayo" aria-hidden="true"></div>
 
     <div class="foto">
       <div class="foto-box">
-        <img id="pet-photo" onclick="abrirFotoGrande()" width="128" height="128" alt="Foto de la mascota"
+        <img id="pet-photo" onclick="abrirFotoGrande()" width="128" height="128" alt="Foto de la mascota" title="Ver foto en grande"
              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fff1d6'/%3E%3Cg fill='%23e0a24a'%3E%3Cellipse cx='50' cy='65' rx='16' ry='13'/%3E%3Ccircle cx='30' cy='47' r='6.5'/%3E%3Ccircle cx='42' cy='35' r='6.5'/%3E%3Ccircle cx='58' cy='35' r='6.5'/%3E%3Ccircle cx='70' cy='47' r='6.5'/%3E%3C/g%3E%3C/svg%3E">
         <span id="status-indicator" class="punto" title="Placa activa"></span>
       </div>
@@ -376,6 +464,20 @@
         </div>
       </section>
 
+      <!-- 2b. Mascota perdida: dónde, cuándo y cómo reconocerla (lo ve quien llega desde el canal o un enlace compartido) -->
+      <section id="lost-card" class="card perdida-card hidden">
+        <div class="card-h">
+          <span class="ico rose"><i class="fa-solid fa-magnifying-glass-location"></i></span>
+          <div class="ttl"><small>¿La viste?</small><b>Así se perdió</b></div>
+        </div>
+        <div class="card-b">
+          <div id="lost-where-row" class="pista hidden"><i class="fa-solid fa-location-dot"></i><div><small>Zona</small><p id="lost-where"></p></div></div>
+          <div id="lost-when-row" class="pista hidden"><i class="fa-regular fa-calendar"></i><div><small>Cuándo</small><p id="lost-when"></p></div></div>
+          <div id="lost-signs-row" class="pista hidden"><i class="fa-solid fa-paw"></i><div><small>Señas</small><p id="lost-signs"></p></div></div>
+          <div id="lost-reward" class="recompensa hidden"><i class="fa-solid fa-gift"></i> Se ofrece recompensa</div>
+        </div>
+      </section>
+
       <!-- 3. Difusión -->
       <div class="fila">
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="btn btn-afiche hidden"><i class="fa-solid fa-bullhorn"></i> Crear afiche</button>
@@ -405,12 +507,12 @@
         </div>
         <div class="card-b">
           <div id="health-card" class="fechas hidden">
-            <div id="row-vaccine" class="fecha hidden"><i class="fa-solid fa-syringe"></i><span>Próxima vacuna</span><b id="txt-vaccine"></b></div>
-            <div id="row-deworming" class="fecha hidden"><i class="fa-solid fa-pills"></i><span>Desparasitación</span><b id="txt-deworming"></b></div>
+            <div id="row-vaccine" class="fecha hidden"><i class="fa-solid fa-syringe"></i><span>Próxima vacuna<small id="rel-vaccine"></small></span><b id="txt-vaccine"></b></div>
+            <div id="row-deworming" class="fecha hidden"><i class="fa-solid fa-pills"></i><span>Desparasitación<small id="rel-deworming"></small></span><b id="txt-deworming"></b></div>
           </div>
           <div class="fila">
             <button id="btn-medical-history" type="button" onclick="abrirModalMedico()" class="btn btn-ambar hidden"><i class="fa-solid fa-file-medical"></i> Historial</button>
-            <button type="button" onclick="descargarCarnetDigital()" class="btn btn-line"><i class="fa-solid fa-download"></i> Carnet</button>
+            <button id="btn-carnet" type="button" onclick="descargarCarnetDigital()" class="btn btn-line"><i class="fa-solid fa-download"></i> <span>Carnet</span></button>
           </div>
         </div>
       </section>
@@ -454,14 +556,10 @@
       </div>
 
       <!-- Comunidad: aparece para todos cuando hay mascotas perdidas publicadas en el canal -->
-      <section id="canal-banner" class="card hidden">
-        <div class="card-h">
-          <span class="ico sky"><i class="fa-brands fa-telegram"></i></span>
-          <div class="ttl"><small>Comunidad Helpet</small><b>Ayuda a las mascotas a reencontrarse</b></div>
-        </div>
-        <div class="card-b">
-          <a href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn btn-gps"><i class="fa-brands fa-telegram"></i> Únete al canal</a>
-        </div>
+      <section id="canal-banner" class="card fila-canal hidden">
+        <span class="ico sky"><i class="fa-brands fa-telegram"></i></span>
+        <div class="ttl"><small>Comunidad Helpet</small><b>Ayuda a las mascotas a reencontrarse</b></div>
+        <a href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn btn-mini">Unirme</a>
       </section>
 
       <!-- 6. Acceso del dueño -->
@@ -476,8 +574,17 @@
     <small>© 2026 Helpet · Todos los derechos reservados · <a href="privacidad.html" class="legal">Privacidad y términos</a></small>
   </footer>
 
+  <!-- Contacto siempre a mano: aparece al bajar más allá de la tarjeta del dueño -->
+  <nav id="dock" class="dock" aria-label="Contactar al dueño" inert>
+    <a id="dock-wa" href="#" target="_blank" rel="noopener" class="btn btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+    <a id="dock-call" href="#" class="btn btn-call"><i class="fa-solid fa-phone"></i> Llamar</a>
+  </nav>
+
+  <!-- Avisos breves -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
   <!-- MODAL DE PIN -->
-  <div id="pin-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pin-titulo">
+  <div id="pin-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pin-titulo" onclick="if (event.target === this) cerrarModalPIN()">
     <div class="sheet">
       <button type="button" class="x" onclick="cerrarModalPIN()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
       <div class="ico amber grande"><i id="pin-ico" class="fa-solid fa-key"></i></div>
@@ -487,8 +594,9 @@
       </div>
       <!-- Paso 1: PIN -->
       <div id="pin-paso1" class="paso">
-        <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" pattern="[0-9]{4}" class="fld center" onkeydown="if (event.key === 'Enter') validarPINModal()">
-        <button type="button" onclick="validarPINModal()" class="btn btn-ambar">Ingresar</button>
+        <!-- Con el 4.º dígito entra solo -->
+        <input type="password" id="modal-pin-input" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" pattern="[0-9]{4}" class="fld center" onkeydown="if (event.key === 'Enter') validarPINModal()" oninput="this.classList.remove('mal'); if (/^[0-9]{4}$/.test(this.value)) validarPINModal()">
+        <button id="btn-pin" type="button" onclick="validarPINModal()" class="btn btn-ambar">Ingresar</button>
         <a href="https://t.me/Ayudapetbot?start=recuperar" target="_blank" rel="noopener" class="enlace"><i class="fa-brands fa-telegram"></i> ¿Olvidaste tu PIN? Recupéralo por Telegram</a>
       </div>
       <!-- Paso 2: dispositivo nuevo → código de Telegram, de la tarjeta de la placa o de soporte -->
@@ -562,7 +670,7 @@
   </div>
 
   <!-- MODAL FLOTANTE DE HISTORIAL MÉDICO -->
-  <div id="modal-medico" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="medico-titulo">
+  <div id="modal-medico" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="medico-titulo" onclick="if (event.target === this) cerrarModalMedico()">
     <div class="hoja">
       <div class="hoja-h">
         <span class="ico amber"><i class="fa-solid fa-file-medical"></i></span>
@@ -574,7 +682,7 @@
 
       <div id="modal-medical-list"></div>
 
-      <button type="button" onclick="location.href='vet.html'+location.search" class="btn btn-line hoja-vet" style="width:auto"><i class="fa-solid fa-user-doctor"></i> ¿Eres veterinario? Registrar consulta</button>
+      <button type="button" onclick="location.href='vet.html?id='+encodeURIComponent(tagId)" class="btn btn-line hoja-vet" style="width:auto"><i class="fa-solid fa-user-doctor"></i> ¿Eres veterinario? Registrar consulta</button>
       <p class="hoja-nota">🔒 Por privacidad, diagnósticos y recetas solo los ve el dueño.</p>
     </div>
   </div>
@@ -634,6 +742,34 @@
       const hoy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       return Math.round((new Date(+m[1], +m[2] - 1, +m[3]) - hoy) / 86400000);
     };
+    // «En 11 días», «Hoy», «Vencida hace 3 días»... y el tono del semáforo para esa fecha
+    const cuandoFalta = iso => {
+      const d = diasHasta(iso);
+      if (d === null) return { texto: '', tono: '' };
+      const meses = Math.round(d / 30);
+      const texto = d < 0 ? `Vencida hace ${-d === 1 ? '1 día' : `${-d} días`}` : d === 0 ? 'Hoy' : d === 1 ? 'Mañana'
+        : d <= 60 ? `En ${d} días` : `En ${meses} meses`;
+      return { texto, tono: d < 0 ? 'bad' : d <= 15 ? 'warn' : '' };
+    };
+
+    // Aviso breve abajo de la pantalla (en lugar de los alert, que bloquean la página)
+    let toastTimer = null;
+    function aviso(texto, tipo = 'info') {
+      const t = $('toast');
+      const ico = { ok: 'fa-circle-check', error: 'fa-circle-exclamation' }[tipo] || 'fa-paw';
+      t.className = `toast ${tipo}`;
+      t.innerHTML = `<i class="fa-solid ${ico}"></i><span></span>`;
+      t.querySelector('span').textContent = texto;
+      requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('ver')));
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('ver'), tipo === 'error' ? 5000 : 3200);
+    }
+
+    // Abre o cierra una ventana; mientras haya una abierta, la página de atrás no se desplaza
+    function capa(id, abrir) {
+      $(id).classList.toggle('hidden', !abrir);
+      document.documentElement.classList.toggle('bloqueo', !!document.querySelector('.modal:not(.hidden)'));
+    }
 
     // Librerías pesadas: se cargan solo cuando se usan
     const LIB_QR = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
@@ -658,13 +794,16 @@
       card.querySelector('p').textContent = texto;
       $('link-register').classList.add('hidden');
       card.classList.remove('hidden');
+      $('corona-helpet').classList.remove('hidden');
     }
 
-    // Muestra la ficha (y el banner rojo si la mascota está perdida)
+    // Muestra la ficha (y el banner rojo si la mascota está perdida). Las piezas visibles entran una tras otra.
     function mostrarPerfil() {
+      [...document.querySelectorAll('.cuerpo > :not(.hidden):not(.carnet)')].forEach((el, i) => el.style.setProperty('--i', i));
       $('app-container').classList.remove('hidden');
       $('corona-helpet').classList.remove('hidden');
       if (petData && petData.is_lost) $('lost-alert-banner').classList.remove('hidden');
+      activarDock();
     }
 
     async function cargarPerfil() {
@@ -685,6 +824,7 @@
           if (est === 'sin_activar') {
             $('link-register').href = `registro.html?id=${encodeURIComponent(tagId)}`;
             $('unregistered-card').classList.remove('hidden');
+            $('corona-helpet').classList.remove('hidden');
           } else {
             mostrarTarjetaPlaca('Placa no válida', 'Este código no corresponde a una placa Helpet. Revisa el enlace o escribe a soporte.');
           }
@@ -729,9 +869,13 @@
 
           badge.className = 'sello perdida';
           badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Buscando su hogar`;
-          subStatus.className = 'perdida';
-          subStatus.textContent = "🚨 Mascota perdida";
+          // El banner y el sello ya dicen que se perdió: debajo del nombre va su descripción (ayuda a reconocerla)
+          const descripcion = String(data.description || '').trim();
+          subStatus.className = descripcion ? '' : 'perdida';
+          subStatus.textContent = descripcion || "🚨 Mascota perdida";
           indicator.className = 'punto perdida';
+          $('app-container').classList.add('perdida');
+          llenarPerdida(data);
 
           await pedirUbicacionSiPerdida(); // el navegador pregunta ANTES de mostrar la ficha
 
@@ -756,18 +900,16 @@
           const visibles = [...document.querySelectorAll('#pet-tech-sheet .dato')].filter(el => !el.classList.contains('hidden'));
           visibles.forEach((el, i) => el.classList.toggle('ancho', visibles.length % 2 === 1 && i === visibles.length - 1));
 
-          // Próximas fechas (vacuna / desparasitación)
+          // Próximas fechas (vacuna / desparasitación), con cuánto falta y su color
           let tieneControl = false;
-          if (data.next_vaccine) {
-            $('row-vaccine').classList.remove('hidden');
-            $('txt-vaccine').textContent = fmtFecha(data.next_vaccine);
+          [['vaccine', data.next_vaccine], ['deworming', data.next_deworming]].forEach(([k, iso]) => {
+            if (!iso) return;
+            const falta = cuandoFalta(iso);
+            $(`row-${k}`).className = `fecha ${falta.tono}`;
+            $(`txt-${k}`).textContent = fmtFecha(iso);
+            $(`rel-${k}`).textContent = falta.texto;
             tieneControl = true;
-          }
-          if (data.next_deworming) {
-            $('row-deworming').classList.remove('hidden');
-            $('txt-deworming').textContent = fmtFecha(data.next_deworming);
-            tieneControl = true;
-          }
+          });
           if (tieneControl) $('health-card').classList.remove('hidden');
 
           // Ficha médica básica
@@ -800,6 +942,20 @@
       } finally {
         $('cargando').classList.add('hidden');
       }
+    }
+
+    // Mascota perdida: zona, fecha, señas (raza, color, peso, edad) y recompensa. Solo lo que el dueño escribió.
+    function llenarPerdida(d) {
+      const cuando = [d.lost_date, d.lost_time].map(v => String(v || '').trim()).filter(Boolean).join(', ');
+      const senas = [d.breed, d.color, fmtPeso(d.weight), d.age].map(v => String(v || '').trim()).filter(Boolean).join(' · ');
+      let algo = false;
+      [['lost-where', String(d.lost_location || '').trim()], ['lost-when', cuando], ['lost-signs', senas]].forEach(([id, texto]) => {
+        $(id).textContent = texto;
+        $(`${id}-row`).classList.toggle('hidden', !texto);
+        if (texto) algo = true;
+      });
+      $('lost-reward').classList.toggle('hidden', !d.reward);
+      $('lost-card').classList.toggle('hidden', !algo && !d.reward);
     }
 
     // ==========================================
@@ -1020,7 +1176,7 @@
       } else {
         try {
           await navigator.clipboard.writeText(window.location.href);
-          alert("¡Enlace del perfil copiado al portapapeles!");
+          aviso('¡Enlace del perfil copiado!', 'ok');
         } catch (e) {
           window.prompt("Copia este enlace:", window.location.href);
         }
@@ -1040,8 +1196,11 @@
     }
 
     async function descargarCarnetDigital() {
-      const carnet = $('carnet-digital');
-      if (!carnet || !petData) return;
+      const carnet = $('carnet-digital'), btn = $('btn-carnet');
+      if (!carnet || !petData || btn.disabled) return;
+      btn.disabled = true;
+      btn.querySelector('i').className = 'fa-solid fa-spinner fa-spin';
+      btn.querySelector('span').textContent = 'Creando...';
       try {
         await Promise.all([cargarLib(LIB_H2C), cargarLib(LIB_QR)]);
         if (historial === null) await cargarHistorialMedico();
@@ -1067,10 +1226,15 @@
         link.download = `Carnet_Helpet_${tagId}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+        aviso('¡Carnet descargado!', 'ok');
       } catch (err) {
         console.error("Error al generar carnet:", err);
         carnet.classList.add('hidden');
-        alert("❌ No se pudo generar la imagen del carnet.");
+        aviso('No se pudo crear el carnet. Revisa tu conexión e inténtalo de nuevo.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('i').className = 'fa-solid fa-download';
+        btn.querySelector('span').textContent = 'Carnet';
       }
     }
 
@@ -1115,12 +1279,12 @@
       if (petData.weight) edadPeso.push(fmtPeso(petData.weight));
       $('poster-age-weight').textContent = edadPeso.length > 0 ? edadPeso.join(' / ') : 'Sin indicar';
 
-      $('afiche-modal').classList.remove('hidden');
+      capa('afiche-modal', true);
       // La imagen se prepara al abrir: así compartir responde al instante (iOS exige el toque reciente)
       posterBlobPromise = generarAficheBlob().catch(e => { console.error(e); return null; });
     }
 
-    function cerrarAficheModal() { $('afiche-modal').classList.add('hidden'); }
+    function cerrarAficheModal() { capa('afiche-modal', false); }
     // Imprime el afiche lo más grande posible pero en una sola hoja (mide su alto con el ancho de impresión)
     function imprimirAfiche() {
       const poster = $('printable-poster');
@@ -1157,10 +1321,10 @@
           a.href = URL.createObjectURL(blob);
           a.download = file.name;
           a.click();
-          alert("¡Imagen descargada exitosamente!");
+          aviso('Imagen del afiche descargada.', 'ok');
         }
       } catch (err) {
-        if (!err || err.name !== 'AbortError') alert("No se pudo compartir la imagen: " + (err && err.message ? err.message : err));
+        if (!err || err.name !== 'AbortError') aviso("No se pudo compartir la imagen: " + (err && err.message ? err.message : err), 'error');
       } finally {
         btn.innerHTML = textOriginal;
         btn.disabled = false;
@@ -1171,15 +1335,18 @@
     // HISTORIAL MÉDICO PÚBLICO (sin diagnóstico ni receta; vacío si la mascota está perdida)
     // ==========================================
     function abrirModalMedico() {
-      const modal = $('modal-medico');
-      if (!modal) return;
-      modal.classList.remove('hidden');
+      capa('modal-medico', true);
       if (historial === null) cargarHistorialMedico();
     }
 
-    function cerrarModalMedico() {
-      const modal = $('modal-medico');
-      if (modal) modal.classList.add('hidden');
+    function cerrarModalMedico() { capa('modal-medico', false); }
+
+    // Ícono según el motivo: vacuna, desparasitación o consulta
+    function iconoMotivo(motivo) {
+      const m = String(motivo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return /vacun|refuerzo|antirrab|quintuple|sextuple|triple/.test(m) ? 'fa-syringe'
+        : /desparasit|parasit|pipeta|pulga|garrapat/.test(m) ? 'fa-pills'
+        : /cirug|operac|castra|esteril/.test(m) ? 'fa-kit-medical' : 'fa-stethoscope';
     }
 
     function renderHistorial() {
@@ -1194,16 +1361,17 @@
           </div>`;
         return;
       }
-      lista.innerHTML = historial.map(rec => `
-        <div class="rec">
+      // Línea de tiempo: de la consulta más reciente a la más antigua
+      lista.innerHTML = `<div class="linea">${historial.map((rec, i) => `
+        <div class="rec" style="--i:${i}">
           <div class="rec-h">
-            <span class="ico amber"><i class="fa-solid fa-user-doctor"></i></span>
+            <span class="ico amber"><i class="fa-solid ${iconoMotivo(rec.reason)}"></i></span>
             <b>${esc(rec.vet_name)}</b>
             <span class="pill">${esc(fmtFecha(rec.visit_date))}</span>
           </div>
-          <p><i class="fa-solid fa-stethoscope"></i>${esc(rec.reason || 'Consulta general')}</p>
-          ${rec.next_due_date && !rec.proxima_hecha_en ? `<p class="next"><i class="fa-solid fa-calendar-check"></i>Próximo refuerzo: ${esc(fmtFecha(rec.next_due_date))}</p>` : ''}
-        </div>`).join('');
+          <p><i class="fa-solid fa-notes-medical"></i>${esc(rec.reason || 'Consulta general')}</p>
+          ${rec.next_due_date && !rec.proxima_hecha_en ? `<p class="next"><i class="fa-solid fa-calendar-check"></i>Próximo refuerzo: ${esc(fmtFecha(rec.next_due_date))}${cuandoFalta(rec.next_due_date).texto ? ` · ${esc(cuandoFalta(rec.next_due_date).texto.toLowerCase())}` : ''}</p>` : ''}
+        </div>`).join('')}</div>`;
     }
 
     async function cargarHistorialMedico() {
@@ -1345,6 +1513,7 @@
       accesoPendiente = null; sesionPendiente = null;
       pasoPIN(1, 'PIN del dueño', destinoPIN === '#canal' ? 'Ingresa tus 4 dígitos para publicar el aviso.' : 'Ingresa tus 4 dígitos para editar.', 'fa-key');
       $('modal-pin-input').value = '';
+      $('modal-pin-input').classList.remove('mal');
       if (msg) mensajePIN(msg);
       $('modal-pin-input').focus();
     }
@@ -1352,28 +1521,49 @@
     function abrirModalPIN(destino = '') {
       destinoPIN = destino;
       cerrarModalMedico();
-      $('pin-modal').classList.remove('hidden');
+      capa('pin-modal', true);
       pasoInicialPIN();
     }
 
     function cerrarModalPIN() {
-      $('pin-modal').classList.add('hidden');
+      capa('pin-modal', false);
       destinoPIN = '';
       accesoPendiente = null; sesionPendiente = null;
     }
 
+    // Error dentro de la ventana: el campo tiembla y se vacía para volver a intentar
+    function errorPIN(texto, limpiar = true) {
+      const i = $('modal-pin-input');
+      mensajePIN(texto);
+      i.classList.remove('mal');
+      void i.offsetWidth;   // reinicia la animación
+      i.classList.add('mal');
+      if (limpiar) i.value = '';
+      i.focus();
+    }
+
+    let validandoPIN = false;
     async function validarPINModal() {
       const input = $('modal-pin-input').value.trim();
-      if (!petData) return;
+      if (!petData || validandoPIN) return;
+      if (!/^[0-9]{4}$/.test(input)) { errorPIN('Escribe los 4 dígitos de tu PIN.', false); return; }   // no gasta un intento
+      validandoPIN = true;
+      const btn = $('btn-pin');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verificando...`;
       const disp = leerAlmacen('localStorage', `disp_${tagId}`);
-      const { data: r, error } = await db.rpc('entrar', { p_id: tagId, p_pin: input, p_disp: disp, p_etiqueta: etiquetaDispositivo() });
-      if (error || !r) { alert("❌ No se pudo verificar el PIN. Intenta de nuevo."); return; }
+      let r = null, error = null;
+      try { ({ data: r, error } = await db.rpc('entrar', { p_id: tagId, p_pin: input, p_disp: disp, p_etiqueta: etiquetaDispositivo() })); } catch (e) { error = e; }
+      validandoPIN = false;
+      btn.disabled = false;
+      btn.textContent = 'Ingresar';
+      if (error || !r) { errorPIN('No se pudo verificar el PIN. Revisa tu conexión e inténtalo de nuevo.', false); return; }
       if (r.dispositivo_invalido) { try { localStorage.removeItem(`disp_${tagId}`); } catch (e) {} }   // le quitaron el acceso a este celular
       if (r.estado === 'ok') return entradaLista(r.sesion, r.pin_debil);
       if (r.estado === 'verificar') { accesoPendiente = r; return mostrarPasoCodigo(); }
-      if (r.estado === 'bloqueado') alert("⏳ Demasiados intentos. Espera 15 minutos o recupera tu PIN por Telegram.");
-      else if (r.estado === 'limite') alert("⏳ Demasiados accesos desde celulares nuevos por hoy. Inténtalo más tarde o escríbenos por WhatsApp.");
-      else alert("❌ PIN Incorrecto.");
+      if (r.estado === 'bloqueado') errorPIN('⏳ Demasiados intentos. Espera 15 minutos o recupera tu PIN por Telegram.');
+      else if (r.estado === 'limite') errorPIN('⏳ Demasiados accesos desde celulares nuevos por hoy. Inténtalo más tarde o escríbenos por WhatsApp.');
+      else errorPIN('PIN incorrecto. Inténtalo de nuevo.');
     }
 
     function mostrarPasoCodigo() {
@@ -1465,12 +1655,10 @@
     function abrirFotoGrande() {
       if (!petData || !petData.photo || $('pet-photo').getAttribute('src') === FOTO_VACIA) return;
       $('full-pet-photo').src = petData.photo;
-      $('photo-modal').classList.remove('hidden');
+      capa('photo-modal', true);
     }
 
-    function cerrarFotoGrande() {
-      $('photo-modal').classList.add('hidden');
-    }
+    function cerrarFotoGrande() { capa('photo-modal', false); }
 
     // ==========================================
     // SEMÁFORO DE SALUD
@@ -1529,6 +1717,67 @@
         carnetStatus.className = `cp cp-${tono}`;
         carnetStatus.textContent = textoEstado;
       }
+    }
+
+    // ==========================================
+    // INTERACCIÓN: onda al tocar, Escape, paralaje y barra de contacto
+    // ==========================================
+    // Onda que nace donde se tocó el botón (sin crear nodos: mueve el ::after con --x / --y)
+    document.addEventListener('pointerdown', e => {
+      const b = e.target.closest && e.target.closest('.btn');
+      if (!b || b.disabled) return;
+      const r = b.getBoundingClientRect();
+      b.style.setProperty('--x', `${e.clientX - r.left}px`);
+      b.style.setProperty('--y', `${e.clientY - r.top}px`);
+      b.classList.remove('onda');
+      void b.offsetWidth;
+      b.classList.add('onda');
+    }, { passive: true });
+
+    // Escape cierra la ventana de arriba
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const abierta = id => !$(id).classList.contains('hidden');
+      if (abierta('photo-modal')) cerrarFotoGrande();
+      else if (abierta('pin-modal')) cerrarModalPIN();
+      else if (abierta('afiche-modal')) cerrarAficheModal();
+      else if (abierta('modal-medico')) cerrarModalMedico();
+    });
+
+    // Paralaje: el paisaje andino de la cabecera baja más lento que la página
+    const sinMovimiento = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const paisaje = document.querySelector('.hero > img');
+    if (paisaje && !sinMovimiento) {
+      let pendiente = false;
+      window.addEventListener('scroll', () => {
+        if (pendiente) return;
+        pendiente = true;
+        requestAnimationFrame(() => {
+          pendiente = false;
+          paisaje.style.transform = `translate3d(0, ${Math.min(window.scrollY, 144) / 4}px, 0)`;
+        });
+      }, { passive: true });
+    }
+
+    // Barra flotante con WhatsApp y Llamar: aparece cuando la tarjeta del dueño quedó arriba, fuera de la vista.
+    // Copia los enlaces de esa tarjeta (el de WhatsApp cambia cuando llega la ubicación del visitante).
+    function sincronizarDock() {
+      $('dock-wa').href = $('btn-whatsapp').href;
+      $('dock-call').href = $('btn-call').href;
+    }
+    let dockActivo = false;
+    function activarDock() {
+      if (dockActivo || !('IntersectionObserver' in window)) return;
+      dockActivo = true;
+      document.body.classList.add('con-dock');
+      const dock = $('dock');
+      $('dock-wa').addEventListener('pointerdown', sincronizarDock);
+      new IntersectionObserver(([e]) => {
+        const ver = !e.isIntersecting && e.boundingClientRect.top < 0;
+        if (ver) sincronizarDock();
+        dock.classList.toggle('ver', ver);
+        dock.inert = !ver;
+      }).observe($('contact-card'));
     }
 
     cargarPerfil();
