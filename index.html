@@ -407,7 +407,9 @@
     .foto-grande .x { top: -42px; right: 0; width: 38px; height: 38px; background: rgba(40,28,24,.85); color: #fff; font-size: 18px; animation: velo .3s .25s both; }
     .foto-grande img { display: block; width: 100%; max-height: 80vh; object-fit: contain; border-radius: 24px; border: 2px solid rgba(255,255,255,.2); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); will-change: transform; }   /* crece desde la foto de la tarjeta (zoomFoto) */
 
-    /* ---------- Afiche «¡SE BUSCA!» (se exporta como imagen: solo CSS simple) ---------- */
+    /* ---------- Afiche «¡SE BUSCA!» ----------
+       Se exporta como imagen con html2canvas: solo colores, degradados lineales, bordes (también de puntadas),
+       sombras, imágenes y SVG con colores fijos; nada de máscaras, recortes ni degradados cónicos. */
     #afiche-modal { flex-direction: column; justify-content: flex-start; overflow-y: auto; background: rgba(20,10,6,.92); }
     #afiche-modal > :first-child { margin-top: auto; }
     #afiche-modal > :last-child { margin-bottom: auto; }
@@ -415,26 +417,65 @@
     .barra .btn { width: auto; padding: 9px 14px; font-size: 13px; border-radius: 12px; }
     .btn-img { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 6px 14px -6px rgba(4,120,87,.7); }
     .btn-gris { background: #4b3a33; }
-    .poster { flex: none; position: relative; width: 100%; max-width: 384px; padding: 24px; overflow: hidden; text-align: center; color: #0f172a; font-family: 'Fredoka', system-ui, sans-serif; background-color: #fff; border: 4px solid #dc2626; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100'%3E%3Cg fill='%23cbd5e1' opacity='0.45'%3E%3Cpath d='M30 18c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3Cpath d='M80 68c-1.8 0-3 1.3-3 3s1.2 3 3 3 3-1.3 3-3-1.2-3-3-3zm-6 5c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm12 0c-1.5 0-2.5 1.1-2.5 2.5s1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1-2.5-2.5-2.5zm-6 5c-3.8 0-6.5 2.5-6.5 5.5 0 2.8 2.7 4.5 6.5 4.5s6.5-1.7 6.5-4.5c0-3-2.7-5.5-6.5-5.5z'/%3E%3C/g%3E%3C/svg%3E"); }
     #afiche-modal .poster { animation: surgir .4s cubic-bezier(.2,.8,.2,1) both; }
-    .poster-titulo { margin: 0 0 14px; font: 900 38px/1.1 'Arial Black', Impact, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: #fbbf24; -webkit-text-stroke: 2px #dc2626; text-shadow: 0 4px 0 #b91c1c; }
-    .poster-foto { width: 208px; height: 256px; margin: 0 auto 14px; overflow: hidden; background: #f1f5f9; border: 4px solid #dc2626; border-radius: 24px; box-shadow: 0 12px 24px -10px rgba(0,0,0,.35); }
-    .poster-foto img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .poster-txt { padding: 0 6px; font-size: 14px; font-weight: 600; line-height: 1.55; color: #1e293b; }
-    .poster-txt p { margin: 0; }
-    #poster-pet-name { font-size: 16px; font-weight: 800; color: #0f172a; }
-    #poster-reward-text { margin-top: 6px; font-size: 14px; font-weight: 800; color: #dc2626; }
-    .poster-llama { margin-top: 8px !important; font-size: 12px; font-weight: 700; color: #475569; }
-    .poster-tel { display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 8px; padding: 12px 16px; background: #fbbf24; border: 4px solid #dc2626; border-radius: 999px; box-shadow: 0 10px 18px -8px rgba(0,0,0,.35); }
-    .poster-tel svg { flex: none; width: 28px; height: 28px; margin-right: 8px; color: #b91c1c; }
-    #poster-phone-num { font: 800 clamp(16px, 5.6vw, 22px) ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .02em; white-space: nowrap; color: #b91c1c; }
-    .poster-datos { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 4px; margin-top: 12px; padding: 8px; font-size: 11px; font-weight: 700; color: #334155; background: rgba(255,255,255,.92); border: 1px solid #fecaca; border-radius: 12px; }
-    .poster-datos small { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; color: #ef4444; }
-    .poster-qr { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
-    #poster-qr { padding: 4px; background: #fff; border: 1px solid #fecaca; border-radius: 8px; }
-    .poster-qr p { margin: 0; font-size: 10px; font-weight: 700; letter-spacing: .04em; line-height: 1.3; text-align: left; text-transform: uppercase; color: #64748b; }
-    .poster-qr small { font-size: 9px; color: #94a3b8; }
+    .poster { flex: none; position: relative; width: 100%; max-width: 384px; overflow: hidden; text-align: center; color: var(--tinta); font-family: 'Fredoka', system-ui, sans-serif;
+      background-color: #fbf6e3; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M20 12l8 8-8 8-8-8z' fill='none' stroke='%23ecdcbf' stroke-width='1.5'/%3E%3Cpath d='M0 0l4 4-4 4zM40 0l-4 4 4 4zM0 40l4-4-4-4zM40 40l-4-4 4-4z' fill='%23ecdcbf'/%3E%3C/svg%3E"); border-radius: 22px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; }   /* al imprimir salen los colores y las franjas */
+    .poster-franja { height: 14px; background: var(--awayo) repeat-x left center / auto 14px; }
+    .poster-franja.delgada { height: 8px; background-size: auto 8px; }
+    .poster-cab { padding: 14px 14px 12px; color: var(--crema); background: linear-gradient(135deg, #c0392b, #8f3523); }
+    .poster-titulo { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .poster-titulo h2 { margin: 0; font: 800 clamp(28px, 10.5vw, 40px)/1 'DynaPuff', 'Fredoka', sans-serif; letter-spacing: .03em; white-space: nowrap; color: #fff3d6; text-shadow: 0 3px 0 #3b2420, 0 6px 12px rgba(0,0,0,.35); }
+    .poster-titulo svg { flex: none; width: clamp(18px, 6vw, 26px); height: clamp(18px, 6vw, 26px); }
+    .poster-cab p { margin: 7px 0 0; font-size: 12.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #fcd9a0; }
+    .poster-cuerpo { padding: 16px 16px 14px; display: grid; gap: 10px; justify-items: center; }
+    /* Foto en un marco tejido */
+    .poster-marco { padding: 8px; border-radius: 22px; background: var(--awayo) repeat left top / auto 12px; box-shadow: 0 12px 24px -10px rgba(59,36,32,.55); }
+    .poster-marco img { display: block; width: 220px; height: 250px; object-fit: cover; border-radius: 15px; border: 3px solid #fbf6e3; background: #fff1d6; }
+    #poster-pet-name { margin: 2px 0 0; font: 800 32px/1.05 'DynaPuff', 'Fredoka', sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--cafe); text-shadow: 0 2px 0 #fff, 0 4px 0 var(--arena); overflow-wrap: anywhere; }
+    /* Señas, dónde y cuándo: casillas con borde de puntadas */
+    .poster-datos { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; }
+    .poster-datos div { padding: 6px 4px; border-radius: 12px; background: #fff; border: 1.5px dashed #e0b66a; font-size: 12px; font-weight: 600; line-height: 1.2; color: var(--cafe); overflow-wrap: anywhere; }
+    .poster-datos small, .poster-pista small { display: block; margin-bottom: 1px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--oxido); }
+    .poster-pistas { width: 100%; display: grid; gap: 6px; }
+    .poster-pista { display: flex; align-items: center; gap: 9px; padding: 7px 10px; text-align: left; border-radius: 12px; background: #fff; border: 1.5px dashed #e0b66a; }
+    .poster-pista svg { flex: none; width: 20px; height: 20px; }
+    .poster-pista b { display: block; font-size: 14px; font-weight: 600; line-height: 1.2; color: #4a2a2a; overflow-wrap: anywhere; }
+    .poster-recompensa { width: 100%; margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 10px; border-radius: 14px; font-size: 15px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5b2a0e; background: linear-gradient(135deg, #fde68a, #e0a24a); border: 2px dashed #8f3523; }
+    .poster-recompensa svg { flex: none; width: 20px; height: 20px; }
+    .poster-llama { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: var(--suave); }
+    .poster-tel { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 11px 14px; border-radius: 999px; background: linear-gradient(135deg, #3b2420, #6b3a2c); border: 3px solid #e0a24a; box-shadow: 0 10px 18px -8px rgba(59,36,32,.6); }
+    .poster-tel svg { flex: none; width: 26px; height: 26px; }
+    #poster-phone-num { font: 800 clamp(18px, 6vw, 24px) ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .03em; white-space: nowrap; color: #fff3d6; }
+    .poster-qr { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px; text-align: left; border-radius: 16px; background: #fff; border: 1.5px dashed #e0b66a; }
+    #poster-qr { flex: none; padding: 4px; background: #fff; border-radius: 8px; }
+    #poster-qr img, #poster-qr canvas { width: 72px; height: 72px; }   /* se dibuja a 216 px: nítido en la imagen y en papel */
+    .poster-qr b { display: block; font-size: 12.5px; font-weight: 700; line-height: 1.25; color: var(--cafe); }
+    .poster-qr span { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--suave); }
+    .poster-qr span img { width: 22px; height: 22px; border-radius: 50%; }
+    /* Para imprimir (clase que pone prepararImpresion): hoja ancha en dos columnas, foto | datos, que llena una A4.
+       La imagen que se comparte sigue siendo la vertical, cómoda en el celular */
+    .poster.impreso { width: 600px; max-width: none; }
+    .poster.impreso .poster-cuerpo { grid-template-columns: auto minmax(0,1fr); grid-template-rows: auto auto auto 1fr; align-items: start; justify-items: stretch; column-gap: 18px; }
+    .poster.impreso .poster-recompensa { align-self: end; }   /* los datos quedan juntos arriba y la recompensa al pie de la foto */
+    .poster.impreso .poster-marco { grid-row: span 4; }
+    .poster.impreso .poster-marco img { width: 270px; height: 380px; }
+    .poster.impreso #poster-pet-name { text-align: left; font-size: 36px; }
+    .poster.impreso .poster-llama, .poster.impreso .poster-tel, .poster.impreso .poster-qr { grid-column: 1 / -1; }
+    /* Más grande en papel: título, datos, teléfono y QR */
+    .poster.impreso .poster-cab { padding: 18px 16px 14px; }
+    .poster.impreso .poster-titulo h2 { font-size: 48px; }
+    .poster.impreso .poster-titulo svg { width: 30px; height: 30px; }
+    .poster.impreso .poster-cab p { font-size: 14px; }
+    .poster.impreso .poster-cuerpo { gap: 12px; padding: 18px 18px 16px; }
+    .poster.impreso .poster-datos div { font-size: 13px; }
+    .poster.impreso .poster-pista b { font-size: 16px; }
+    .poster.impreso .poster-llama { font-size: 14px; }
+    .poster.impreso .poster-tel { padding: 14px; }
+    .poster.impreso .poster-tel svg { width: 32px; height: 32px; }
+    .poster.impreso #poster-phone-num { font-size: 32px; }
+    .poster.impreso .poster-qr b { font-size: 15px; }
+    .poster.impreso #poster-qr img, .poster.impreso #poster-qr canvas { width: 100px; height: 100px; }
 
     @media print {
       @page { margin: 10mm; }
@@ -445,7 +486,7 @@
       body > *:not(#afiche-modal) { display: none !important; }
       #afiche-modal { position: static; display: block; padding: 0; overflow: visible; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; animation: none; }
       .no-print { display: none !important; }
-      #printable-poster { zoom: var(--zoom-afiche, 1.25); width: 384px; max-width: none; margin: 0 auto; box-shadow: none; break-inside: avoid; animation: none; }
+      #printable-poster { zoom: var(--zoom-afiche, 1.25); max-width: none; margin: 0 auto; box-shadow: none; break-inside: avoid; animation: none; }
     }
   </style>
 </head>
@@ -524,6 +565,7 @@
 
       <!-- 3. Difusión -->
       <div class="fila">
+        <!-- Crear afiche: solo el dueño (en su celular o con su atajo del canal) y con la mascota perdida -->
         <button id="btn-afiche" type="button" onclick="abrirAficheModal()" class="btn btn-afiche hidden"><i class="fa-solid fa-bullhorn"></i> Crear afiche</button>
         <button id="btn-share-profile" type="button" onclick="compartirPerfil()" class="btn btn-share"><i class="fa-solid fa-share-nodes"></i> <span>Compartir</span></button>
       </div>
@@ -671,40 +713,57 @@
       <button type="button" onclick="cerrarAficheModal()" class="btn btn-gris" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- CARTEL CAPTURABLE -->
+    <!-- CARTEL CAPTURABLE (los SVG llevan sus colores escritos: así salen igual en la imagen) -->
     <div id="printable-poster" class="poster">
-      <h2 class="poster-titulo">¡SE BUSCA!</h2>
+      <div class="poster-franja"></div>
+      <div class="poster-cab">
+        <div class="poster-titulo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#e0a24a" fill-rule="evenodd" d="M9 0h6v3h3v3h3v3h3v6h-3v3h-3v3h-3v3H9v-3H6v-3H3v-3H0V9h3V6h3V3h3zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z"/></svg>
+          <h2>¡SE BUSCA!</h2>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#e0a24a" fill-rule="evenodd" d="M9 0h6v3h3v3h3v3h3v6h-3v3h-3v3h-3v3H9v-3H6v-3H3v-3H0V9h3V6h3V3h3zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z"/></svg>
+        </div>
+        <p>Ayúdanos a que vuelva a casa</p>
+      </div>
+      <div class="poster-franja delgada"></div>
 
-      <div class="poster-foto"><img id="poster-photo" crossorigin="anonymous" src="" alt=""></div>
+      <div class="poster-cuerpo">
+        <div class="poster-marco"><img id="poster-photo" crossorigin="anonymous" src="" alt=""></div>
+        <h3 id="poster-pet-name">---</h3>
 
-      <div class="poster-txt">
-        <p>
-          Nuestro amigo <span id="poster-pet-name">---</span>
-          se perdió <span id="poster-lost-where">en la zona</span>
-          <span id="poster-lost-when">recientemente</span>.
-          Agradecemos cualquier información oportuna que nos ayude a localizarlo.
+        <div class="poster-datos">
+          <div><small>Raza</small><span id="poster-breed">--</span></div>
+          <div><small>Color</small><span id="poster-color">--</span></div>
+          <div><small>Edad / Peso</small><span id="poster-age-weight">--</span></div>
+        </div>
+
+        <div class="poster-pistas">
+          <div id="poster-row-where" class="poster-pista">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#b4452b" d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7zm0 9.6A2.6 2.6 0 1 1 12 6.4a2.6 2.6 0 0 1 0 5.2z"/></svg>
+            <div><small>Dónde se perdió</small><b id="poster-lost-where"></b></div>
+          </div>
+          <div class="poster-pista">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#b4452b" d="M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2zM5 9v10h14V9z"/></svg>
+            <div><small>Cuándo</small><b id="poster-lost-when"></b></div>
+          </div>
+        </div>
+
+        <p id="poster-reward-text" class="poster-recompensa hidden">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#8f3523" d="M20 7h-2.2A3 3 0 0 0 12 4.4 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3h18V8a1 1 0 0 0-1-1zM9 7a1 1 0 1 1 1-1v1zm5 0V6a1 1 0 1 1 1 1zM4 13v7a1 1 0 0 0 1 1h6v-8zm9 0v8h6a1 1 0 0 0 1-1v-7z"/></svg>
+          ¡Se ofrece recompensa!
         </p>
-        <p id="poster-reward-text" class="hidden">🎁 ¡Se ofrece recompensa!</p>
-        <p class="poster-llama">Llama o escribe a:</p>
-      </div>
 
-      <a id="poster-phone-btn" href="#" class="poster-tel">
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-        </svg>
-        <span id="poster-phone-num">---</span>
-      </a>
+        <p class="poster-llama">Agradecemos cualquier información. Llama o escribe a:</p>
+        <a id="poster-phone-btn" href="#" class="poster-tel">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#e0a24a" d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+          <span id="poster-phone-num">---</span>
+        </a>
 
-      <div class="poster-datos">
-        <div><small>Raza</small><span id="poster-breed">--</span></div>
-        <div><small>Color</small><span id="poster-color">--</span></div>
-        <div><small>Edad / Peso</small><span id="poster-age-weight">--</span></div>
+        <div class="poster-qr">
+          <div id="poster-qr"></div>
+          <div><b>Escanea para ver su perfil y contactar a su familia</b><span><img src="logo.png" alt=""> Placa inteligente · Helpet</span></div>
+        </div>
       </div>
-
-      <div class="poster-qr">
-        <div id="poster-qr"></div>
-        <p>Escanea para ver<br>el perfil y contactar<br><small>Placa Inteligente • Helpet</small></p>
-      </div>
+      <div class="poster-franja"></div>
     </div>
   </div>
 
@@ -1038,13 +1097,13 @@
         const indicator = $('status-indicator');
 
         if (isLost) {
-          // 🔴 MODO PERDIDO: contacto + ubicación + afiche + compartir
+          // 🔴 MODO PERDIDO: contacto + ubicación + compartir (+ afiche, solo para el dueño)
           ['pet-tech-sheet', 'health-zone', 'btn-medical-history', 'health-card', 'medical-card']
             .forEach(id => $(id).classList.add('hidden'));
 
           $('btn-gps').classList.remove('hidden');
           $('gps-note').classList.remove('hidden');
-          $('btn-afiche').classList.remove('hidden');
+          $('btn-afiche').classList.toggle('hidden', !(esDueno() || atajoCanal));   // el afiche lo crea el dueño, no el visitante
 
           badge.className = 'sello perdida';
           badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Buscando su hogar`;
@@ -1417,26 +1476,30 @@
     });
 
     async function generarAficheBlob() {
-      await Promise.all([cargarLib(LIB_H2C), crearQR('poster-qr', 72)]);
+      await Promise.all([cargarLib(LIB_H2C), crearQR('poster-qr', 216)]);
       await esperarImg($('poster-photo'));
       await new Promise(r => setTimeout(r, 80));
-      const canvas = await html2canvas($('printable-poster'), { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
+      // Escala 3: nítida también impresa o vista en grande. En la imagen el cartel va recto (sin esquinas redondas)
+      // para que al compartirlo no queden esquinas de otro color
+      const canvas = await html2canvas($('printable-poster'), {
+        useCORS: true, scale: 3, backgroundColor: '#fbf6e3',
+        onclone: doc => { doc.getElementById('printable-poster').style.borderRadius = '0'; }
+      });
       return await new Promise(r => canvas.toBlob(r, 'image/png'));
     }
 
     function abrirAficheModal() {
       if (!petData) return;
 
-      $('poster-pet-name').textContent = petData.pet || 'Nuestra mascota';
+      $('poster-pet-name').textContent = petData.pet || 'Mascota';
       $('poster-photo').src = petData.photo || FOTO_VACIA;
 
-      const lugar = petData.lost_location ? `cerca a ${petData.lost_location}` : 'en la zona';
-      let fechaHora = 'recientemente';
-      if (petData.lost_date && petData.lost_time) fechaHora = `el ${petData.lost_date} a las ${petData.lost_time}`;
-      else if (petData.lost_date) fechaHora = `el ${petData.lost_date}`;
-
+      // Dónde (si el dueño lo escribió) y cuándo («20 de octubre · 4:30 PM» o «Recientemente»)
+      const lugar = String(petData.lost_location || '').trim();
+      const cuando = [petData.lost_date, petData.lost_time].map(v => String(v || '').trim()).filter(Boolean).join(' · ');
       $('poster-lost-where').textContent = lugar;
-      $('poster-lost-when').textContent = fechaHora;
+      $('poster-row-where').classList.toggle('hidden', !lugar);
+      $('poster-lost-when').textContent = cuando || 'Recientemente';
       $('poster-reward-text').classList.toggle('hidden', !petData.reward);
 
       $('poster-phone-num').textContent = fmtTel(petData.phone);
@@ -1454,16 +1517,21 @@
       posterBlobPromise = generarAficheBlob().catch(e => { console.error(e); return null; });
     }
 
-    function cerrarAficheModal() { capa('afiche-modal', false); }
-    // Imprime el afiche lo más grande posible pero en una sola hoja (mide su alto con el ancho de impresión)
-    function imprimirAfiche() {
+    function cerrarAficheModal() { terminarImpresion(); capa('afiche-modal', false); }
+    // Imprime el afiche en su hoja ancha de dos columnas, lo más grande posible pero en una sola página A4
+    // (mide su alto ya con ese ancho). También funciona si se imprime desde el menú del navegador.
+    function prepararImpresion() {
       const poster = $('printable-poster');
-      const previo = poster.style.cssText;
-      poster.style.cssText = 'width:384px;max-width:none;zoom:1';
+      poster.classList.add('impreso');
       const alto = poster.getBoundingClientRect().height || 760;
-      poster.style.cssText = previo;
-      const zoom = Math.max(1, Math.min(1.6, 700 / 384, 930 / alto));
+      const zoom = Math.min(1.6, 700 / 600, 960 / alto);   // cabe en una página A4 y también en papel carta
       document.documentElement.style.setProperty('--zoom-afiche', zoom.toFixed(3));
+    }
+    function terminarImpresion() { $('printable-poster').classList.remove('impreso'); }
+    window.addEventListener('beforeprint', () => { if (!$('afiche-modal').classList.contains('hidden')) prepararImpresion(); });
+    window.addEventListener('afterprint', terminarImpresion);
+    function imprimirAfiche() {
+      prepararImpresion();
       window.print();
     }
 
