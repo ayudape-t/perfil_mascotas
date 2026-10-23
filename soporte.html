@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
   <script src="vendor/qrcodejs-1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="css/soporte.css?v=1">
+  <link rel="stylesheet" href="css/soporte.css?v=2">
 </head>
 <body>
   <main class="shell">
@@ -163,7 +163,11 @@
           <i class="fa-solid fa-filter"></i>
           <input id="filtro" type="search" class="fld" placeholder="Filtrar por placa, mascota, dueño o nota" aria-label="Filtrar placas" autocomplete="off">
         </div>
-        <button type="button" id="btn-excel" class="btn btn-verde"><i class="fa-solid fa-file-excel"></i> <span>Descargar Excel</span></button>
+        <div class="fila">
+          <button type="button" id="btn-excel" class="btn btn-verde"><i class="fa-solid fa-file-excel"></i> <span>Descargar Excel</span></button>
+          <button type="button" id="btn-imprimir-placas" class="btn btn-oscuro" disabled><i class="fa-solid fa-print"></i> <span>Imprimir tarjetas</span></button>
+        </div>
+        <p class="intro">El código de activación se ve solo en las placas sin activar: al activarse, lo tiene únicamente su dueño.</p>
         <div id="lista-placas" class="lista"></div>
       </div>
 
@@ -172,7 +176,7 @@
         <div class="tarjeta">
           <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Crear placas nuevas</h2>
           <p class="intro">Cada placa nueva tiene su enlace (para su QR) y su código de activación (para la tarjeta del empaque).
-            <b>Los códigos solo se ven una vez</b>: descárgalos o imprímelos antes de salir.</p>
+            Sus códigos quedan en la pestaña <b>Placas</b> hasta que cada una se active.</p>
           <label class="lbl" for="cantidad">¿Cuántas? (1 a 50)</label>
           <div class="fila">
             <input id="cantidad" type="number" class="fld" min="1" max="50" value="10" inputmode="numeric">
@@ -180,7 +184,7 @@
           </div>
         </div>
         <div id="lote" class="hidden">
-          <p class="aviso-lote"><i class="fa-solid fa-triangle-exclamation"></i> <span>Guarda estos códigos ahora: es la única vez que se pueden ver.</span></p>
+          <p class="aviso-lote"><i class="fa-solid fa-circle-check"></i> <span>Listas. También las encuentras con su código en «Placas».</span></p>
           <div class="fila">
             <button type="button" id="btn-lote-excel" class="btn btn-verde"><i class="fa-solid fa-file-excel"></i> <span>Excel del lote</span></button>
             <button type="button" id="btn-lote-imprimir" class="btn btn-oscuro"><i class="fa-solid fa-print"></i> <span>Imprimir tarjetas</span></button>
@@ -203,6 +207,6 @@
 
   <script src="js/comun.js?v=1"></script>
   <script src="js/excel.js?v=1"></script>
-  <script src="js/soporte.js?v=1"></script>
+  <script src="js/soporte.js?v=2"></script>
 </body>
 </html>

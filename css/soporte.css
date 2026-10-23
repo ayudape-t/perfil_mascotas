@@ -149,6 +149,7 @@ button.item:active { transform: scale(.99); }
 .qr-mini img, .qr-mini canvas { width: 56px !important; height: 56px !important; }
 .lote-item { cursor: default; }
 .codigo-lote { font: 800 16px ui-monospace, monospace; letter-spacing: .08em; color: #9a3412; }
+.codigo-item { font: 800 12.5px ui-monospace, monospace; letter-spacing: .06em; color: #9a3412; }
 .registro .item-txt small { white-space: normal; }
 
 /* Aviso breve (como en el panel del dueño) */
