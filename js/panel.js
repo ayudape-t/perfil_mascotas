@@ -14,7 +14,6 @@ let savedPin = null;
 let isLostState = false;
 let pinSesion = '';
 let esPlacaNueva = false;   // se está activando la placa (aún no tiene mascota)
-let nombreGuardado = '';    // el nombre que tiene en el servidor (para confirmar el borrado)
 const nombreMascota = () => val('input-pet').trim() || 'tu mascota';
 const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
 const msgEstado = e =>
@@ -165,9 +164,6 @@ async function inicializar() {
       p.classList.remove('hidden');
       $('placeholder-icon').classList.add('hidden');
     }
-    nombreGuardado = data.pet || '';
-    $('borrar-titulo').textContent = `Borrar los datos de ${nombreGuardado || 'tu mascota'}`;
-    $('borrar-card').classList.remove('hidden');
     cargarMisMascotas({ id: tagId, n: data.pet || '', f: data.photo || '', p: !!data.is_lost });
     if (irAMedico) { mostrarFormularioMedico(true); vigilarToque(); }
   } else {
@@ -395,7 +391,6 @@ async function enviarDatos() {
   if (esNueva) { pinSesion = res.sesion || finalPin; savedPin = pinSesion; }
   if (photoInput.files && photoInput.files[0]) { existingPhotoUrl = photoPublicUrl; photoInput.value = ''; }   // no se vuelve a subir
   cambiosSinGuardar = false;
-  nombreGuardado = pet;
   recordarMascota({ id: tagId, n: pet, f: photoPublicUrl, p: isLostState });   // su foto, nombre y alarma en «Mis mascotas»
   return res;
 }
@@ -494,7 +489,7 @@ function recordarMascota(m) {
   if (!$('mis-mascotas').classList.contains('hidden')) pintarMisMascotas(lista);
   return lista;
 }
-function olvidarMascota(id) {
+function olvidarMascota(id) {   // ya no existe (se borraron sus datos): sale de la lista y este celular la olvida
   guardarMisMascotas(leerMisMascotas().filter(m => m.id !== id));
   try { localStorage.removeItem(`dueno_${id}`); localStorage.removeItem(`disp_${id}`); sessionStorage.removeItem(`pin_${id}`); } catch (e) {}
 }
@@ -561,95 +556,6 @@ function enlaceMascota(id) {
   let conSesion = false;
   try { conSesion = !!sessionStorage.getItem(`pin_${id}`); } catch (e) {}
   return conSesion ? `registro.html?id=${encodeURIComponent(id)}` : `index.html?id=${encodeURIComponent(id)}&entrar=1`;
-}
-
-// ---- Borrar los datos de la mascota ----
-// Pide escribir su nombre y el PIN (aunque ya se haya entrado). El servidor borra todo lo suyo, retira sus avisos del canal,
-// borra sus fotos y avisa por Telegram; la placa queda sin activar y conserva el código de su tarjeta.
-const normalizarNombre = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
-const MSG_BORRAR = {
-  incorrecto: 'PIN incorrecto. Inténtalo de nuevo.',
-  bloqueado: 'Demasiados intentos: espera 15 minutos.',
-  sesion_vencida: 'Tu sesión venció: vuelve a entrar con tu PIN desde el perfil.',
-  no_existe: 'Los datos de esta mascota ya se habían borrado.',
-  datos_invalidos: 'Escribe los 4 dígitos de tu PIN.',
-};
-let borrando = false;
-
-function abrirBorrar() {
-  const nombre = nombreGuardado || 'tu mascota';
-  $('br-titulo').textContent = `¿Borrar los datos de ${nombre}?`;
-  $('br-nombre-lbl').textContent = nombreGuardado ? `Escribe «${nombreGuardado}» para confirmar` : 'Escribe su nombre para confirmar';
-  const perdida = $('br-perdida');
-  perdida.querySelector('span').textContent = `Tiene la alarma activa: si borras sus datos, quien encuentre a ${nombre} ya no podrá contactarte con su placa.`;
-  perdida.classList.toggle('hidden', !isLostState);
-  $('br-nombre').value = ''; $('br-pin').value = '';
-  $('br-msg').classList.add('hidden');
-  $('br-paso1').classList.remove('hidden'); $('br-paso2').classList.add('hidden');
-  revisarBorrar();
-  $('borrar-modal').classList.remove('hidden');
-  document.documentElement.classList.add('bloqueo');
-  setTimeout(() => $('br-nombre').focus({ preventScroll: true }), sinMovimiento ? 0 : 450);
-}
-function cerrarBorrar() {
-  if (borrando) return;
-  $('borrar-modal').classList.add('hidden');
-  document.documentElement.classList.remove('bloqueo');
-  $('btn-borrar-datos').focus({ preventScroll: true });
-}
-// El botón rojo se enciende solo con el nombre correcto y los 4 dígitos
-function revisarBorrar() {
-  const pin = $('br-pin');
-  pin.value = pin.value.replace(/\D/g, '').slice(0, 4);
-  const nombreOk = !nombreGuardado || normalizarNombre($('br-nombre').value) === normalizarNombre(nombreGuardado);
-  $('br-confirmar').disabled = borrando || !nombreOk || pin.value.length !== 4;
-}
-function errorBorrar(texto) {
-  const m = $('br-msg');
-  m.textContent = texto;
-  m.classList.remove('hidden');
-  repetir($('br-paso1'), 'temblor', 450);
-  vibrar([40, 50, 40]);
-}
-
-async function confirmarBorrar() {
-  revisarBorrar();
-  if (borrando || $('br-confirmar').disabled) return;
-  borrando = true;
-  const btn = $('br-confirmar');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Borrando...</span>';
-  $('br-msg').classList.add('hidden');
-  let r = null;
-  try { const { data } = await client.functions.invoke('borrar-datos', { body: { id: tagId, sesion: pinSesion, pin: $('br-pin').value } }); r = data; } catch (e) {}
-  borrando = false;
-  btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> <span>Borrar para siempre</span>';
-  if (!r || r.estado !== 'ok') {
-    if (r && r.estado === 'incorrecto') { $('br-pin').value = ''; $('br-pin').focus(); }
-    revisarBorrar();
-    errorBorrar((r && MSG_BORRAR[r.estado]) || 'No se pudo borrar. Revisa tu conexión e inténtalo de nuevo.');
-    return;
-  }
-  despedida(r.reactivable === true);
-}
-
-// Ya se borró: este celular la olvida, las huellitas se alejan y se ofrece ir a otra mascota
-function despedida(reactivable) {
-  const nombre = nombreGuardado || 'tu mascota';
-  olvidarMascota(tagId);
-  cambiosSinGuardar = false; saliendo = true;
-  const otra = leerMisMascotas()[0];
-  $('br-fin-titulo').textContent = `Listo: se borraron los datos de ${nombre}`;
-  $('br-fin-texto').textContent = reactivable
-    ? 'La placa quedó como nueva. Si quieres volver a usarla, escanéala y actívala con el código de su tarjeta.'
-    : 'La placa quedó sin datos. Si quieres volver a usarla, escríbenos por WhatsApp y te ayudamos a activarla.';
-  $('br-ir').querySelector('span').textContent = otra ? `Ir al panel de ${otra.n || 'tu otra mascota'}` : 'Listo';
-  $('br-ir').dataset.destino = otra ? enlaceMascota(otra.id) : `index.html?id=${encodeURIComponent(tagId)}`;
-  $('br-paso1').classList.add('hidden');
-  $('br-paso2').classList.remove('hidden');
-  $('borrar-modal').querySelector('.br-hoja').classList.add('destejida');   // la franja de awayo se desteje
-  vibrar(25);
-  setTimeout(() => $('br-ir').focus({ preventScroll: true }), sinMovimiento ? 0 : 900);
 }
 
 window.guardarRegistroMedico = async function () {
@@ -881,14 +787,6 @@ alClic('btn-save', guardarDatos);
 alClic('bv-telegram', accionTelegram);
 alClic('bv-perfil', irAlPerfil);
 $('mis-fila').addEventListener('click', alTocarMisMascotas);
-alClic('btn-borrar-datos', abrirBorrar);
-alClic('br-cerrar', cerrarBorrar);
-alClic('br-cancelar', cerrarBorrar);
-alClic('br-confirmar', confirmarBorrar);
-alClic('br-ir', () => { window.location.href = $('br-ir').dataset.destino || 'index.html'; });
-['br-nombre', 'br-pin'].forEach(id => $(id).addEventListener('input', revisarBorrar));
-alEnter('br-pin', confirmarBorrar);
-$('borrar-modal').addEventListener('keydown', e => { if (e.key === 'Escape' && !$('br-paso1').classList.contains('hidden')) cerrarBorrar(); });
 // Historial completo: la lista se vuelve a dibujar, así que se escucha en la caja (eliminar y «ya se hizo» del refuerzo)
 $('historial-privado').addEventListener('click', e => {
   const b = e.target.closest('[data-borrar]');
