@@ -13,7 +13,7 @@ function error(texto) {
   el.classList.remove('hidden');
 }
 
-if (!token) { $('paso-form').classList.add('hidden'); error('Enlace incompleto. Pide uno nuevo al bot de Telegram con /recuperar.'); }
+if (!token) { $('paso-form').classList.add('hidden'); error('Enlace incompleto. Pide uno nuevo al bot de Telegram con /recuperar o escríbenos por WhatsApp.'); }
 
 async function cambiarPIN() {
   $('msg').classList.add('hidden');
@@ -28,12 +28,12 @@ async function cambiarPIN() {
 
   if (err || !data) return error('Error de conexión. Intenta de nuevo.');
   if (data.estado === 'token_invalido') {
-    return error('El enlace venció o ya fue usado. Escribe /recuperar al bot para recibir uno nuevo.');
+    return error('El enlace venció o ya fue usado. Escribe /recuperar al bot de Telegram o pídenos uno nuevo por WhatsApp.');
   }
   if (data.estado === 'pin_debil') return error(MSG_PIN_FACIL);
   if (data.estado !== 'ok') return error('No se pudo cambiar el PIN.');
 
-  // El enlace llegó al Telegram del dueño: este celular queda como suyo y entra directo
+  // El enlace llegó al dueño (por Telegram o desde soporte): este celular queda como suyo y entra directo
   try {
     if (data.id && data.dispositivo) localStorage.setItem(`disp_${data.id}`, data.dispositivo);
     if (data.id && data.sesion) sessionStorage.setItem(`pin_${data.id}`, data.sesion);

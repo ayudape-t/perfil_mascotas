@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!--
+  © 2026 Helpet. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (nada en línea ni de otros dominios) y solo se conecta a Supabase.
+       Si agregas un servicio externo, súmalo aquí y en las demás páginas -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://cjxcqdgtchhtfowreuca.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" type="image/png" href="logo.png">
+  <meta name="theme-color" content="#3b2420">
+  <meta name="color-scheme" content="light">
+  <title>Helpet - Soporte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
+  <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
+  <script src="vendor/qrcodejs-1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="css/soporte.css?v=1">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <img src="logo.png" alt="Helpet" class="top-logo">
+      <div class="top-txt">
+        <h1>Soporte Helpet</h1>
+        <p id="top-sub">Solo para el equipo de Helpet</p>
+      </div>
+      <button id="btn-salir" type="button" class="top-btn hidden" aria-label="Cerrar sesión" title="Cerrar sesión"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </header>
+
+    <!-- ===================== ACCESO ===================== -->
+    <section id="acceso" class="cuerpo" aria-live="polite">
+      <p id="cargando" class="intro centro-txt"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</p>
+
+      <form id="paso-entrar" class="paso hidden" novalidate autocomplete="on">
+        <h2><i class="fa-solid fa-lock"></i> Entrar</h2>
+        <label class="lbl" for="in-correo">Correo</label>
+        <input id="in-correo" type="email" class="fld" autocomplete="username" inputmode="email" required>
+        <label class="lbl" for="in-clave">Contraseña</label>
+        <input id="in-clave" type="password" class="fld" autocomplete="current-password" required>
+        <button id="btn-entrar" type="submit" class="btn btn-ambar"><i class="fa-solid fa-right-to-bracket"></i> <span>Entrar</span></button>
+        <div class="enlaces">
+          <button type="button" id="ir-olvide" class="enlace">¿Olvidaste tu contraseña?</button>
+          <button type="button" id="ir-crear" class="enlace">Crear mi cuenta (solo la primera vez)</button>
+        </div>
+      </form>
+
+      <form id="paso-crear" class="paso hidden" novalidate autocomplete="on">
+        <h2><i class="fa-solid fa-user-plus"></i> Crear tu cuenta</h2>
+        <p class="intro">Usa el correo autorizado para el soporte. Después te pediremos activar la verificación en dos pasos.</p>
+        <label class="lbl" for="cr-correo">Correo</label>
+        <input id="cr-correo" type="email" class="fld" autocomplete="username" inputmode="email" required>
+        <label class="lbl" for="cr-clave1">Contraseña (mínimo 10 caracteres)</label>
+        <input id="cr-clave1" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <label class="lbl" for="cr-clave2">Repítela</label>
+        <input id="cr-clave2" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <button id="btn-crear" type="submit" class="btn btn-ambar"><i class="fa-solid fa-user-plus"></i> <span>Crear cuenta</span></button>
+        <button type="button" class="enlace volver-entrar">Ya tengo cuenta: entrar</button>
+      </form>
+
+      <form id="paso-olvide" class="paso hidden" novalidate>
+        <h2><i class="fa-solid fa-key"></i> Recuperar la contraseña</h2>
+        <p class="intro">Te enviaremos un correo con un enlace para poner una contraseña nueva.</p>
+        <label class="lbl" for="ol-correo">Correo</label>
+        <input id="ol-correo" type="email" class="fld" autocomplete="username" inputmode="email" required>
+        <button id="btn-olvide" type="submit" class="btn btn-ambar"><i class="fa-solid fa-paper-plane"></i> <span>Enviar el correo</span></button>
+        <button type="button" class="enlace volver-entrar">Volver</button>
+      </form>
+
+      <div id="paso-correo" class="paso centro hidden">
+        <div class="burbuja"><i class="fa-solid fa-envelope-open-text"></i></div>
+        <b id="correo-titulo">Revisa tu correo</b>
+        <p id="correo-texto">Abre el enlace que te enviamos (mira también en «Spam») y vuelve a esta página.</p>
+        <button type="button" class="btn btn-line volver-entrar"><i class="fa-solid fa-arrow-left"></i> Volver a entrar</button>
+      </div>
+
+      <form id="paso-mfa-alta" class="paso hidden" novalidate>
+        <h2><i class="fa-solid fa-shield-halved"></i> Protege el panel</h2>
+        <ol class="pasos">
+          <li>Instala <b>Google Authenticator</b> (o Microsoft Authenticator) en tu celular.</li>
+          <li>Toca <b>+</b> y escanea este código. Si estás en el mismo celular, copia la clave.</li>
+          <li>Escribe los 6 números que te muestra la app.</li>
+        </ol>
+        <div id="mfa-qr" class="qr-mfa" role="img" aria-label="Código QR para tu app autenticadora"></div>
+        <div class="clave-copiable">
+          <code id="mfa-secreto"></code>
+          <button type="button" id="btn-copiar-secreto" class="btn-mini" aria-label="Copiar la clave"><i class="fa-regular fa-copy"></i></button>
+        </div>
+        <input id="mfa-alta-codigo" class="fld codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" aria-label="Código de 6 números">
+        <button id="btn-mfa-alta" type="submit" class="btn btn-ambar"><i class="fa-solid fa-check"></i> <span>Activar</span></button>
+      </form>
+
+      <form id="paso-mfa" class="paso hidden" novalidate>
+        <h2><i class="fa-solid fa-shield-halved"></i> Código de tu app</h2>
+        <p class="intro">Abre tu app autenticadora y escribe los 6 números de «Helpet».</p>
+        <input id="mfa-codigo" class="fld codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" aria-label="Código de 6 números">
+        <button id="btn-mfa" type="submit" class="btn btn-ambar"><i class="fa-solid fa-unlock"></i> <span>Entrar</span></button>
+      </form>
+
+      <form id="paso-vincular" class="paso hidden" novalidate>
+        <h2><i class="fa-solid fa-link"></i> Activa tu panel</h2>
+        <p class="intro">Escribe el código de activación del panel que te dieron (una sola vez).</p>
+        <input id="vincular-codigo" class="fld codigo" maxlength="9" autocapitalize="characters" autocomplete="off" placeholder="ABCD-1234" aria-label="Código de activación del panel">
+        <button id="btn-vincular" type="submit" class="btn btn-ambar"><i class="fa-solid fa-link"></i> <span>Activar el panel</span></button>
+      </form>
+
+      <form id="paso-nueva-clave" class="paso hidden" novalidate autocomplete="on">
+        <h2><i class="fa-solid fa-key"></i> Contraseña nueva</h2>
+        <input type="email" id="nc-correo" class="hidden" autocomplete="username" aria-hidden="true" tabindex="-1">
+        <label class="lbl" for="nc-clave1">Contraseña nueva (mínimo 10 caracteres)</label>
+        <input id="nc-clave1" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <label class="lbl" for="nc-clave2">Repítela</label>
+        <input id="nc-clave2" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <button id="btn-nueva-clave" type="submit" class="btn btn-ambar"><i class="fa-solid fa-floppy-disk"></i> <span>Guardar</span></button>
+      </form>
+
+      <div id="paso-sin-permiso" class="paso centro hidden">
+        <div class="burbuja rojo"><i class="fa-solid fa-ban"></i></div>
+        <b>Esta cuenta no tiene acceso</b>
+        <p>El panel de soporte es solo para el equipo de Helpet.</p>
+        <button type="button" class="btn btn-line accion-salir"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+      </div>
+
+      <p id="acceso-msg" class="msg hidden" role="alert"></p>
+    </section>
+
+    <!-- ===================== PANEL ===================== -->
+    <section id="app" class="hidden">
+      <nav class="pestanas" role="tablist" aria-label="Secciones">
+        <button type="button" role="tab" class="pestana" data-tab="buscar" aria-selected="true"><i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span></button>
+        <button type="button" role="tab" class="pestana" data-tab="placas" aria-selected="false"><i class="fa-solid fa-tags"></i> <span>Placas</span></button>
+        <button type="button" role="tab" class="pestana" data-tab="nuevas" aria-selected="false"><i class="fa-solid fa-plus"></i> <span>Nuevas</span></button>
+        <button type="button" role="tab" class="pestana" data-tab="registro" aria-selected="false"><i class="fa-solid fa-clock-rotate-left"></i> <span>Registro</span></button>
+      </nav>
+
+      <!-- Buscar -->
+      <div id="tab-buscar" class="tab cuerpo" role="tabpanel">
+        <div class="buscador">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="q" type="search" class="fld" placeholder="Placa, mascota, dueño o teléfono" aria-label="Buscar" autocomplete="off" enterkeyhint="search">
+        </div>
+        <p id="buscar-ayuda" class="intro">Escribe al menos 2 letras. Para un teléfono, basta con los últimos 4 números.</p>
+        <div id="resultados" class="lista"></div>
+      </div>
+
+      <!-- Ficha -->
+      <div id="tab-ficha" class="tab cuerpo hidden" role="tabpanel">
+        <button type="button" id="ficha-volver" class="enlace volver"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+        <div id="ficha"></div>
+      </div>
+
+      <!-- Placas -->
+      <div id="tab-placas" class="tab cuerpo hidden" role="tabpanel">
+        <div id="contadores" class="contadores"></div>
+        <div class="buscador">
+          <i class="fa-solid fa-filter"></i>
+          <input id="filtro" type="search" class="fld" placeholder="Filtrar por placa, mascota, dueño o nota" aria-label="Filtrar placas" autocomplete="off">
+        </div>
+        <button type="button" id="btn-excel" class="btn btn-verde"><i class="fa-solid fa-file-excel"></i> <span>Descargar Excel</span></button>
+        <div id="lista-placas" class="lista"></div>
+      </div>
+
+      <!-- Placas nuevas -->
+      <div id="tab-nuevas" class="tab cuerpo hidden" role="tabpanel">
+        <div class="tarjeta">
+          <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Crear placas nuevas</h2>
+          <p class="intro">Cada placa nueva tiene su enlace (para su QR) y su código de activación (para la tarjeta del empaque).
+            <b>Los códigos solo se ven una vez</b>: descárgalos o imprímelos antes de salir.</p>
+          <label class="lbl" for="cantidad">¿Cuántas? (1 a 50)</label>
+          <div class="fila">
+            <input id="cantidad" type="number" class="fld" min="1" max="50" value="10" inputmode="numeric">
+            <button type="button" id="btn-crear-placas" class="btn btn-ambar"><i class="fa-solid fa-plus"></i> <span>Crear</span></button>
+          </div>
+        </div>
+        <div id="lote" class="hidden">
+          <p class="aviso-lote"><i class="fa-solid fa-triangle-exclamation"></i> <span>Guarda estos códigos ahora: es la única vez que se pueden ver.</span></p>
+          <div class="fila">
+            <button type="button" id="btn-lote-excel" class="btn btn-verde"><i class="fa-solid fa-file-excel"></i> <span>Excel del lote</span></button>
+            <button type="button" id="btn-lote-imprimir" class="btn btn-oscuro"><i class="fa-solid fa-print"></i> <span>Imprimir tarjetas</span></button>
+          </div>
+          <div id="lote-lista" class="lista"></div>
+        </div>
+      </div>
+
+      <!-- Registro de acciones -->
+      <div id="tab-registro" class="tab cuerpo hidden" role="tabpanel">
+        <p class="intro">Las últimas 50 acciones hechas desde este panel.</p>
+        <div id="lista-registro" class="lista"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <!-- Tarjetas del empaque para imprimir (solo se ven al imprimir) -->
+  <div id="hoja-tarjetas" class="hoja-tarjetas" aria-hidden="true"></div>
+
+  <script src="js/comun.js?v=1"></script>
+  <script src="js/excel.js?v=1"></script>
+  <script src="js/soporte.js?v=1"></script>
+</body>
+</html>

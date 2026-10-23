@@ -35,10 +35,11 @@ const esDueno = () => !new URLSearchParams(window.location.search).has('visitant
 const parametros = new URLSearchParams(window.location.search);
 const atajoCanal = parametros.get('canal') === '1';
 const desdeCanal = atajoCanal || parametros.get('src') === 'canal';
+const desdeSoporte = parametros.get('src') === 'soporte';   // el panel de soporte abre el perfil para mirarlo, no es un escaneo
 // Atajo del dueño (entrar=1): «Mis mascotas» del panel, /mascotas del bot o una sesión que venció. Abre directo la ventana
 // del PIN y tampoco cuenta como escaneo (no avisa a Telegram ni pide la ubicación)
 const entrarDueno = parametros.get('entrar') === '1';
-const noEsEscaneo = desdeCanal || entrarDueno;
+const noEsEscaneo = desdeCanal || entrarDueno || desdeSoporte;
 const soloDigitos = v => String(v || '').replace(/\D/g, '');
 const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
 const fmtTel = p => {
@@ -992,6 +993,8 @@ function mostrarPasoCodigo() {
         ? 'Este celular aún no está registrado como tuyo. Escribe el código de activación de la tarjeta de tu placa (ej. NAF3-NU2K).'
         : 'Este celular aún no está registrado como tuyo. Escríbenos por WhatsApp y te daremos un código para confirmar que eres el dueño.';
   pasoPIN(2, 'Confirma que eres el dueño', texto, 'fa-shield-halved');
+  $('pin-soporte').href = 'https://wa.me/51921512933?text=' + encodeURIComponent(
+    `Hola Helpet, necesito un código para entrar al panel de ${petData.pet || 'mi mascota'} (placa ${tagId}).`);
   $('btn-reenviar').classList.toggle('hidden', !a.telegram);
   $('modal-codigo-input').value = '';
   $('modal-codigo-input').focus();
