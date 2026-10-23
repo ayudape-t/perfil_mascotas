@@ -166,23 +166,60 @@ button.item:active { transform: scale(.99); }
   .pestana span { font-size: 11px; }
 }
 
-/* Tarjetas del empaque: solo al imprimir (2 columnas en A4) */
+/* Tarjetas del empaque (solo al imprimir): al frente el agradecimiento; atrás los pasos, el código y el QR de la placa.
+   8 por hoja A4. El reverso va en espejo: imprimiendo a doble cara y volteando por el borde largo, cada código queda
+   detrás de su tarjeta */
 .hoja-tarjetas { display: none; }
 @media print {
-  @page { size: A4; margin: 10mm; }
+  @page { size: A4; margin: 0; }
   body { padding: 0; background: #fff; display: block; }
   body::before, .shell, .toast { display: none !important; }
-  .hoja-tarjetas { display: grid; grid-template-columns: repeat(2, 90mm); gap: 6mm; justify-content: center; }
-  .tarjeta-imp { break-inside: avoid; page-break-inside: avoid; height: 62mm; padding: 4mm 5mm; border: 0.4mm dashed #8f7a66; border-radius: 4mm; display: grid; grid-template-rows: auto 1fr auto; gap: 2mm; font-family: 'Fredoka', Arial, sans-serif; color: #2b1d1a; }
-  .ti-cab { display: flex; align-items: center; gap: 2mm; border-bottom: 0.3mm solid #e0a24a; padding-bottom: 1.5mm; }
-  .ti-cab img { width: 7mm; height: 7mm; border-radius: 50%; }
-  .ti-cab b { font: 800 4.2mm 'DynaPuff', 'Fredoka', sans-serif; color: #3b2420; }
-  .ti-cab span { margin-left: auto; font-size: 2.6mm; color: #736255; }
-  .ti-cuerpo { display: flex; gap: 3mm; align-items: center; }
-  .ti-qr { flex: none; width: 22mm; height: 22mm; }
-  .ti-qr img, .ti-qr canvas { width: 22mm !important; height: 22mm !important; }
-  .ti-titulo { margin: 0; font-size: 2.8mm; text-transform: uppercase; letter-spacing: .05em; color: #736255; }
-  .ti-codigo { margin: .5mm 0 1mm; font: 800 6.4mm ui-monospace, Consolas, monospace; letter-spacing: .12em; color: #9a3412; }
-  .ti-pasos { margin: 0; padding-left: 4mm; font-size: 2.6mm; line-height: 1.35; }
-  .ti-pie { margin: 0; font-size: 2.4mm; color: #736255; }
+  .hoja-tarjetas { display: block; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .tj-hoja { position: relative; width: 210mm; height: 297mm; display: grid; grid-template-columns: repeat(2, 90mm); grid-auto-rows: 55mm; gap: 8mm; justify-content: center; align-content: center; break-after: page; page-break-after: always; }
+  .tj-hoja:last-child { break-after: auto; page-break-after: auto; }
+  .tj-nota { position: absolute; left: 0; right: 0; bottom: 12mm; margin: 0; text-align: center; font-size: 3mm; color: #8f7a66; }
+  .tj { position: relative; width: 90mm; height: 55mm; overflow: hidden; background: #f8edd1; outline: .2mm dashed #b8a48f; font-family: 'Fredoka', Arial, sans-serif; color: #2b1d1a; }
+  .tj * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* Frente */
+  .tj-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 27mm; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.12), transparent 55%), linear-gradient(160deg, #3b2420, #8f3523 130%); }
+  .tj-panel::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: .7mm; background: linear-gradient(#e0a24a, #b4452b); }
+  .tj-frente::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.4mm; background: var(--awayo) repeat-x left top / auto 2.4mm, #3b2420; }
+  .tj-marca { position: absolute; left: 0; width: 26.3mm; top: 0; bottom: 2.4mm; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.2mm; }
+  .tj-anillo { width: 15.5mm; height: 15.5mm; border-radius: 50%; display: grid; place-items: center; background: repeating-conic-gradient(#b4452b 0 7.5deg, #e0a24a 7.5deg 15deg, #f8edd1 15deg 22.5deg, #7f9a3e 22.5deg 30deg); }
+  .tj-anillo img { width: 13.4mm; height: 13.4mm; border-radius: 50%; background: #f8edd1; padding: .3mm; }
+  .tj-nombre { font: 800 4.3mm/1 'DynaPuff', 'Fredoka', sans-serif; color: #f8edd1; letter-spacing: .02em; }
+  .tj-lema { font-size: 2.05mm; line-height: 1.25; color: #e8c9a0; text-align: center; }
+  .tj-texto { position: absolute; left: 31mm; right: 4.2mm; top: 1mm; bottom: 3.4mm; display: flex; flex-direction: column; justify-content: center; gap: 2.1mm; }
+  .tj-texto h1 { font: 800 4.4mm/1.12 'DynaPuff', 'Fredoka', sans-serif; color: #3b2420; }
+  .tj-texto h1 span { color: #b4452b; }
+  .tj-texto p { font-size: 2.72mm; line-height: 1.42; color: #4a3830; }
+  .tj-filete { width: 12mm; height: .5mm; border-radius: 1mm; background: linear-gradient(90deg, #b4452b, #e0a24a); }
+  .tj-firma { display: flex; align-items: center; gap: 1.4mm; font-size: 2.45mm; font-weight: 600; color: #8f3523; }
+  .tj-firma i { font-size: 2.6mm; color: #e0a24a; }
+  /* Reverso */
+  .tj-reverso { background: #fffaf0; }
+  .tj-reverso::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2.6mm; background: var(--awayo) repeat-x left bottom / auto 2.6mm, #3b2420; }
+  .tj-seguro { position: absolute; top: 4.8mm; bottom: 2.8mm; left: 3.4mm; right: 3.4mm; display: flex; flex-direction: column; gap: 1.3mm; }
+  .tj-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 2mm; }
+  .tj-cab h2 { display: flex; align-items: center; gap: 1.6mm; font: 800 3.4mm/1 'DynaPuff', 'Fredoka', sans-serif; color: #3b2420; }
+  .tj-cab h2 i { color: #b4452b; font-size: 3.1mm; }
+  .tj-cab code { font: 600 2.05mm ui-monospace, Consolas, monospace; color: #736255; letter-spacing: .04em; }
+  .tj-cuerpo { display: grid; grid-template-columns: 21.5mm 1fr; gap: 2.6mm; align-items: start; }
+  .tj-lado { display: grid; justify-items: center; gap: .9mm; }
+  .tj-qr { width: 19.5mm; height: 19.5mm; padding: .8mm; background: #fff; border-radius: 1.4mm; border: .25mm solid #e6d6bd; line-height: 0; }
+  .tj-qr img, .tj-qr canvas { display: block; width: 17.9mm !important; height: 17.9mm !important; }
+  .tj-lbl { font-size: 1.75mm; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #736255; }
+  .tj-cod { font: 800 3.45mm/1 ui-monospace, Consolas, monospace; letter-spacing: .06em; color: #9a3412; white-space: nowrap; }
+  .tj ol { list-style: none; display: grid; gap: .95mm; }
+  .tj li { display: grid; grid-template-columns: 3.7mm 1fr; gap: 1.4mm; align-items: center; font-size: 2.18mm; line-height: 1.26; color: #3a2a24; }
+  .tj li b { font-weight: 600; color: #2b1d1a; }
+  .tj-n { position: relative; width: 3.7mm; height: 3.7mm; display: grid; place-items: center; font-size: 1.95mm; font-weight: 700; color: #fff; }
+  .tj-n::before { content: ""; position: absolute; inset: 0; background: #b4452b;
+    clip-path: polygon(37.5% 0, 62.5% 0, 62.5% 12.5%, 75% 12.5%, 75% 25%, 87.5% 25%, 87.5% 37.5%, 100% 37.5%, 100% 62.5%, 87.5% 62.5%, 87.5% 75%, 75% 75%, 75% 87.5%, 62.5% 87.5%, 62.5% 100%, 37.5% 100%, 37.5% 87.5%, 25% 87.5%, 25% 75%, 12.5% 75%, 12.5% 62.5%, 0 62.5%, 0 37.5%, 12.5% 37.5%, 12.5% 25%, 25% 25%, 25% 12.5%, 37.5% 12.5%); }
+  .tj-n span { position: relative; }
+  .tj-ayuda { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 2mm; padding-top: 1mm; border-top: .25mm dashed #d9c3a0; font-size: 1.95mm; color: #5d4630; }
+  .tj-ayuda b { font-weight: 600; color: #3b2420; }
+  .tj-ayuda i { color: #047857; margin-right: .8mm; }
+  .tj-ayuda > span:first-child { white-space: nowrap; }
+  .tj-ayuda > span:last-child { text-align: right; font-size: 1.8mm; line-height: 1.25; color: #736255; }
 }

@@ -201,6 +201,7 @@ async function vincular() {
 
 async function salir(msg) {
   lote = null; placas = []; listaVisible = []; fichaActual = null;
+  $('hoja-tarjetas').innerHTML = '';   // las tarjetas impresas (con sus códigos) no se quedan en la página
   try { await sb.auth.signOut(); } catch (e) {}
   $('btn-salir').classList.add('hidden');
   $('top-sub').textContent = 'Solo para el equipo de Helpet';
@@ -547,28 +548,50 @@ function excelLote() {
     filas: lote.map((p, i) => [i + 1, p.id, p.codigo, p.enlace]),
   }]);
 }
-// Tarjetas del empaque (2 por fila en A4): las del lote nuevo, las de la lista de placas o la de una ficha
+// Tarjetas del empaque, 8 por hoja A4: una hoja con los frentes (el agradecimiento) y otra con los reversos (los pasos,
+// el código y el QR de cada placa). El reverso va en espejo: imprimiendo a doble cara y volteando por el borde largo,
+// la tarjeta de la izquierda del frente cae a la derecha del reverso, así cada código queda detrás de su tarjeta.
+const TJ_FRENTE = `
+  <div class="tj tj-frente">
+    <div class="tj-panel"></div>
+    <div class="tj-marca"><div class="tj-anillo"><img src="logo.png" alt=""></div><div class="tj-nombre">Helpet</div><div class="tj-lema">Siempre de<br>regreso a casa</div></div>
+    <div class="tj-texto">
+      <h1>Gracias por confiar<br><span>en nosotros</span></h1>
+      <div class="tj-filete"></div>
+      <p>Tu mascota te entrega su amor sin pedir nada a cambio. Desde hoy, su placa la acompañará para que, pase lo que pase, siempre encuentre el camino de regreso a ti.</p>
+      <div class="tj-firma"><i class="fa-solid fa-paw"></i> Con cariño, el equipo de Helpet</div>
+    </div>
+  </div>`;
+const tjReverso = p => `
+  <div class="tj tj-reverso">
+    <div class="tj-seguro">
+      <div class="tj-cab"><h2><i class="fa-solid fa-shield-dog"></i> Activa su placa</h2><code>Placa ${esc(p.id)}</code></div>
+      <div class="tj-cuerpo">
+        <div class="tj-lado"><div class="tj-qr" data-qr="${esc(p.enlace)}"></div><span class="tj-lbl">Tu código</span><span class="tj-cod">${esc(p.codigo)}</span></div>
+        <ol>
+          <li><span class="tj-n"><span>1</span></span><span><b>Escanea la placa</b> con la cámara de tu celular (o acércalo, si tiene NFC).</span></li>
+          <li><span class="tj-n"><span>2</span></span><span>Toca <b>«Activar esta placa»</b> y completa los datos de tu mascota.</span></li>
+          <li><span class="tj-n"><span>3</span></span><span>Escribe <b>este código</b> y crea tu <b>PIN</b> de 4 números.</span></li>
+          <li><span class="tj-n"><span>4</span></span><span><b>Conecta Telegram</b> para recibir un aviso cuando escaneen su placa.</span></li>
+        </ol>
+      </div>
+      <div class="tj-ayuda"><span><i class="fa-brands fa-whatsapp"></i>¿Ayuda? <b>+51 921 512 933</b></span><span>Guarda esta tarjeta: te sirve para<br>entrar desde otro celular.</span></div>
+    </div>
+  </div>`;
 function imprimirTarjetas(lista) {
   lista = (lista || []).filter(p => p.codigo).map(p => ({ ...p, enlace: p.enlace || enlacePerfil(p.id) }));
   if (!lista.length) return aviso('No hay tarjetas con código para imprimir.', 'error');
+  const hojas = [];
+  for (let i = 0; i < lista.length; i += 8) {
+    const lote = lista.slice(i, i + 8);
+    hojas.push(`<div class="tj-hoja">${lote.map(() => TJ_FRENTE).join('')}<p class="tj-nota">Frente · imprime a doble cara volteando por el borde largo y corta por las líneas</p></div>`);
+    hojas.push(`<div class="tj-hoja">${lote.map((p, k) => `<div style="grid-row:${Math.floor(k / 2) + 1};grid-column:${k % 2 ? 1 : 2}">${tjReverso(p)}</div>`).join('')}<p class="tj-nota">Reverso · cada código queda detrás de su tarjeta</p></div>`);
+  }
   const hoja = $('hoja-tarjetas');
-  hoja.innerHTML = lista.map(p => `
-    <div class="tarjeta-imp">
-      <div class="ti-cab"><img src="logo.png" alt=""><b>Helpet</b><span>Placa inteligente</span></div>
-      <div class="ti-cuerpo">
-        <div class="ti-qr" data-qr="${esc(p.enlace)}"></div>
-        <div>
-          <p class="ti-titulo">Tu código de activación</p>
-          <p class="ti-codigo">${esc(p.codigo)}</p>
-          <ol class="ti-pasos"><li>Escanea la placa con la cámara de tu celular.</li><li>Toca «Activar» y llena los datos de tu mascota.</li><li>Escribe este código cuando te lo pida.</li></ol>
-        </div>
-      </div>
-      <p class="ti-pie">Placa ${esc(p.id)} · Guarda esta tarjeta: te sirve para entrar desde otro celular.</p>
-    </div>`).join('');
-  hoja.querySelectorAll('[data-qr]').forEach(el => new QRCode(el, { text: el.dataset.qr, width: 84, height: 84, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }));
+  hoja.innerHTML = hojas.join('');
+  hoja.querySelectorAll('[data-qr]').forEach(el => new QRCode(el, { text: el.dataset.qr, width: 256, height: 256, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }));
   setTimeout(() => window.print(), 300);   // los QR se dibujan antes de imprimir
 }
-window.addEventListener('afterprint', () => { $('hoja-tarjetas').innerHTML = ''; });   // los códigos no se quedan en la página
 
 // ---- Registro ----
 const ACCION = { vincular_cuenta: 'Activó el panel', ver_ficha: 'Vio la ficha', codigo_soporte: 'Generó un código de soporte', enlace_pin: 'Creó un enlace para cambiar el PIN',
