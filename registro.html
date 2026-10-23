@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <link rel="stylesheet" href="css/panel.css?v=1">
+  <link rel="stylesheet" href="css/panel.css?v=2">
   <!-- Tailwind compilado (v3.4.17): si agregas clases nuevas de Tailwind, regenera tailwind.css (ver tailwind.config.js) -->
   <link rel="stylesheet" href="tailwind.css">
 </head>
@@ -36,6 +36,12 @@
       </div>
       <label class="chip-id" title="Código de placa"><i class="fa-solid fa-tag"></i><input type="text" id="input-id" readonly aria-label="Código de placa"></label>
     </header>
+
+    <!-- MIS MASCOTAS: las que este celular abrió con su PIN; un toque para pasar de una a otra (solo al editar) -->
+    <nav id="mis-mascotas" class="mis hidden" aria-label="Mis mascotas">
+      <div id="mis-fila" class="mis-fila"></div>
+      <p id="mis-ayuda" class="mis-ayuda hidden"><i class="fa-solid fa-qrcode"></i> <span>Para sumar otra mascota, escanea el QR de su placa nueva con este celular y actívala con el código de su tarjeta. Aparecerá aquí.</span></p>
+    </nav>
 
     <form id="pet-form">
 
@@ -371,6 +377,18 @@
         </div>
       </details>
 
+      <!-- BORRAR LOS DATOS (solo al editar): el dueño borra todo lo de su mascota; la placa queda como nueva -->
+      <section id="borrar-card" class="hidden card borrar">
+        <div class="row-mini">
+          <div class="ico rose"><i class="fa-solid fa-trash-can"></i></div>
+          <div class="txt">
+            <div id="borrar-titulo" class="t">Borrar los datos de tu mascota</div>
+            <p class="s">Se borra todo lo suyo en Helpet y la placa queda como nueva.</p>
+          </div>
+          <button type="button" id="btn-borrar-datos" class="btn-mini rojo">Borrar</button>
+        </div>
+      </section>
+
       <!-- GUARDAR (barra fija abajo) -->
       <div class="savebar">
         <button id="btn-save" type="button">
@@ -415,7 +433,52 @@
     </div>
   </div>
 
+  <!-- BORRAR LOS DATOS: confirma con el nombre y el PIN; al terminar, las huellitas se alejan y el telar se desteje -->
+  <div id="borrar-modal" class="bienvenida hidden" role="dialog" aria-modal="true" aria-labelledby="br-titulo">
+    <div class="bv-hoja br-hoja">
+      <div class="bv-franja" aria-hidden="true"></div>
+      <div id="br-paso1">
+        <button id="br-cerrar" type="button" class="br-x" aria-label="Cancelar"><i class="fa-solid fa-xmark"></i></button>
+        <div class="br-ico" aria-hidden="true"><i class="fa-solid fa-trash-can"></i></div>
+        <h2 id="br-titulo">¿Borrar los datos de tu mascota?</h2>
+        <p class="bv-sub">Se borran para siempre y no se pueden recuperar:</p>
+        <ul class="br-lista">
+          <li><i class="fa-solid fa-paw"></i> Su perfil, sus fotos y tus datos de contacto</li>
+          <li><i class="fa-solid fa-notes-medical"></i> Su ficha y su historial médico</li>
+          <li><i class="fa-solid fa-location-dot"></i> Los escaneos y las ubicaciones que recibiste</li>
+          <li><i class="fa-brands fa-telegram"></i> Los avisos de Telegram y sus publicaciones en el canal</li>
+          <li><i class="fa-solid fa-mobile-screen-button"></i> Los celulares con acceso a este panel</li>
+        </ul>
+        <p id="br-perdida" class="br-alerta hidden"><i class="fa-solid fa-triangle-exclamation"></i> <span></span></p>
+        <p class="br-placa"><i class="fa-solid fa-tag"></i> <span>La placa queda como nueva: puedes volver a activarla con el código de su tarjeta.</span></p>
+        <div class="br-campos">
+          <div>
+            <label class="lbl" for="br-nombre" id="br-nombre-lbl">Escribe su nombre para confirmar</label>
+            <input type="text" id="br-nombre" class="fld" autocomplete="off" autocapitalize="words" spellcheck="false">
+          </div>
+          <div>
+            <label class="lbl" for="br-pin">Tu PIN</label>
+            <input type="password" id="br-pin" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" class="fld key center">
+          </div>
+        </div>
+        <p id="br-msg" class="br-msg hidden" role="alert"></p>
+        <div class="bv-botones br-botones">
+          <button id="br-confirmar" type="button" class="btn btn-rojo" disabled><i class="fa-solid fa-trash-can"></i> <span>Borrar para siempre</span></button>
+          <button id="br-cancelar" type="button" class="btn btn-line">No, mejor no</button>
+        </div>
+      </div>
+      <div id="br-paso2" class="hidden">
+        <div class="br-huellas" aria-hidden="true"><i class="fa-solid fa-paw"></i><i class="fa-solid fa-paw"></i><i class="fa-solid fa-paw"></i><i class="fa-solid fa-paw"></i></div>
+        <h2 id="br-fin-titulo">Listo: sus datos se borraron</h2>
+        <p id="br-fin-texto" class="bv-sub"></p>
+        <div class="bv-botones">
+          <button id="br-ir" type="button" class="btn btn-dark"><span>Listo</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="js/comun.js?v=1"></script>
-  <script src="js/panel.js?v=1"></script>
+  <script src="js/panel.js?v=2"></script>
 </body>
 </html>

@@ -35,6 +35,10 @@ const esDueno = () => !new URLSearchParams(window.location.search).has('visitant
 const parametros = new URLSearchParams(window.location.search);
 const atajoCanal = parametros.get('canal') === '1';
 const desdeCanal = atajoCanal || parametros.get('src') === 'canal';
+// Atajo del dueño (entrar=1): «Mis mascotas» del panel, /mascotas del bot o una sesión que venció. Abre directo la ventana
+// del PIN y tampoco cuenta como escaneo (no avisa a Telegram ni pide la ubicación)
+const entrarDueno = parametros.get('entrar') === '1';
+const noEsEscaneo = desdeCanal || entrarDueno;
 const soloDigitos = v => String(v || '').replace(/\D/g, '');
 const fmtPeso = w => w ? (/kg/i.test(w) ? String(w) : `${w} kg`) : '';
 const fmtTel = p => {
@@ -193,6 +197,11 @@ async function cargarPerfil() {
   tagId = new URLSearchParams(window.location.search).get('id') || '';
   // Con una sesión de PIN activa este dispositivo es del dueño: queda recordado también al recargar o cerrar la pestaña
   if (tagId && leerAlmacen('sessionStorage', `pin_${tagId}`)) { try { localStorage.setItem(`dueno_${tagId}`, '1'); } catch (e) {} }
+  // Atajo del dueño con la sesión ya abierta en esta pestaña: directo a su panel
+  if (entrarDueno && tagId && leerAlmacen('sessionStorage', `pin_${tagId}`)) {
+    window.location.replace(`registro.html?id=${encodeURIComponent(tagId)}`);
+    return;
+  }
 
   try {
     const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
@@ -219,7 +228,7 @@ async function cargarPerfil() {
 
     // Mascota segura: el aviso a Telegram sale al cargar. Perdida: sale al saber si el visitante permite la ubicación
     // (un solo mensaje) y la ficha se muestra DESPUÉS de que el navegador pregunte por ella
-    if (!data.is_lost && !desdeCanal) avisarEscaneo();
+    if (!data.is_lost && !noEsEscaneo) avisarEscaneo();
     ponerNombre((data.pet || '').toUpperCase());
     $('owner-name').textContent = data.owner || '';
     if (esDueno()) {   // el dueño ve lo mismo que un visitante: se lo recordamos y su botón dice qué hace
@@ -328,6 +337,10 @@ async function cargarPerfil() {
     }
     mostrarPerfil();
     prepararCanal();
+    if (entrarDueno) {   // el enlace no se queda con el atajo (por si lo copian o comparten)
+      try { const u = new URL(location.href); u.searchParams.delete('entrar'); history.replaceState(null, '', u); } catch (e) {}
+      abrirModalPIN();
+    }
   } catch (err) {
     console.error("Error al cargar:", err);
     if (petData) mostrarPerfil();
@@ -479,7 +492,7 @@ function actualizarBotonUbicacion() {
 // se muestra la ficha; si no responde en 12 s se muestra igual (la ficha nunca queda oculta). Si el navegador no
 // va a preguntar (ya permitido o bloqueado, o sin geolocalización) la ficha se muestra de inmediato.
 async function pedirUbicacionSiPerdida() {
-  if (!petData || !petData.is_lost || esDueno() || desdeCanal) return;
+  if (!petData || !petData.is_lost || esDueno() || noEsEscaneo) return;
   garantizarAviso();   // el aviso a Telegram sale con el resultado de la ubicación, a los 20 s o al salir de la página
   if (!navigator.geolocation) { solicitarUbicacion(); return; }   // sin geolocalización: escaneo sin ubicación
 
