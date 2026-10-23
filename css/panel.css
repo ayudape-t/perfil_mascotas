@@ -265,34 +265,4 @@ html.bloqueo { overflow: hidden; }
 .mis-ayuda i { color: var(--oxido); margin-top: 2px; }
 .mis-ayuda.asoma { animation: desenrollar .45s cubic-bezier(.2,.8,.2,1) both; }
 
-/* Borrar los datos: discreto al final del panel; la ventana confirma con el nombre y el PIN */
-.card.borrar { border-color: #f3d3cf; }
-.btn-mini.rojo { background: #fff; color: #b91c1c; border: 1.5px solid #fca5a5; box-shadow: none; }
-.btn-rojo { background: linear-gradient(135deg, #dc2626, #991b1b); color: #fff; box-shadow: 0 6px 14px -6px rgba(153,27,27,.75); }
-.btn-rojo:disabled { opacity: .45; cursor: not-allowed; }
-.br-x { position: absolute; top: 18px; right: 10px; z-index: 1; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(59,36,32,.07); color: var(--suave); font-size: 16px; cursor: pointer; display: grid; place-items: center; }
-.br-ico { width: 60px; height: 60px; margin: 22px auto 12px; border-radius: 20px; display: grid; place-items: center; font-size: 25px; color: #fff; background: linear-gradient(135deg, #dc2626, #991b1b); box-shadow: inset 0 -3px 0 rgba(0,0,0,.16), 0 10px 20px -10px rgba(153,27,27,.8); animation: foto-pop .55s .35s cubic-bezier(.2,.8,.2,1) both; }
-.br-lista { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; text-align: left; }
-.br-lista li { display: flex; gap: 9px; align-items: flex-start; padding: 7px 10px; border-radius: 12px; background: #fff; border: 1px solid var(--arena); font-size: 12.5px; line-height: 1.3; color: var(--tinta); animation: subir .4s .9s cubic-bezier(.2,.8,.2,1) both; }
-.br-lista li:nth-child(2) { animation-delay: .97s; } .br-lista li:nth-child(3) { animation-delay: 1.04s; } .br-lista li:nth-child(4) { animation-delay: 1.11s; } .br-lista li:nth-child(5) { animation-delay: 1.18s; }
-.br-lista i { flex: none; width: 16px; margin-top: 2px; text-align: center; color: var(--oxido); }
-.br-alerta { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 10px; padding: 9px 11px; border-radius: 12px; text-align: left; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-size: 12.5px; font-weight: 500; line-height: 1.35; }
-.br-alerta i { margin-top: 2px; }
-.br-placa { display: flex; gap: 8px; align-items: flex-start; margin: 0 2px 12px; text-align: left; font-size: 12px; line-height: 1.35; color: var(--suave); }
-.br-placa i { margin-top: 2px; color: #047857; }
-.br-campos { display: grid; gap: 8px; margin-bottom: 10px; text-align: left; }
-.br-msg { margin: 0 0 10px; font-size: 12.5px; font-weight: 600; line-height: 1.35; color: #be123c; }
-.br-botones { animation-delay: 1.2s; }
-.temblor { animation: temblor .45s ease-in-out; }
-/* Al terminar: la franja de awayo se desteje y unas huellitas se alejan */
-@keyframes destejer { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
-@keyframes alejarse { 0% { opacity: 0; transform: rotate(var(--r)) scale(.5); } 30% { opacity: .9; transform: rotate(var(--r)) scale(1); } 100% { opacity: .4; transform: rotate(var(--r)) scale(1); } }
-.br-hoja.destejida .bv-franja { animation: destejer 1.4s .3s cubic-bezier(.45,0,.2,1) both; }
-.br-huellas { position: relative; width: 150px; height: 96px; margin: 26px auto 8px; }
-.br-huellas i { position: absolute; font-size: 22px; color: var(--cafe); opacity: .4; transform: rotate(var(--r)); animation: alejarse 1.6s cubic-bezier(.2,.8,.2,1) both; }
-.br-huellas i:nth-child(1) { --r: 35deg; left: 8px; bottom: 0; animation-delay: .25s; }
-.br-huellas i:nth-child(2) { --r: 50deg; left: 46px; bottom: 30px; animation-delay: .6s; }
-.br-huellas i:nth-child(3) { --r: 35deg; left: 78px; bottom: 26px; animation-delay: .95s; }
-.br-huellas i:nth-child(4) { --r: 50deg; left: 116px; bottom: 58px; animation-delay: 1.3s; }
-
 @media (max-width: 340px) { .g3 { grid-template-columns: 1fr 1fr; } .chip-id { display: none; } }

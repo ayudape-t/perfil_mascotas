@@ -377,18 +377,6 @@
         </div>
       </details>
 
-      <!-- BORRAR LOS DATOS (solo al editar): el dueño borra todo lo de su mascota; la placa queda como nueva -->
-      <section id="borrar-card" class="hidden card borrar">
-        <div class="row-mini">
-          <div class="ico rose"><i class="fa-solid fa-trash-can"></i></div>
-          <div class="txt">
-            <div id="borrar-titulo" class="t">Borrar los datos de tu mascota</div>
-            <p class="s">Se borra todo lo suyo en Helpet y la placa queda como nueva.</p>
-          </div>
-          <button type="button" id="btn-borrar-datos" class="btn-mini rojo">Borrar</button>
-        </div>
-      </section>
-
       <!-- GUARDAR (barra fija abajo) -->
       <div class="savebar">
         <button id="btn-save" type="button">
@@ -429,51 +417,6 @@
       <div class="bv-botones">
         <button id="bv-telegram" type="button" class="btn btn-tg"><i class="fa-brands fa-telegram"></i> <span>Vincular Telegram</span></button>
         <button id="bv-perfil" type="button" class="btn btn-line"><i class="fa-solid fa-paw"></i> <span>Ver su perfil</span></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BORRAR LOS DATOS: confirma con el nombre y el PIN; al terminar, las huellitas se alejan y el telar se desteje -->
-  <div id="borrar-modal" class="bienvenida hidden" role="dialog" aria-modal="true" aria-labelledby="br-titulo">
-    <div class="bv-hoja br-hoja">
-      <div class="bv-franja" aria-hidden="true"></div>
-      <div id="br-paso1">
-        <button id="br-cerrar" type="button" class="br-x" aria-label="Cancelar"><i class="fa-solid fa-xmark"></i></button>
-        <div class="br-ico" aria-hidden="true"><i class="fa-solid fa-trash-can"></i></div>
-        <h2 id="br-titulo">¿Borrar los datos de tu mascota?</h2>
-        <p class="bv-sub">Se borran para siempre y no se pueden recuperar:</p>
-        <ul class="br-lista">
-          <li><i class="fa-solid fa-paw"></i> Su perfil, sus fotos y tus datos de contacto</li>
-          <li><i class="fa-solid fa-notes-medical"></i> Su ficha y su historial médico</li>
-          <li><i class="fa-solid fa-location-dot"></i> Los escaneos y las ubicaciones que recibiste</li>
-          <li><i class="fa-brands fa-telegram"></i> Los avisos de Telegram y sus publicaciones en el canal</li>
-          <li><i class="fa-solid fa-mobile-screen-button"></i> Los celulares con acceso a este panel</li>
-        </ul>
-        <p id="br-perdida" class="br-alerta hidden"><i class="fa-solid fa-triangle-exclamation"></i> <span></span></p>
-        <p class="br-placa"><i class="fa-solid fa-tag"></i> <span>La placa queda como nueva: puedes volver a activarla con el código de su tarjeta.</span></p>
-        <div class="br-campos">
-          <div>
-            <label class="lbl" for="br-nombre" id="br-nombre-lbl">Escribe su nombre para confirmar</label>
-            <input type="text" id="br-nombre" class="fld" autocomplete="off" autocapitalize="words" spellcheck="false">
-          </div>
-          <div>
-            <label class="lbl" for="br-pin">Tu PIN</label>
-            <input type="password" id="br-pin" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="••••" class="fld key center">
-          </div>
-        </div>
-        <p id="br-msg" class="br-msg hidden" role="alert"></p>
-        <div class="bv-botones br-botones">
-          <button id="br-confirmar" type="button" class="btn btn-rojo" disabled><i class="fa-solid fa-trash-can"></i> <span>Borrar para siempre</span></button>
-          <button id="br-cancelar" type="button" class="btn btn-line">No, mejor no</button>
-        </div>
-      </div>
-      <div id="br-paso2" class="hidden">
-        <div class="br-huellas" aria-hidden="true"><i class="fa-solid fa-paw"></i><i class="fa-solid fa-paw"></i><i class="fa-solid fa-paw"></i><i class="fa-solid fa-paw"></i></div>
-        <h2 id="br-fin-titulo">Listo: sus datos se borraron</h2>
-        <p id="br-fin-texto" class="bv-sub"></p>
-        <div class="bv-botones">
-          <button id="br-ir" type="button" class="btn btn-dark"><span>Listo</span></button>
-        </div>
       </div>
     </div>
   </div>
