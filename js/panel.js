@@ -14,6 +14,7 @@ let savedPin = null;
 let isLostState = false;
 let pinSesion = '';
 let esPlacaNueva = false;   // se está activando la placa (aún no tiene mascota)
+let nombreGuardado = '';    // el nombre que tiene en el servidor (para confirmar el borrado)
 const nombreMascota = () => val('input-pet').trim() || 'tu mascota';
 const normalizarTel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 9 && d[0] === '9') ? '51' + d : d; };
 const msgEstado = e =>
@@ -123,9 +124,9 @@ async function inicializar() {
     const { data: priv } = pinSesion
       ? await client.rpc('obtener_mascota_privada', { p_id: tagId, p_pin: pinSesion })
       : { data: null };
-    if (!priv || priv.estado !== 'ok') {
+    if (!priv || priv.estado !== 'ok') {   // sin sesión (o venció): el perfil abre directo la ventana del PIN
       sessionStorage.removeItem(`pin_${tagId}`);
-      window.location.href = `index.html?id=${encodeURIComponent(tagId)}`;
+      window.location.href = `index.html?id=${encodeURIComponent(tagId)}&entrar=1`;
       return;
     }
     const data = priv.mascota;
@@ -164,6 +165,10 @@ async function inicializar() {
       p.classList.remove('hidden');
       $('placeholder-icon').classList.add('hidden');
     }
+    nombreGuardado = data.pet || '';
+    $('borrar-titulo').textContent = `Borrar los datos de ${nombreGuardado || 'tu mascota'}`;
+    $('borrar-card').classList.remove('hidden');
+    cargarMisMascotas({ id: tagId, n: data.pet || '', f: data.photo || '', p: !!data.is_lost });
     if (irAMedico) { mostrarFormularioMedico(true); vigilarToque(); }
   } else {
     const { data: est } = await client.rpc('estado_placa', { p_id: tagId });
@@ -390,6 +395,8 @@ async function enviarDatos() {
   if (esNueva) { pinSesion = res.sesion || finalPin; savedPin = pinSesion; }
   if (photoInput.files && photoInput.files[0]) { existingPhotoUrl = photoPublicUrl; photoInput.value = ''; }   // no se vuelve a subir
   cambiosSinGuardar = false;
+  nombreGuardado = pet;
+  recordarMascota({ id: tagId, n: pet, f: photoPublicUrl, p: isLostState });   // su foto, nombre y alarma en «Mis mascotas»
   return res;
 }
 
@@ -457,6 +464,192 @@ function marcarPasoTelegram(hecho) {
   b.innerHTML = hecho ? '<i class="fa-solid fa-circle-check"></i> <span>Telegram conectado</span>' : '<i class="fa-brands fa-telegram"></i> <span>Vincular Telegram</span>';
   $('bv-perfil').className = 'btn ' + (hecho ? 'btn-dark' : 'btn-line');
   if (hecho && !antes && !$('bienvenida').classList.contains('hidden')) { lanzarFiguras(paso.querySelector('.bv-num'), 9); vibrar(25); }
+}
+
+// ---- Mis mascotas: las que este celular abrió con su PIN, para pasar de una a otra con un toque ----
+// Se guardan solo en este navegador (id, nombre, foto y si tiene la alarma activa). Cada una sigue con su PIN:
+// si en esta pestaña ya se entró, se pasa directo a su panel; si no, su perfil abre la ventana del PIN.
+const CLAVE_MIS = 'mis_mascotas';
+function leerMisMascotas() {
+  let lista = [];
+  try { lista = JSON.parse(localStorage.getItem(CLAVE_MIS) || '[]'); } catch (e) {}
+  if (!Array.isArray(lista)) lista = [];
+  lista = lista.filter(m => m && typeof m.id === 'string' && m.id && m.id.length <= 40);
+  try {   // las que se abrieron antes de que existiera la lista quedaron marcadas como del dueño
+    for (let k = 0; k < localStorage.length; k++) {
+      const c = localStorage.key(k) || '';
+      if (c.startsWith('dueno_') && c.length > 6 && !lista.some(m => m.id === c.slice(6))) lista.push({ id: c.slice(6) });
+    }
+  } catch (e) {}
+  return lista;
+}
+function guardarMisMascotas(lista) {
+  try { localStorage.setItem(CLAVE_MIS, JSON.stringify(lista.map(({ id, n, f, p }) => ({ id, n: n || '', f: f || '', p: !!p })))); } catch (e) {}
+}
+function recordarMascota(m) {
+  const lista = leerMisMascotas();
+  const i = lista.findIndex(x => x.id === m.id);
+  if (i >= 0) lista[i] = m; else lista.push(m);
+  guardarMisMascotas(lista);
+  if (!$('mis-mascotas').classList.contains('hidden')) pintarMisMascotas(lista);
+  return lista;
+}
+function olvidarMascota(id) {
+  guardarMisMascotas(leerMisMascotas().filter(m => m.id !== id));
+  try { localStorage.removeItem(`dueno_${id}`); localStorage.removeItem(`disp_${id}`); sessionStorage.removeItem(`pin_${id}`); } catch (e) {}
+}
+
+function pintarMisMascotas(lista) {
+  const fila = $('mis-fila');
+  fila.classList.toggle('quieta', !!fila.dataset.pintada);   // entran subiendo solo la primera vez
+  fila.dataset.pintada = '1';
+  fila.innerHTML = lista.map((m, k) => {
+    const aqui = m.id === tagId, nombre = m.n || 'Mascota';
+    const etiqueta = aqui ? `${nombre}: estás en su panel` : `Ir al panel de ${nombre}${m.p ? ' (alarma activa)' : ''}`;
+    return `<button type="button" class="mis-chip${aqui ? ' aqui' : ''}${m.p ? ' perdida' : ''}" style="--k:${k}" data-mascota="${esc(m.id)}"
+              aria-label="${esc(etiqueta)}"${aqui ? ' aria-current="page"' : ''}>
+        <span class="mis-foto">${m.f ? `<img src="${esc(m.f)}" alt="">` : '<i class="fa-solid fa-paw"></i>'}${m.p ? '<b class="mis-alarma"><i class="fa-solid fa-bullhorn"></i></b>' : ''}</span>
+        <span class="mis-nombre">${esc(nombre)}</span>
+      </button>`;
+  }).join('') + `<button type="button" id="mis-otra" class="mis-chip otra" style="--k:${lista.length}" aria-label="Sumar otra mascota" aria-expanded="${!$('mis-ayuda').classList.contains('hidden')}" aria-controls="mis-ayuda">
+      <span class="mis-foto"><i class="fa-solid fa-plus"></i></span><span class="mis-nombre">Otra</span>
+    </button>`;
+  // Una foto que no carga deja la huellita
+  $('mis-fila').querySelectorAll('.mis-foto img').forEach(img => img.addEventListener('error', () => { img.replaceWith(Object.assign(document.createElement('i'), { className: 'fa-solid fa-paw' })); }, { once: true }));
+}
+
+async function cargarMisMascotas(actual) {
+  const lista = recordarMascota(actual);
+  $('mis-mascotas').classList.remove('hidden');
+  pintarMisMascotas(lista);
+  // Las demás se actualizan (nombre, foto, alarma); las que ya no existen (se borraron) salen de la lista
+  const otras = lista.filter(m => m.id !== actual.id);
+  if (!otras.length) return;
+  const respuestas = await Promise.all(otras.map(m => Promise.resolve(client.rpc('obtener_mascota', { p_id: m.id })).catch(() => null)));
+  let cambio = false;
+  otras.forEach((m, k) => {
+    const r = respuestas[k];
+    if (!r || r.error) return;   // sin conexión: se queda como estaba
+    if (!r.data) { olvidarMascota(m.id); cambio = true; return; }
+    const nuevo = { id: m.id, n: r.data.pet || '', f: r.data.photo || '', p: !!r.data.is_lost };
+    if (nuevo.n !== m.n || nuevo.f !== m.f || nuevo.p !== m.p) { recordarMascota(nuevo); cambio = true; }
+  });
+  if (cambio) pintarMisMascotas(leerMisMascotas());
+}
+
+function alTocarMisMascotas(e) {
+  const b = e.target.closest('.mis-chip');
+  if (!b) return;
+  if (b.id === 'mis-otra') {   // cómo se suma otra mascota
+    const ayuda = $('mis-ayuda'), abrir = ayuda.classList.contains('hidden');
+    ayuda.classList.toggle('hidden', !abrir);
+    b.setAttribute('aria-expanded', String(abrir));
+    if (abrir) repetir(ayuda, 'asoma', 500);
+    return;
+  }
+  const id = b.dataset.mascota;
+  if (!id || id === tagId) { repetir(b, 'pop', 450); return; }
+  b.classList.add('yendo');   // su anillo gira como pushka mientras se abre su panel
+  vibrar(15);
+  setTimeout(() => {
+    window.location.href = enlaceMascota(id);
+    setTimeout(() => b.classList.remove('yendo'), 1500);   // si se quedó (cambios sin guardar), el anillo se detiene
+  }, sinMovimiento ? 0 : 380);
+}
+// Con sesión en esta pestaña: directo a su panel. Si no: su perfil, que abre la ventana del PIN
+function enlaceMascota(id) {
+  let conSesion = false;
+  try { conSesion = !!sessionStorage.getItem(`pin_${id}`); } catch (e) {}
+  return conSesion ? `registro.html?id=${encodeURIComponent(id)}` : `index.html?id=${encodeURIComponent(id)}&entrar=1`;
+}
+
+// ---- Borrar los datos de la mascota ----
+// Pide escribir su nombre y el PIN (aunque ya se haya entrado). El servidor borra todo lo suyo, retira sus avisos del canal,
+// borra sus fotos y avisa por Telegram; la placa queda sin activar y conserva el código de su tarjeta.
+const normalizarNombre = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+const MSG_BORRAR = {
+  incorrecto: 'PIN incorrecto. Inténtalo de nuevo.',
+  bloqueado: 'Demasiados intentos: espera 15 minutos.',
+  sesion_vencida: 'Tu sesión venció: vuelve a entrar con tu PIN desde el perfil.',
+  no_existe: 'Los datos de esta mascota ya se habían borrado.',
+  datos_invalidos: 'Escribe los 4 dígitos de tu PIN.',
+};
+let borrando = false;
+
+function abrirBorrar() {
+  const nombre = nombreGuardado || 'tu mascota';
+  $('br-titulo').textContent = `¿Borrar los datos de ${nombre}?`;
+  $('br-nombre-lbl').textContent = nombreGuardado ? `Escribe «${nombreGuardado}» para confirmar` : 'Escribe su nombre para confirmar';
+  const perdida = $('br-perdida');
+  perdida.querySelector('span').textContent = `Tiene la alarma activa: si borras sus datos, quien encuentre a ${nombre} ya no podrá contactarte con su placa.`;
+  perdida.classList.toggle('hidden', !isLostState);
+  $('br-nombre').value = ''; $('br-pin').value = '';
+  $('br-msg').classList.add('hidden');
+  $('br-paso1').classList.remove('hidden'); $('br-paso2').classList.add('hidden');
+  revisarBorrar();
+  $('borrar-modal').classList.remove('hidden');
+  document.documentElement.classList.add('bloqueo');
+  setTimeout(() => $('br-nombre').focus({ preventScroll: true }), sinMovimiento ? 0 : 450);
+}
+function cerrarBorrar() {
+  if (borrando) return;
+  $('borrar-modal').classList.add('hidden');
+  document.documentElement.classList.remove('bloqueo');
+  $('btn-borrar-datos').focus({ preventScroll: true });
+}
+// El botón rojo se enciende solo con el nombre correcto y los 4 dígitos
+function revisarBorrar() {
+  const pin = $('br-pin');
+  pin.value = pin.value.replace(/\D/g, '').slice(0, 4);
+  const nombreOk = !nombreGuardado || normalizarNombre($('br-nombre').value) === normalizarNombre(nombreGuardado);
+  $('br-confirmar').disabled = borrando || !nombreOk || pin.value.length !== 4;
+}
+function errorBorrar(texto) {
+  const m = $('br-msg');
+  m.textContent = texto;
+  m.classList.remove('hidden');
+  repetir($('br-paso1'), 'temblor', 450);
+  vibrar([40, 50, 40]);
+}
+
+async function confirmarBorrar() {
+  revisarBorrar();
+  if (borrando || $('br-confirmar').disabled) return;
+  borrando = true;
+  const btn = $('br-confirmar');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Borrando...</span>';
+  $('br-msg').classList.add('hidden');
+  let r = null;
+  try { const { data } = await client.functions.invoke('borrar-datos', { body: { id: tagId, sesion: pinSesion, pin: $('br-pin').value } }); r = data; } catch (e) {}
+  borrando = false;
+  btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> <span>Borrar para siempre</span>';
+  if (!r || r.estado !== 'ok') {
+    if (r && r.estado === 'incorrecto') { $('br-pin').value = ''; $('br-pin').focus(); }
+    revisarBorrar();
+    errorBorrar((r && MSG_BORRAR[r.estado]) || 'No se pudo borrar. Revisa tu conexión e inténtalo de nuevo.');
+    return;
+  }
+  despedida(r.reactivable === true);
+}
+
+// Ya se borró: este celular la olvida, las huellitas se alejan y se ofrece ir a otra mascota
+function despedida(reactivable) {
+  const nombre = nombreGuardado || 'tu mascota';
+  olvidarMascota(tagId);
+  cambiosSinGuardar = false; saliendo = true;
+  const otra = leerMisMascotas()[0];
+  $('br-fin-titulo').textContent = `Listo: se borraron los datos de ${nombre}`;
+  $('br-fin-texto').textContent = reactivable
+    ? 'La placa quedó como nueva. Si quieres volver a usarla, escanéala y actívala con el código de su tarjeta.'
+    : 'La placa quedó sin datos. Si quieres volver a usarla, escríbenos por WhatsApp y te ayudamos a activarla.';
+  $('br-ir').querySelector('span').textContent = otra ? `Ir al panel de ${otra.n || 'tu otra mascota'}` : 'Listo';
+  $('br-ir').dataset.destino = otra ? enlaceMascota(otra.id) : `index.html?id=${encodeURIComponent(tagId)}`;
+  $('br-paso1').classList.add('hidden');
+  $('br-paso2').classList.remove('hidden');
+  $('borrar-modal').querySelector('.br-hoja').classList.add('destejida');   // la franja de awayo se desteje
+  vibrar(25);
+  setTimeout(() => $('br-ir').focus({ preventScroll: true }), sinMovimiento ? 0 : 900);
 }
 
 window.guardarRegistroMedico = async function () {
@@ -687,6 +880,15 @@ alClic('btn-revocar-vet', revocarCodigoVet);
 alClic('btn-save', guardarDatos);
 alClic('bv-telegram', accionTelegram);
 alClic('bv-perfil', irAlPerfil);
+$('mis-fila').addEventListener('click', alTocarMisMascotas);
+alClic('btn-borrar-datos', abrirBorrar);
+alClic('br-cerrar', cerrarBorrar);
+alClic('br-cancelar', cerrarBorrar);
+alClic('br-confirmar', confirmarBorrar);
+alClic('br-ir', () => { window.location.href = $('br-ir').dataset.destino || 'index.html'; });
+['br-nombre', 'br-pin'].forEach(id => $(id).addEventListener('input', revisarBorrar));
+alEnter('br-pin', confirmarBorrar);
+$('borrar-modal').addEventListener('keydown', e => { if (e.key === 'Escape' && !$('br-paso1').classList.contains('hidden')) cerrarBorrar(); });
 // Historial completo: la lista se vuelve a dibujar, así que se escucha en la caja (eliminar y «ya se hizo» del refuerzo)
 $('historial-privado').addEventListener('click', e => {
   const b = e.target.closest('[data-borrar]');
