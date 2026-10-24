@@ -1,0 +1,33 @@
+# Mantiene activo el proyecto de Supabase en el plan gratuito.
+# Supabase pausa los proyectos gratuitos con poca actividad durante 7 días; con unas pocas consultas al día no los pausa.
+# Esta tarea hace una consulta de solo lectura una vez al día. Si la consulta falla (proyecto pausado o caído),
+# la tarea queda en rojo y GitHub avisa por correo.
+name: Supabase activo
+
+on:
+  schedule:
+    - cron: '17 12 * * *'   # todos los días a las 7:17 a. m. de Lima (12:17 UTC)
+  workflow_dispatch:         # también se puede correr a mano desde la pestaña Actions
+
+permissions: {}
+
+jobs:
+  consulta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Consulta liviana a la base de datos
+        env:
+          SUPABASE_URL: https://cjxcqdgtchhtfowreuca.supabase.co
+          # Clave pública (anon): la misma que ya usa la página; solo permite lo que puede hacer cualquier visitante
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqeGNxZGd0Y2hodGZvd3JldWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTA3NTksImV4cCI6MjEwNjI4Njc1OX0.x2Pm3dqIU7fbXhfSU0aQTi1Ve5daNgUMPkP0R3IrP4o
+        run: |
+          codigo=$(curl -sS -o respuesta.txt -w '%{http_code}' --retry 3 --retry-delay 30 --retry-all-errors \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/estado_placa" \
+            -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H 'Content-Type: application/json' -d '{"p_id":"HP-0000"}')
+          echo "Supabase respondió $codigo: $(cat respuesta.txt)"
+          if [ "$codigo" != "200" ]; then
+            echo "::error::Supabase no respondió bien. Revisa si el proyecto está pausado en https://supabase.com/dashboard"
+            exit 1
+          fi
