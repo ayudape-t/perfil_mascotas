@@ -7,7 +7,7 @@
 // Android: si la ficha se abre en el navegador de Xiaomi o en el visor de una app, la reabre en Chrome
 (function () {
   var ua = navigator.userAgent, q = location.search;
-  if (!/Android/i.test(ua) || /[?&]nochrome=1/.test(q) || sessionStorage.getItem('a_chrome')) return;
+  if (window.__redirigiendo || !/Android/i.test(ua) || /[?&]nochrome=1/.test(q) || sessionStorage.getItem('a_chrome')) return;
   if (!/; wv\)|MiuiBrowser|FBAN|FBAV|Instagram|Line\/|GSA\/|UCBrowser|HeyTapBrowser|VivoBrowser|MicroMessenger|Telegram/i.test(ua)) return;
   sessionStorage.setItem('a_chrome', '1');
   window.__redirigiendo = true;
