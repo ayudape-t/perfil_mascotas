@@ -397,13 +397,21 @@ async function enviarDatos() {
 
   if (photoInput.files && photoInput.files[0]) {
     const file = await comprimirImagen(photoInput.files[0]);
-    const ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }[file.type];
-    if (!ext) throw new Error('Formato de imagen no compatible. Usa una foto JPG o PNG.');
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) throw new Error('Formato de imagen no compatible. Usa una foto JPG o PNG.');
     if (file.size > 1048576) throw new Error('La foto pesa más de 1 MB. Elige otra o recórtala.');
-    const fileName = `${tagId}_${Date.now()}.${ext}`;
-    const { error: uploadError } = await client.storage.from('pet-photos').upload(fileName, file, { upsert: false, contentType: file.type });
-    if (uploadError) throw new Error('No se pudo subir la foto: ' + uploadError.message);
-    photoPublicUrl = client.storage.from('pet-photos').getPublicUrl(fileName).data.publicUrl;
+    // La sube el servidor (función subir-foto) solo si es el dueño: con su sesión o, al activar, con el código de la tarjeta
+    const datos = new FormData();
+    datos.append('id', tagId);
+    datos.append(esNueva ? 'codigo' : 'sesion', esNueva ? val('input-codigo').trim() : finalPin);
+    datos.append('foto', file);
+    const { data: subida } = await client.functions.invoke('subir-foto', { body: datos }).catch(() => ({}));
+    const e = subida ? subida.estado : 'sin_conexion';
+    if (e !== 'ok') throw new Error('No se pudo subir la foto. ' + (
+      e === 'sin_permiso' ? msgEstado(esNueva ? 'codigo_incorrecto' : 'incorrecto') :
+      e === 'demasiadas' ? 'Subiste muchas fotos seguidas: espera una hora.' :
+      e === 'muy_grande' || e === 'tipo_no_permitido' ? 'Elige otra foto (JPG o PNG, de menos de 1 MB).' :
+      'Revisa tu conexión e inténtalo de nuevo.'));
+    photoPublicUrl = subida.url;
   }
   const v = id => val(id).trim();
   const { data: res, error: dbError } = await client.rpc('guardar_mascota', {
