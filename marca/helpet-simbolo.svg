@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Helpet"><title>Helpet</title><g transform="translate(0 -8)">
+  <circle cx="256" cy="62" r="34" fill="none" stroke="#3b2420" stroke-width="30"/>
+  <circle cx="256" cy="62" r="34" fill="none" stroke="#e0a24a" stroke-width="12"/>
+  <circle cx="256" cy="290" r="206" fill="#3b2420"/>
+  <circle cx="256" cy="290" r="180" fill="#b4452b"/>
+  <circle cx="256" cy="290" r="164" fill="none" stroke="#e0a24a" stroke-width="7" stroke-dasharray="14 11"/>
+  <g fill="#f8edd1">
+    <ellipse cx="164" cy="238" rx="30" ry="39" transform="rotate(-26 164 238)"/>
+    <ellipse cx="219" cy="178" rx="31" ry="41" transform="rotate(-9 219 178)"/>
+    <ellipse cx="293" cy="178" rx="31" ry="41" transform="rotate(9 293 178)"/>
+    <ellipse cx="348" cy="238" rx="30" ry="39" transform="rotate(26 348 238)"/>
+    <path d="M271 271L271 293L301 293L301 315L331 315L331 337L361 337L361 359L331 359L331 381L301 381L301 403L271 403L271 425L241 425L241 403L211 403L211 381L181 381L181 359L151 359L151 337L181 337L181 315L211 315L211 293L241 293L241 271Z" stroke="#f8edd1" stroke-width="10" stroke-linejoin="round"/>
+  </g>
+  <path d="M244 312h24v24h24v24h-24v24h-24v-24h-24v-24h24z" fill="#b4452b"/></g></svg>
