@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <link rel="stylesheet" href="css/panel.css?v=5">
+  <link rel="stylesheet" href="css/panel.css?v=6">
   <link rel="stylesheet" href="tailwind.css">
 </head>
 <body class="paw-dark-body min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-x-hidden">
@@ -40,10 +40,13 @@
 
     <div class="app-cuerpo">
       <div id="app-lista" class="app-lista"></div>
-      <p id="app-vacio" class="app-vacio hidden">Aún no hay mascotas guardadas en este celular. Entra con el código de su placa y aparecerá aquí.</p>
+      <p id="app-vacio" class="app-vacio hidden">Aún no hay mascotas guardadas en este celular. Escanea su placa y aparecerá aquí.</p>
 
       <form id="app-agregar" class="card card-b" novalidate>
-        <label for="app-codigo" class="lbl">Entrar con el código de su placa</label>
+        <span class="lbl">Agregar una mascota</span>
+        <button type="button" id="btn-qr" class="btn btn-line"><i class="fa-solid fa-qrcode"></i> <span>Escanear el QR de su placa</span></button>
+        <button type="button" id="btn-nfc" class="btn btn-line hidden"><i class="fa-brands fa-nfc-symbol"></i> <span>Acercar el celular a su placa</span></button>
+        <label for="app-codigo" class="lbl app-o">O escribe el código de su placa</label>
         <div class="app-codigo">
           <input id="app-codigo" class="fld" type="text" placeholder="Ej. UJRA59MUPZ" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="300">
           <button type="submit" class="btn-mini">Entrar</button>
@@ -53,9 +56,20 @@
     </div>
   </main>
 
+  <!-- Lector de la placa: cámara (QR) o NFC (solo Android con Chrome) -->
+  <div id="escaner" class="escaner hidden" role="dialog" aria-modal="true" aria-labelledby="escaner-titulo">
+    <div class="escaner-caja">
+      <h2 id="escaner-titulo">Escanea el QR de su placa</h2>
+      <div id="escaner-camara" class="escaner-camara"><video id="escaner-video" playsinline muted></video><span class="escaner-marco" aria-hidden="true"></span></div>
+      <div id="escaner-nfc" class="escaner-nfc hidden" aria-hidden="true"><i class="fa-brands fa-nfc-symbol"></i></div>
+      <p id="escaner-texto" aria-live="polite"></p>
+      <button type="button" id="escaner-cerrar" class="btn btn-line">Cancelar</button>
+    </div>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="js/comun.js?v=4"></script>
-  <script src="js/app.js?v=1"></script>
+  <script src="js/app.js?v=2"></script>
 </body>
 </html>

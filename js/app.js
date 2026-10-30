@@ -41,14 +41,109 @@ async function cargar() {
   pintar(nueva);
 }
 
-// Entrar con el código de la placa (o su enlace pegado): en iPhone la app empieza sin la lista de Safari
+// ---- Agregar una mascota: el QR de su placa (cámara), acercar el celular (NFC, solo Android con Chrome) o su código ----
+// En iPhone la app empieza sin la lista de Safari: así se agrega cada mascota. Después, su perfil pide el PIN.
+function idDePlaca(texto) {
+  let v = String(texto || '').trim();
+  try { v = new URL(v).searchParams.get('id') || ''; } catch (e) {}   // era el enlace de la placa, no el código
+  v = v.toUpperCase();
+  return /^[A-Z0-9-]{3,40}$/.test(v) ? v : null;
+}
+const abrirPlaca = id => { window.location.href = `index.html?id=${encodeURIComponent(id)}&entrar=1`; };
+
 $('app-agregar').addEventListener('submit', e => {
   e.preventDefault();
-  let codigo = $('app-codigo').value.trim();
-  try { codigo = new URL(codigo).searchParams.get('id') || ''; } catch (err) {}   // no era un enlace: era el código
-  codigo = codigo.toUpperCase();
-  if (!/^[A-Z0-9-]{3,40}$/.test(codigo)) { aviso('Revisa el código: son letras y números, como UJRA59MUPZ.', 'error'); return; }
-  window.location.href = `index.html?id=${encodeURIComponent(codigo)}&entrar=1`;
+  const id = idDePlaca($('app-codigo').value);
+  if (!id) { aviso('Revisa el código: son letras y números, como UJRA59MUPZ.', 'error'); return; }
+  abrirPlaca(id);
 });
+
+let camara = null, lecturaNFC = null;   // lo que está abierto: se apaga al cerrar el lector
+function cerrarEscaner() {
+  if (camara) { camara.getTracks().forEach(t => t.stop()); camara = null; }
+  if (lecturaNFC) { lecturaNFC.abort(); lecturaNFC = null; }
+  $('escaner').classList.add('hidden');
+}
+function abrirEscaner(nfc) {
+  $('escaner-titulo').textContent = nfc ? 'Acerca el celular a su placa' : 'Escanea el QR de su placa';
+  $('escaner-texto').textContent = nfc ? 'Pon la parte de atrás del celular sobre la placa y espera un momento.' : 'Apunta la cámara al código QR de la placa.';
+  $('escaner-camara').classList.toggle('hidden', nfc);
+  $('escaner-nfc').classList.toggle('hidden', !nfc);
+  $('escaner').classList.remove('hidden');
+}
+// Lo leído (enlace o código): si es de una placa Helpet, abre su perfil; si no, avisa y sigue leyendo
+function leida(texto) {
+  const id = idDePlaca(texto);
+  if (!id) { $('escaner-texto').textContent = 'Eso no es una placa Helpet. Prueba otra vez.'; return false; }
+  vibrar(40);
+  cerrarEscaner();
+  abrirPlaca(id);
+  return true;
+}
+const cargarScript = src => new Promise((ok, mal) => {
+  const s = document.createElement('script');
+  s.src = src; s.onload = ok; s.onerror = mal;
+  document.head.append(s);
+});
+
+alClic('btn-qr', async () => {
+  abrirEscaner(false);
+  try {
+    if (!window.jsQR) await cargarScript('vendor/jsqr-1.4.0/jsQR.js');   // solo se descarga al usar el lector
+    camara = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+  } catch (err) {
+    cerrarEscaner();
+    aviso(err && err.name === 'NotAllowedError'
+      ? 'No diste permiso para usar la cámara. Actívalo en los ajustes del celular, o escribe el código de la placa.'
+      : 'No se pudo abrir la cámara. Escribe el código de la placa.', 'error');
+    return;
+  }
+  const video = $('escaner-video');
+  video.srcObject = camara;
+  try { await video.play(); } catch (e) {}
+  const lienzo = document.createElement('canvas'), ctx = lienzo.getContext('2d', { willReadFrequently: true });
+  const mirar = () => {
+    if (!camara) return;   // se cerró el lector
+    if (video.readyState >= 2 && video.videoWidth) {
+      const escala = Math.min(1, 480 / Math.max(video.videoWidth, video.videoHeight));   // imagen chica: lee más rápido
+      lienzo.width = Math.round(video.videoWidth * escala);
+      lienzo.height = Math.round(video.videoHeight * escala);
+      ctx.drawImage(video, 0, 0, lienzo.width, lienzo.height);
+      const qr = jsQR(ctx.getImageData(0, 0, lienzo.width, lienzo.height).data, lienzo.width, lienzo.height, { inversionAttempts: 'dontInvert' });
+      if (qr && qr.data && leida(qr.data)) return;
+    }
+    setTimeout(mirar, 150);
+  };
+  mirar();
+});
+
+// NFC: solo Chrome en Android lo permite a las páginas web (en iPhone no aparece el botón)
+if ('NDEFReader' in window) $('btn-nfc').classList.remove('hidden');
+alClic('btn-nfc', async () => {
+  abrirEscaner(true);
+  lecturaNFC = new AbortController();
+  try {
+    const lector = new NDEFReader();
+    lector.onreading = e => {
+      for (const r of e.message.records) {
+        if (!['url', 'absolute-url', 'text'].includes(r.recordType)) continue;
+        if (leida(new TextDecoder(r.encoding || 'utf-8').decode(r.data))) return;
+      }
+      $('escaner-texto').textContent = 'Esa placa no tiene un enlace de Helpet. Prueba con el QR o el código.';
+    };
+    lector.onreadingerror = () => { $('escaner-texto').textContent = 'No se pudo leer la placa. Acércala de nuevo, sin moverla.'; };
+    await lector.scan({ signal: lecturaNFC.signal });
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;   // se canceló
+    cerrarEscaner();
+    aviso(err && err.name === 'NotAllowedError'
+      ? 'No diste permiso para usar NFC. Puedes escanear el QR o escribir el código.'
+      : 'No se pudo usar NFC. Revisa que esté activado en tu celular, o escanea el QR.', 'error');
+  }
+});
+
+alClic('escaner-cerrar', cerrarEscaner);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarEscaner(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) cerrarEscaner(); });   // no deja la cámara prendida
 
 cargar();

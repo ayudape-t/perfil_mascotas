@@ -848,7 +848,7 @@ alClic('btn-app', async () => {
   // iPhone: los pasos. En iPhone la app guarda sus datos aparte de Safari: la primera vez pide el código de la placa
   $('app-texto').textContent = 'En Safari:';
   $('app-pasos').innerHTML = ['Toca <b>Compartir</b> (el cuadro con la flecha ↑).', 'Elige <b>Agregar a inicio</b> y toca <b>Agregar</b>.',
-    `La primera vez, la app te pedirá el código de su placa: <b>${esc(tagId)}</b>.`].map(p => `<li>${p}</li>`).join('');
+    `La primera vez, en la app toca <b>Escanear el QR de su placa</b> (o escribe su código: <b>${esc(tagId)}</b>).`].map(p => `<li>${p}</li>`).join('');
   $('app-pasos').classList.remove('hidden');
   $('btn-app').classList.add('hidden');
 });
