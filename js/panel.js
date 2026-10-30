@@ -518,7 +518,7 @@ function pintarMisMascotas(lista) {
   fila.dataset.pintada = '1';
   fila.innerHTML = lista.map((m, k) => {
     const aqui = m.id === tagId, nombre = m.n || 'Mascota';
-    const etiqueta = aqui ? `${nombre}: estás en su panel` : `Ir al panel de ${nombre}${m.p ? ' (alarma activa)' : ''}`;
+    const etiqueta = aqui ? `${nombre}: estás en su panel` : `Ver el perfil de ${nombre}${m.p ? ' (alarma activa)' : ''}`;
     return `<button type="button" class="mis-chip${aqui ? ' aqui' : ''}${m.p ? ' perdida' : ''}" style="--k:${k}" data-mascota="${esc(m.id)}"
               aria-label="${esc(etiqueta)}"${aqui ? ' aria-current="page"' : ''}>
         <span class="mis-foto">${m.f ? `<img src="${esc(m.f)}" alt="">` : '<i class="fa-solid fa-paw"></i>'}${m.p ? '<b class="mis-alarma"><i class="fa-solid fa-bullhorn"></i></b>' : ''}</span>

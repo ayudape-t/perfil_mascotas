@@ -198,11 +198,6 @@ async function cargarPerfil() {
   tagId = new URLSearchParams(window.location.search).get('id') || '';
   // Con una sesión de PIN activa este dispositivo es del dueño: queda recordado también al recargar o cerrar la pestaña
   if (tagId && leerAlmacen('sessionStorage', `pin_${tagId}`)) { try { localStorage.setItem(`dueno_${tagId}`, '1'); } catch (e) {} }
-  // Atajo del dueño con la sesión ya abierta en esta pestaña: directo a su panel
-  if (entrarDueno && tagId && leerAlmacen('sessionStorage', `pin_${tagId}`)) {
-    window.location.replace(`registro.html?id=${encodeURIComponent(tagId)}`);
-    return;
-  }
 
   try {
     const { data, error } = await db.rpc('obtener_mascota', { p_id: tagId });
@@ -340,7 +335,8 @@ async function cargarPerfil() {
     prepararCanal();
     if (entrarDueno) {   // el enlace no se queda con el atajo (por si lo copian o comparten)
       try { const u = new URL(location.href); u.searchParams.delete('entrar'); history.replaceState(null, '', u); } catch (e) {}
-      abrirModalPIN();
+      // Atajo del dueño: primero su perfil; sin la sesión abierta en esta pestaña, pide el PIN y vuelve a su perfil
+      if (!leerAlmacen('sessionStorage', `pin_${tagId}`)) abrirModalPIN('#perfil');
     }
   } catch (err) {
     console.error("Error al cargar:", err);
@@ -909,7 +905,8 @@ function pasoPIN(n, titulo, texto, ico) {
 }
 function pasoInicialPIN(msg) {
   accesoPendiente = null; sesionPendiente = null;
-  pasoPIN(1, 'PIN del dueño', destinoPIN === '#canal' ? 'Ingresa tus 4 dígitos para publicar el aviso.' : 'Ingresa tus 4 dígitos para editar.', 'fa-key');
+  pasoPIN(1, 'PIN del dueño', destinoPIN === '#canal' ? 'Ingresa tus 4 dígitos para publicar el aviso.'
+    : destinoPIN === '#perfil' ? 'Ingresa tus 4 dígitos para entrar.' : 'Ingresa tus 4 dígitos para editar.', 'fa-key');
   $('modal-pin-input').value = '';
   $('pin-caja').classList.remove('mal', 'bien');
   pintarPuntos();
@@ -1056,6 +1053,7 @@ function finalizarEntrada(sesion) {
   vibrar(25);
   setTimeout(() => {
     if (destino === '#canal') { cerrarModalPIN(); publicarCanal(); return; }   // vuelve a «Publicar en el canal»
+    if (destino === '#perfil') { window.location.replace(`index.html?id=${encodeURIComponent(tagId)}`); return; }   // su perfil, ya como dueño
     window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destino}`;
   }, sinMovimiento ? 0 : 450);
 }
@@ -1277,7 +1275,12 @@ alClic('btn-share-profile', compartirPerfil);
 alClic('btn-canal-publicar', publicarCanal);
 alClic('btn-medical-history', abrirModalMedico);
 alClic('btn-carnet', descargarCarnetDigital);
-alClic('btn-dueno', () => abrirModalPIN());
+// Con la sesión ya abierta en esta pestaña va directo a su panel; si no, pide el PIN
+function irAlPanel(destino = '') {
+  if (leerAlmacen('sessionStorage', `pin_${tagId}`)) window.location.href = `registro.html?id=${encodeURIComponent(tagId)}${destino}`;
+  else abrirModalPIN(destino);
+}
+alClic('btn-dueno', () => irAlPanel());
 // PIN: con el 4.º dígito entra solo; Enter también
 $('modal-pin-input').addEventListener('input', alEscribirPIN);
 alEnter('modal-pin-input', validarPINModal);
@@ -1292,7 +1295,7 @@ alClic('btn-share-img', compartirAficheImagen);
 alClic('btn-imprimir', imprimirAfiche);
 alClic('btn-cerrar-afiche', cerrarAficheModal);
 // Historial médico
-alClic('btn-registrar-medico', () => abrirModalPIN('#registrar-medico'));
+alClic('btn-registrar-medico', () => irAlPanel('#registrar-medico'));
 alClic('btn-ir-vet', () => { location.href = 'vet.html?id=' + encodeURIComponent(tagId); });
 // Ventanas: la X las cierra; tocar el fondo oscuro también (la foto en grande, con cualquier toque fuera de la foto)
 alClic('pin-cerrar', cerrarModalPIN);

@@ -115,7 +115,7 @@ function alEnter(id, accion) {
 
 // ---- Mis mascotas: las que este celular abrió con su PIN (las usan el panel y la app instalada, app.html) ----
 // Se guardan solo en este navegador (id, nombre, foto y si tiene la alarma activa). Cada una sigue con su PIN:
-// si en esta pestaña ya se entró, se pasa directo a su panel; si no, su perfil abre la ventana del PIN.
+// se abre su perfil y, si en esta pestaña no se entró, pide el PIN.
 const CLAVE_MIS = 'mis_mascotas';
 function leerMisMascotas() {
   let lista = [];
@@ -137,12 +137,8 @@ function olvidarMascota(id) {   // ya no existe (se borraron sus datos): sale de
   guardarMisMascotas(leerMisMascotas().filter(m => m.id !== id));
   try { localStorage.removeItem(`dueno_${id}`); localStorage.removeItem(`disp_${id}`); sessionStorage.removeItem(`pin_${id}`); } catch (e) {}
 }
-// Con sesión abierta en esta pestaña entra directo a su panel; si no, su perfil abre la ventana del PIN
-function enlaceMascota(id) {
-  let conSesion = false;
-  try { conSesion = !!sessionStorage.getItem(`pin_${id}`); } catch (e) {}
-  return conSesion ? `registro.html?id=${encodeURIComponent(id)}` : `index.html?id=${encodeURIComponent(id)}&entrar=1`;
-}
+// Siempre a su perfil, como dueño: si en esta pestaña no hay sesión, el perfil pide el PIN (desde ahí se edita)
+const enlaceMascota = id => `index.html?id=${encodeURIComponent(id)}&entrar=1`;
 
 // ---- App instalada: el botón «atrás» del celular ----
 // Vuelve a «Mis mascotas» y desde ahí sale de la app, en lugar de repasar cada pantalla que se abrió.
