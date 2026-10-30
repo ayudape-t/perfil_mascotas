@@ -23,9 +23,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <link rel="stylesheet" href="css/panel.css?v=4">
+  <link rel="stylesheet" href="css/panel.css?v=5">
   <!-- Tailwind compilado (v3.4.17): si agregas clases nuevas de Tailwind, regenera tailwind.css (ver tailwind.config.js) -->
   <link rel="stylesheet" href="tailwind.css">
 </head>
@@ -73,10 +72,9 @@
             <label for="input-lost-location" class="lbl">¿Dónde se perdió?</label>
             <input type="text" id="input-lost-location" placeholder="Ej. Parque Amarilis / Av. Central" class="fld">
           </div>
-          <div>
-            <span class="lbl">Márcalo en el mapa (opcional)</span>
-            <div id="mapa-perdida" class="mapa-perdida" aria-label="Mapa: toca donde se perdió"></div>
-            <p class="hint"><i class="fa-solid fa-shield-halved"></i>Toca donde se perdió. En el canal sale una zona aproximada de unos 300 m, nunca el punto exacto.
+          <div class="zona-gps">
+            <button type="button" id="btn-zona" class="btn btn-line"><i class="fa-solid fa-location-crosshairs"></i> <span>Compartir la zona donde se perdió</span></button>
+            <p class="zona-nota"><i class="fa-solid fa-shield-halved"></i> <span id="zona-estado"></span>
               <button type="button" id="btn-quitar-punto" class="quitar-punto hidden">Quitar</button></p>
           </div>
           <div class="g2">
@@ -443,8 +441,7 @@
     </div>
   </div>
 
-  <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
-  <script src="js/comun.js?v=2"></script>
-  <script src="js/panel.js?v=4"></script>
+  <script src="js/comun.js?v=3"></script>
+  <script src="js/panel.js?v=5"></script>
 </body>
 </html>

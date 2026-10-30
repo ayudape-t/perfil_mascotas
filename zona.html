@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--
+  © 2026 Helpet. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio; el mapa (imágenes de OpenStreetMap) entra por img-src https: -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <script src="js/dominio.js?v=1"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#3b2420">
+  <title>Zona donde se perdió - Helpet</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
+  <link rel="stylesheet" href="css/zona.css?v=1">
+</head>
+<body>
+  <!-- Área aproximada donde se perdió una mascota (botón «Ver zona donde se perdió» del canal) -->
+  <div id="mapa" class="mapa" role="img" aria-label="Mapa con el área aproximada donde se perdió"></div>
+  <section class="nota">
+    <h1><i class="fa-solid fa-location-dot"></i> <span id="zona-titulo">Zona donde se perdió</span></h1>
+    <p id="zona-texto">El círculo es un área aproximada de unos 250 m. Si ves a la mascota, abre su perfil para avisar a su familia.</p>
+    <a id="zona-perfil" class="boton hidden" href="#"><i class="fa-solid fa-paw"></i> Ver su perfil</a>
+  </section>
+  <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
+  <script src="js/zona.js?v=1"></script>
+</body>
+</html>

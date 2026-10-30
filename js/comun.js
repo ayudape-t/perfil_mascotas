@@ -143,3 +143,17 @@ function enlaceMascota(id) {
   try { conSesion = !!sessionStorage.getItem(`pin_${id}`); } catch (e) {}
   return conSesion ? `registro.html?id=${encodeURIComponent(id)}` : `index.html?id=${encodeURIComponent(id)}&entrar=1`;
 }
+
+// ---- App instalada: el botón «atrás» del celular ----
+// Vuelve a «Mis mascotas» y desde ahí sale de la app, en lugar de repasar cada pantalla que se abrió.
+// Para eso, fuera de «Mis mascotas» cada paso reemplaza al anterior en el historial. (Chrome/Android; el iPhone no tiene «atrás».)
+if (window.navigation && window.matchMedia('(display-mode: standalone)').matches) {
+  navigation.addEventListener('navigate', e => {
+    if (e.navigationType !== 'push' || e.hashChange || e.downloadRequest !== null || !e.cancelable) return;
+    if (/\/app(\.html)?$/.test(location.pathname)) return;   // desde «Mis mascotas» sí se avanza: «atrás» vuelve a ella
+    const destino = new URL(e.destination.url);
+    if (destino.origin !== location.origin) return;           // WhatsApp, Telegram, mapas: como siempre
+    e.preventDefault();
+    location.replace(destino.href);
+  });
+}

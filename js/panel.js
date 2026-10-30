@@ -278,29 +278,45 @@ function actualizarBotonAlarmaUI() {
     ? '<i class="fa-solid fa-house-chimney"></i> <span>¡Ya volvió a casa!</span>'
     : '<i class="fa-solid fa-bullhorn"></i> <span>¿Se perdió? Activar alarma</span>';
   $('lost-details-box').classList.toggle('hidden', !isLostState);
-  if (isLostState) abrirMapaPerdida();
+  mostrarZona();
 }
 
-// ---- Zona aproximada donde se perdió (mapa del recuadro rojo) ----
-// El punto se redondea a una cuadrícula de ~300 m (igual que en el servidor): en el canal sale esa zona, nunca el punto exacto
-const HUANUCO = [-9.9306, -76.2422];
+// ---- Zona aproximada donde se perdió: un solo botón con el GPS del celular, y se guarda al instante ----
+// Se redondea a una cuadrícula de ~280 m (igual que en el servidor): en el canal se ve un área de unos 250 m, nunca el punto exacto
 const aZona = x => Math.round(x * 400) / 400;
 let lostPunto = null;   // [lat, lon] o null
-let mapaPerdida = null, zonaPerdida = null;
-function mostrarZonaPerdida() {
-  if (zonaPerdida) { zonaPerdida.remove(); zonaPerdida = null; }
-  if (lostPunto && mapaPerdida) zonaPerdida = L.circle(lostPunto, { radius: 300, color: '#be123c', weight: 2, fillOpacity: .18 }).addTo(mapaPerdida);
+function mostrarZona() {
+  $('zona-estado').textContent = lostPunto
+    ? 'Zona guardada: en el aviso del canal se verá un área de unos 250 m, nunca el punto exacto.'
+    : 'Tócalo cuando estés donde se perdió. Se comparte un área de unos 250 m, nunca el punto exacto.';
   $('btn-quitar-punto').classList.toggle('hidden', !lostPunto);
 }
-function abrirMapaPerdida() {
-  if (!window.L) return;   // la librería no cargó: queda solo el texto de la zona
-  if (mapaPerdida) { mapaPerdida.invalidateSize(); return; }
-  mapaPerdida = L.map('mapa-perdida').setView(lostPunto || HUANUCO, lostPunto ? 15 : 14);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapaPerdida);
-  mapaPerdida.on('click', e => { lostPunto = [aZona(e.latlng.lat), aZona(e.latlng.lng)]; cambiosSinGuardar = true; mostrarZonaPerdida(); });
-  mostrarZonaPerdida();
+// Guarda la zona (o la quita) con todo el formulario, como la alarma; si falla, vuelve a la anterior
+async function guardarZona(punto, mensaje) {
+  const antes = lostPunto;
+  lostPunto = punto;
+  try { await enviarDatos(); aviso(mensaje, 'ok'); }
+  catch (err) { lostPunto = antes; aviso('No se pudo guardar la zona: ' + err.message, 'error'); }
+  mostrarZona();
 }
-$('btn-quitar-punto').addEventListener('click', () => { lostPunto = null; cambiosSinGuardar = true; mostrarZonaPerdida(); });
+alClic('btn-zona', async () => {
+  const btn = $('btn-zona'), original = btn.innerHTML;
+  if (!navigator.geolocation) { aviso('Este celular no puede compartir su ubicación.', 'error'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Buscando tu ubicación...</span>';
+  const pos = await new Promise(r => navigator.geolocation.getCurrentPosition(r, error => r({ error }),
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }));
+  if (pos.error) {
+    aviso(pos.error.code === 1
+      ? 'No diste permiso para usar tu ubicación. Actívalo en tu navegador y vuelve a tocar el botón.'
+      : 'No pudimos obtener tu ubicación. Inténtalo de nuevo, mejor al aire libre.', 'error');
+  } else {
+    await guardarZona([aZona(pos.coords.latitude), aZona(pos.coords.longitude)], 'Zona guardada: saldrá en el aviso del canal.');
+  }
+  btn.disabled = false;
+  btn.innerHTML = original;
+});
+alClic('btn-quitar-punto', () => guardarZona(null, 'Zona quitada.'));
 
 $('input-photo').addEventListener('change', e => {
   const file = e.target.files[0];

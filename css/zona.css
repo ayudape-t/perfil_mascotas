@@ -1,0 +1,14 @@
+/*
+  © 2026 Helpet. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+*/
+/* zona.html: mapa a pantalla completa con una nota abajo */
+html, body { height: 100%; margin: 0; }
+body { font-family: 'Fredoka', system-ui, sans-serif; background: #f8edd1; color: #2b1d1a; display: flex; flex-direction: column; }
+.mapa { flex: 1; min-height: 240px; background: #eadfcf; isolation: isolate; }
+.nota { padding: 14px 16px 18px; background: #f8edd1; border-top: 4px solid #b4452b; display: grid; gap: 8px; }
+.nota h1 { margin: 0; font-size: 18px; font-weight: 600; color: #3b2420; display: flex; align-items: center; gap: 8px; }
+.nota h1 i { color: #be123c; }
+.nota p { margin: 0; font-size: 15px; line-height: 1.5; color: #4a3b32; }
+.boton { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 14px; background: #b4452b; color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; }
+.hidden { display: none; }
