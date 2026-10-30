@@ -130,6 +130,8 @@ textarea.fld { resize: none; }
 .lost-box .lbl { color: #9f1239; }
 .lost-box .fld { border-color: #fecaca; font-size: 15px; }
 .lost-box h3 { margin: 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #be123c; display: flex; align-items: center; gap: 6px; }
+.mapa-perdida { height: 190px; margin: 4px 0; border: 1px solid #fecaca; border-radius: 12px; overflow: hidden; isolation: isolate; background: #f3ece4; }
+.quitar-punto { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: #be123c; text-decoration: underline; cursor: pointer; }
 
 /* Estado de la mascota (en casa / perdida): el cambio se guarda al tocar, sin esperar a «Guardar Cambios» */
 @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }

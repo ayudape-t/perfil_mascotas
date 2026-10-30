@@ -155,6 +155,7 @@ async function inicializar() {
 
     savedPin = pinSesion;
     isLostState = data.is_lost || false;
+    lostPunto = data.lost_lat != null && data.lost_lon != null ? [data.lost_lat, data.lost_lon] : null;
     actualizarBotonAlarmaUI();
 
     if (data.photo) {
@@ -275,7 +276,29 @@ function actualizarBotonAlarmaUI() {
     ? '<i class="fa-solid fa-house-chimney"></i> <span>¡Ya volvió a casa!</span>'
     : '<i class="fa-solid fa-bullhorn"></i> <span>¿Se perdió? Activar alarma</span>';
   $('lost-details-box').classList.toggle('hidden', !isLostState);
+  if (isLostState) abrirMapaPerdida();
 }
+
+// ---- Zona aproximada donde se perdió (mapa del recuadro rojo) ----
+// El punto se redondea a una cuadrícula de ~300 m (igual que en el servidor): en el canal sale esa zona, nunca el punto exacto
+const HUANUCO = [-9.9306, -76.2422];
+const aZona = x => Math.round(x * 400) / 400;
+let lostPunto = null;   // [lat, lon] o null
+let mapaPerdida = null, zonaPerdida = null;
+function mostrarZonaPerdida() {
+  if (zonaPerdida) { zonaPerdida.remove(); zonaPerdida = null; }
+  if (lostPunto && mapaPerdida) zonaPerdida = L.circle(lostPunto, { radius: 300, color: '#be123c', weight: 2, fillOpacity: .18 }).addTo(mapaPerdida);
+  $('btn-quitar-punto').classList.toggle('hidden', !lostPunto);
+}
+function abrirMapaPerdida() {
+  if (!window.L) return;   // la librería no cargó: queda solo el texto de la zona
+  if (mapaPerdida) { mapaPerdida.invalidateSize(); return; }
+  mapaPerdida = L.map('mapa-perdida').setView(lostPunto || HUANUCO, lostPunto ? 15 : 14);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapaPerdida);
+  mapaPerdida.on('click', e => { lostPunto = [aZona(e.latlng.lat), aZona(e.latlng.lng)]; cambiosSinGuardar = true; mostrarZonaPerdida(); });
+  mostrarZonaPerdida();
+}
+$('btn-quitar-punto').addEventListener('click', () => { lostPunto = null; cambiosSinGuardar = true; mostrarZonaPerdida(); });
 
 $('input-photo').addEventListener('change', e => {
   const file = e.target.files[0];
@@ -371,6 +394,7 @@ async function enviarDatos() {
       description: v('input-description'), phone_secondary: normalizarTel(v('input-phone-secondary')),
       is_lost: isLostState, lost_location: v('input-lost-location'),
       lost_date: v('input-lost-date'), lost_time: v('input-lost-time'),
+      lost_lat: lostPunto && lostPunto[0], lost_lon: lostPunto && lostPunto[1],
       reward: $('input-reward').checked, photo: photoPublicUrl,
       next_vaccine: v('input-next-vaccine'), next_deworming: v('input-next-deworming'),
       vaccine_every: Number(v('input-vaccine-every')) || null, deworming_every: Number(v('input-deworming-every')) || null,
