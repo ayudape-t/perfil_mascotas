@@ -14,15 +14,18 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#3b2420">
   <title>Panel de Control - Placa Inteligente</title>
+  <!-- Desde el panel se puede instalar Helpet como app (abre en app.html; ver manifest.webmanifest) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Helpet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="apple-touch-icon" href="icono-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <link rel="stylesheet" href="vendor/leaflet-1.9.4/leaflet.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <link rel="stylesheet" href="css/panel.css?v=3">
+  <link rel="stylesheet" href="css/panel.css?v=4">
   <!-- Tailwind compilado (v3.4.17): si agregas clases nuevas de Tailwind, regenera tailwind.css (ver tailwind.config.js) -->
   <link rel="stylesheet" href="tailwind.css">
 </head>
@@ -109,6 +112,17 @@
           <p id="telegram-estado" class="s">Avisos de escaneos y de vacunas.</p>
         </div>
         <button type="button" id="btn-telegram" class="btn-mini">Vincular</button>
+      </div>
+
+      <!-- APP: instalar Helpet en el celular (Android: con un toque; iPhone: los pasos). No sale si ya se abrió como app -->
+      <div id="app-box" class="hidden card row-mini">
+        <div class="ico amber"><i class="fa-solid fa-mobile-screen-button"></i></div>
+        <div class="txt">
+          <div class="t">Instala Helpet en tu celular</div>
+          <p id="app-texto" class="s">Un ícono en tu pantalla para entrar a tus mascotas.</p>
+          <ol id="app-pasos" class="hidden"></ol>
+        </div>
+        <button type="button" id="btn-app" class="btn-mini">Instalar</button>
       </div>
 
       <!-- DISPOSITIVOS CON ACCESO (solo al editar) -->
@@ -430,7 +444,7 @@
   </div>
 
   <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
-  <script src="js/comun.js?v=1"></script>
-  <script src="js/panel.js?v=3"></script>
+  <script src="js/comun.js?v=2"></script>
+  <script src="js/panel.js?v=4"></script>
 </body>
 </html>

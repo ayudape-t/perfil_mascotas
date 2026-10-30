@@ -112,3 +112,34 @@ function alClic(id, accion) { $(id).addEventListener('click', () => accion()); }
 function alEnter(id, accion) {
   $(id).addEventListener('keydown', e => { if (e.key === 'Enter') accion(); });
 }
+
+// ---- Mis mascotas: las que este celular abrió con su PIN (las usan el panel y la app instalada, app.html) ----
+// Se guardan solo en este navegador (id, nombre, foto y si tiene la alarma activa). Cada una sigue con su PIN:
+// si en esta pestaña ya se entró, se pasa directo a su panel; si no, su perfil abre la ventana del PIN.
+const CLAVE_MIS = 'mis_mascotas';
+function leerMisMascotas() {
+  let lista = [];
+  try { lista = JSON.parse(localStorage.getItem(CLAVE_MIS) || '[]'); } catch (e) {}
+  if (!Array.isArray(lista)) lista = [];
+  lista = lista.filter(m => m && typeof m.id === 'string' && m.id && m.id.length <= 40);
+  try {   // las que se abrieron antes de que existiera la lista quedaron marcadas como del dueño
+    for (let k = 0; k < localStorage.length; k++) {
+      const c = localStorage.key(k) || '';
+      if (c.startsWith('dueno_') && c.length > 6 && !lista.some(m => m.id === c.slice(6))) lista.push({ id: c.slice(6) });
+    }
+  } catch (e) {}
+  return lista;
+}
+function guardarMisMascotas(lista) {
+  try { localStorage.setItem(CLAVE_MIS, JSON.stringify(lista.map(({ id, n, f, p }) => ({ id, n: n || '', f: f || '', p: !!p })))); } catch (e) {}
+}
+function olvidarMascota(id) {   // ya no existe (se borraron sus datos): sale de la lista y este celular la olvida
+  guardarMisMascotas(leerMisMascotas().filter(m => m.id !== id));
+  try { localStorage.removeItem(`dueno_${id}`); localStorage.removeItem(`disp_${id}`); sessionStorage.removeItem(`pin_${id}`); } catch (e) {}
+}
+// Con sesión abierta en esta pestaña entra directo a su panel; si no, su perfil abre la ventana del PIN
+function enlaceMascota(id) {
+  let conSesion = false;
+  try { conSesion = !!sessionStorage.getItem(`pin_${id}`); } catch (e) {}
+  return conSesion ? `registro.html?id=${encodeURIComponent(id)}` : `index.html?id=${encodeURIComponent(id)}&entrar=1`;
+}

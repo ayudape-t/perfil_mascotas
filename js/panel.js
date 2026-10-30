@@ -166,6 +166,8 @@ async function inicializar() {
       $('placeholder-icon').classList.add('hidden');
     }
     cargarMisMascotas({ id: tagId, n: data.pet || '', f: data.photo || '', p: !!data.is_lost });
+    panelListo = true;
+    ofrecerApp();
     if (irAMedico) { mostrarFormularioMedico(true); vigilarToque(); }
   } else {
     const { data: est } = await client.rpc('estado_placa', { p_id: tagId });
@@ -485,26 +487,7 @@ function marcarPasoTelegram(hecho) {
   if (hecho && !antes && !$('bienvenida').classList.contains('hidden')) { lanzarFiguras(paso.querySelector('.bv-num'), 9); vibrar(25); }
 }
 
-// ---- Mis mascotas: las que este celular abrió con su PIN, para pasar de una a otra con un toque ----
-// Se guardan solo en este navegador (id, nombre, foto y si tiene la alarma activa). Cada una sigue con su PIN:
-// si en esta pestaña ya se entró, se pasa directo a su panel; si no, su perfil abre la ventana del PIN.
-const CLAVE_MIS = 'mis_mascotas';
-function leerMisMascotas() {
-  let lista = [];
-  try { lista = JSON.parse(localStorage.getItem(CLAVE_MIS) || '[]'); } catch (e) {}
-  if (!Array.isArray(lista)) lista = [];
-  lista = lista.filter(m => m && typeof m.id === 'string' && m.id && m.id.length <= 40);
-  try {   // las que se abrieron antes de que existiera la lista quedaron marcadas como del dueño
-    for (let k = 0; k < localStorage.length; k++) {
-      const c = localStorage.key(k) || '';
-      if (c.startsWith('dueno_') && c.length > 6 && !lista.some(m => m.id === c.slice(6))) lista.push({ id: c.slice(6) });
-    }
-  } catch (e) {}
-  return lista;
-}
-function guardarMisMascotas(lista) {
-  try { localStorage.setItem(CLAVE_MIS, JSON.stringify(lista.map(({ id, n, f, p }) => ({ id, n: n || '', f: f || '', p: !!p })))); } catch (e) {}
-}
+// ---- Mis mascotas (la lista está en js/comun.js): un toque para pasar de una a otra ----
 function recordarMascota(m) {
   const lista = leerMisMascotas();
   const i = lista.findIndex(x => x.id === m.id);
@@ -513,11 +496,6 @@ function recordarMascota(m) {
   if (!$('mis-mascotas').classList.contains('hidden')) pintarMisMascotas(lista);
   return lista;
 }
-function olvidarMascota(id) {   // ya no existe (se borraron sus datos): sale de la lista y este celular la olvida
-  guardarMisMascotas(leerMisMascotas().filter(m => m.id !== id));
-  try { localStorage.removeItem(`dueno_${id}`); localStorage.removeItem(`disp_${id}`); sessionStorage.removeItem(`pin_${id}`); } catch (e) {}
-}
-
 function pintarMisMascotas(lista) {
   const fila = $('mis-fila');
   fila.classList.toggle('quieta', !!fila.dataset.pintada);   // entran subiendo solo la primera vez
@@ -576,11 +554,6 @@ function alTocarMisMascotas(e) {
   }, sinMovimiento ? 0 : 380);
 }
 // Con sesión en esta pestaña: directo a su panel. Si no: su perfil, que abre la ventana del PIN
-function enlaceMascota(id) {
-  let conSesion = false;
-  try { conSesion = !!sessionStorage.getItem(`pin_${id}`); } catch (e) {}
-  return conSesion ? `registro.html?id=${encodeURIComponent(id)}` : `index.html?id=${encodeURIComponent(id)}&entrar=1`;
-}
 
 window.guardarRegistroMedico = async function () {
   const btn = $('btn-save-med');
@@ -818,6 +791,50 @@ $('historial-privado').addEventListener('click', e => {
 });
 $('historial-privado').addEventListener('change', e => {
   if (e.target.matches('[data-refuerzo]')) marcarRefuerzo(e.target.dataset.refuerzo, e.target);
+});
+
+// ---- Instalar Helpet como app (solo aquí, en el panel del dueño: nunca en el perfil que ven los visitantes) ----
+// Android y computadoras: Chrome avisa que se puede instalar y el botón lo hace con un toque.
+// iPhone: Apple no permite un botón, así que se muestran los pasos de Safari. Ya abierta como app, no sale.
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+const ua = navigator.userAgent;
+const enApp = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const esIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+const enOtraApp = /; wv\)|FBAN|FBAV|Instagram|Line\/|Telegram|MicroMessenger/i.test(ua) || (esIOS && !/Safari\//.test(ua));
+let pedidoInstalar = null, panelListo = false;   // panelListo: hay mascota (al activar una placa nueva no se ofrece)
+function ofrecerApp() {
+  if (!panelListo || enApp) return;
+  let texto = 'Un ícono en tu pantalla para entrar a tus mascotas.', boton = 'Instalar';
+  if (!pedidoInstalar) {
+    if (enOtraApp) { texto = `Para instalarla, abre este panel en ${esIOS ? 'Safari' : 'Chrome'}.`; boton = ''; }
+    else if (esIOS) boton = 'Ver cómo';
+    else return;   // este navegador no ofrece instalar (o ya está instalada)
+  }
+  $('app-texto').textContent = texto;
+  $('btn-app').textContent = boton;
+  $('btn-app').classList.toggle('hidden', !boton);
+  $('app-box').classList.remove('hidden');
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedidoInstalar = e; ofrecerApp(); });
+window.addEventListener('appinstalled', () => {
+  $('app-box').classList.add('hidden');
+  aviso('¡Listo! Busca el ícono de Helpet en tu pantalla de inicio.', 'ok');
+});
+alClic('btn-app', async () => {
+  if (pedidoInstalar) {
+    const pedido = pedidoInstalar;
+    pedidoInstalar = null;   // Chrome deja usarlo una sola vez
+    pedido.prompt();
+    const { outcome } = await pedido.userChoice;
+    if (outcome === 'accepted') $('app-box').classList.add('hidden');
+    return;
+  }
+  // iPhone: los pasos. En iPhone la app guarda sus datos aparte de Safari: la primera vez pide el código de la placa
+  $('app-texto').textContent = 'En Safari:';
+  $('app-pasos').innerHTML = ['Toca <b>Compartir</b> (el cuadro con la flecha ↑).', 'Elige <b>Agregar a inicio</b> y toca <b>Agregar</b>.',
+    `La primera vez, la app te pedirá el código de su placa: <b>${esc(tagId)}</b>.`].map(p => `<li>${p}</li>`).join('');
+  $('app-pasos').classList.remove('hidden');
+  $('btn-app').classList.add('hidden');
 });
 
 inicializar();

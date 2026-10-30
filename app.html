@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+  © 2026 Helpet. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (nada en línea ni de otros dominios) y solo se conecta a Supabase.
+       Si agregas un servicio externo, súmalo aquí y en las demás páginas -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://cjxcqdgtchhtfowreuca.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <script src="js/dominio.js?v=1"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#3b2420">
+  <title>Helpet - Mis mascotas</title>
+  <!-- Pantalla de inicio de la app instalada (ver manifest.webmanifest) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Helpet">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="icono-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
+  <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
+  <link rel="stylesheet" href="css/panel.css?v=4">
+  <link rel="stylesheet" href="tailwind.css">
+</head>
+<body class="paw-dark-body min-h-screen flex flex-col items-center justify-center p-4 font-sans relative overflow-x-hidden">
+
+  <main class="shell app">
+    <header class="top">
+      <img src="logo.png" alt="Helpet" class="top-logo">
+      <div class="top-txt">
+        <h1>Mis mascotas</h1>
+        <p>Toca una para entrar a su panel con su PIN</p>
+      </div>
+    </header>
+
+    <div class="app-cuerpo">
+      <div id="app-lista" class="app-lista"></div>
+      <p id="app-vacio" class="app-vacio hidden">Aún no hay mascotas guardadas en este celular. Entra con el código de su placa y aparecerá aquí.</p>
+
+      <form id="app-agregar" class="card card-b" novalidate>
+        <label for="app-codigo" class="lbl">Entrar con el código de su placa</label>
+        <div class="app-codigo">
+          <input id="app-codigo" class="fld" type="text" placeholder="Ej. UJRA59MUPZ" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="300">
+          <button type="submit" class="btn-mini">Entrar</button>
+        </div>
+        <p class="hint">Lo ves en su panel, arriba a la derecha (<i class="fa-solid fa-tag"></i>). También puedes pegar el enlace de su placa.</p>
+      </form>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/comun.js?v=2"></script>
+  <script src="js/app.js?v=1"></script>
+</body>
+</html>
