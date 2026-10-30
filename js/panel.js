@@ -230,10 +230,13 @@ async function toggleMascotaPerdida() {
   btn.disabled = true;
   btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${activar ? 'Activando la alarma...' : 'Guardando...'}</span>`;
   isLostState = activar;
+  const zonaAntes = lostPunto;
+  if (!activar) lostPunto = null;   // al volver a casa se borra la zona aproximada (lo promete la política de privacidad)
   try {
     await enviarDatos();
   } catch (err) {
     isLostState = !activar;
+    lostPunto = zonaAntes;
     aviso((activar ? 'No se pudo activar la alarma: ' : 'No se pudo guardar: ') + err.message, 'error');
     return;
   } finally {

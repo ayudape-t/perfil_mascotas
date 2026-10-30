@@ -26,7 +26,7 @@
   <main class="hoja">
     <header class="cab">
       <h1>Privacidad y términos</h1>
-      <p>Helpet · Última actualización: 23 de octubre de 2026</p>
+      <p>Helpet · Última actualización: 30 de octubre de 2026</p>
     </header>
 
     <nav class="indice" aria-label="Contenido">
@@ -57,6 +57,7 @@
         <li>Nombre, raza, color, peso, edad, descripción y foto.</li>
         <li><strong>Datos de salud</strong> (datos sensibles): alergias, medicación, alimentación, veterinaria, próximas vacunas y desparasitaciones, y el historial de consultas.</li>
         <li>Si se pierde: el lugar («¿Dónde se perdió?»), la fecha y la hora aproximados que indiques, y si ofreces recompensa.</li>
+        <li><strong>Zona aproximada donde se perdió (opcional):</strong> si tocas «Compartir la zona donde se perdió», tu celular nos da tu ubicación en ese momento y guardamos solo una zona redondeada de unos 250 m. El punto exacto no se guarda.</li>
       </ul>
       <h3>Quien escanea la placa o abre el perfil</h3>
       <ul>
@@ -75,6 +76,7 @@
         <li><strong>Opcionales:</strong> raza, color, peso, edad, descripción, foto, teléfono de emergencia y todos los datos de salud. Si no los registras, el perfil funciona igual y esos datos no se muestran.</li>
         <li><strong>Telegram:</strong> es opcional. Sin vincularlo no recibes avisos de escaneo ni recordatorios, y para entrar desde un celular nuevo usarás el código de la tarjeta de tu placa.</li>
         <li><strong>Ubicación de quien escanea:</strong> es opcional. Si la rechaza, ve el perfil igual y el dueño recibe el aviso sin ubicación.</li>
+        <li><strong>Zona aproximada:</strong> es opcional. Sin ella, el aviso del canal muestra solo lo que escribiste en «¿Dónde se perdió?».</li>
         <li><strong>Canal de avisos:</strong> publicar es opcional y solo ocurre si tú lo pides.</li>
       </ul>
 
@@ -82,7 +84,7 @@
       <ul>
         <li>Mostrar el perfil de tu mascota a quien escanee la placa.</li>
         <li>Avisarte por Telegram cuando escanean la placa y cuando la mascota está marcada como perdida.</li>
-        <li>Publicar el aviso de tu mascota perdida en el canal público <strong>@HelpetAvisos</strong>, solo cuando tú tocas «Publicar en el canal» (ver punto 5).</li>
+        <li>Publicar el aviso de tu mascota perdida en el canal público <strong>@HelpetAvisos</strong>, solo cuando tú tocas «Publicar en el canal», con la zona aproximada en un mapa si la guardaste (ver punto 5).</li>
         <li>Enviarte recordatorios de vacunas y desparasitaciones.</li>
         <li>Llevar el historial médico y permitir que un veterinario registre consultas con tu autorización.</li>
         <li>Proteger tu cuenta: verificar que eres tú cuando entras desde un celular nuevo, limitar los intentos de PIN y de códigos, y recuperar el acceso con un enlace de un solo uso.</li>
@@ -94,7 +96,7 @@
         <thead><tr><th>Quién</th><th>Qué ve</th></tr></thead>
         <tbody>
           <tr><td>Quien escanea (mascota en casa)</td><td>Ficha de la mascota, tus datos de contacto, ficha médica básica, veterinaria, próximas vacunas e historial de consultas <strong>sin</strong> diagnóstico ni receta.</td></tr>
-          <tr><td>Quien escanea (mascota perdida)</td><td>El nombre y la foto de la mascota, tu nombre y tus datos de contacto, un botón para enviarte su ubicación y sus alergias, para que quien la tenga no le dé algo que le haga daño. La página oculta la descripción, la raza, el color, el peso, la edad, la medicación, la alimentación, la veterinaria, las vacunas y el historial.</td></tr>
+          <tr><td>Quien escanea (mascota perdida)</td><td>El nombre y la foto de la mascota, tu nombre y tus datos de contacto, un botón para enviarte su ubicación y sus alergias, para que quien la tenga no le dé algo que le haga daño. La página oculta la descripción, la raza, el color, el peso, la edad, la medicación, la alimentación, la veterinaria, las vacunas y el historial. La zona aproximada del mapa no aparece en el perfil.</td></tr>
           <tr><td>Miembros del canal (solo si publicas)</td><td>Lo que indica el punto 5.</td></tr>
           <tr><td>Solo tú (PIN + celular de confianza)</td><td>Diagnósticos, recetas, historial completo, ubicaciones de los escaneos y tus dispositivos con acceso.</td></tr>
         </tbody>
@@ -104,8 +106,10 @@
       <p>Es un canal <strong>público</strong> de Telegram donde la comunidad ayuda a encontrar mascotas perdidas. Cualquiera puede unirse.</p>
       <ul>
         <li><strong>Cuándo se publica:</strong> solo si el dueño toca «Publicar en el canal» con su PIN. Nada se publica solo.</li>
-        <li><strong>Qué se publica:</strong> foto, nombre, raza, color, la zona donde se perdió (lo que escribiste en «¿Dónde se perdió?»), fecha y hora, si hay recompensa y el enlace directo al perfil. El mensaje <strong>no</strong> incluye tu teléfono ni tu nombre, pero el perfil enlazado sí muestra tus datos de contacto para que puedan avisarte.</li>
-        <li><strong>Cuando aparece:</strong> al quitar la marca de «perdida», cambiamos el aviso a «¡Ya apareció!» y quitamos la zona y el enlace.</li>
+        <li><strong>Qué se publica:</strong> foto, nombre, raza, color, la zona donde se perdió (lo que escribiste en «¿Dónde se perdió?»), fecha y hora, si hay recompensa, el enlace directo al perfil y una línea que invita a conocer las placas Helpet. El mensaje <strong>no</strong> incluye tu teléfono ni tu nombre, pero el perfil enlazado sí muestra tus datos de contacto para que puedan avisarte.</li>
+        <li><strong>Mapa de la zona:</strong> si guardaste la zona aproximada, el aviso lleva el botón «Ver zona donde se perdió». Abre una página de Helpet con un círculo de unos 250 m en el mapa, nunca el punto exacto.</li>
+        <li><strong>Compartir por WhatsApp:</strong> el botón abre el WhatsApp de quien lo toca con el mensaje ya escrito (nombre, zona, enlace al perfil e invitación al canal), y esa persona elige a quién enviarlo. Helpet no envía nada por WhatsApp ni sabe con quién se compartió.</li>
+        <li><strong>Cuando aparece:</strong> al tocar «¡Ya volvió a casa!», cambiamos el aviso a «¡Ya apareció!», quitamos la zona, el enlace y los botones, y borramos la zona aproximada guardada.</li>
         <li><strong>Copias:</strong> por ser público, otras personas pueden reenviar o guardar el aviso mientras está publicado. Esas copias quedan fuera de nuestro control.</li>
         <li><strong>Límites:</strong> una publicación cada 2 horas y hasta 3 al día por mascota. Podemos borrar avisos falsos o que no sean de mascotas perdidas.</li>
       </ul>
@@ -126,7 +130,9 @@
       <ul>
         <li><strong>Supabase</strong>: base de datos, fotos y funciones del servidor. Sus servidores están en <strong>Brasil</strong>.</li>
         <li><strong>Telegram</strong>: envía los avisos, recordatorios y códigos de acceso al dueño, y aloja el canal @HelpetAvisos. Sus servidores están fuera del Perú.</li>
-        <li><strong>GitHub</strong>: aloja esta página (servidores en Estados Unidos).</li>
+        <li><strong>Cloudflare</strong>: aloja esta página y la entrega desde sus servidores en distintos países. Recibe la dirección IP y el tipo de navegador de quien la abre.</li>
+        <li><strong>GitHub</strong>: guarda las copias de seguridad semanales de la base de datos y de las fotos, en un repositorio privado (servidores en Estados Unidos).</li>
+        <li><strong>OpenStreetMap</strong>: dibuja el mapa de la página «Ver zona donde se perdió». Recibe la dirección IP de quien abre ese mapa.</li>
         <li><strong>Google Fonts</strong>: entrega las tipografías de la página. Recibe la dirección IP de quien la carga.</li>
         <li><strong>WhatsApp y llamadas</strong>: si usas esos botones para contactar al dueño, la comunicación pasa por esos servicios.</li>
       </ul>
@@ -137,8 +143,10 @@
         <li>Escaneos y ubicaciones: se borran automáticamente a los <strong>30 días</strong>.</li>
         <li>Sesión del panel: deja de funcionar a las <strong>12 horas</strong>. Los códigos de acceso vencen a los <strong>15 minutos</strong>.</li>
         <li>Dispositivos de confianza: hasta que los quites desde tu panel, recuperes tu PIN o pidas eliminar tus datos.</li>
+        <li>Zona aproximada donde se perdió: hasta que tocas «Quitar» o «¡Ya volvió a casa!».</li>
         <li>Avisos del canal: hasta que la mascota aparece (entonces se cambian a «¡Ya apareció!» sin zona ni enlace) o pidas borrarlos.</li>
         <li>Datos de la mascota e historial: mientras la placa esté activa o hasta que pidas eliminarlos.</li>
+        <li>Copias de seguridad: guardamos una por semana y las de hace más de un mes se borran solas. Un dato que eliminas desaparece también de las copias en un máximo de <strong>10 semanas</strong>.</li>
       </ul>
 
       <h2 id="derechos">9. Tus derechos</h2>
@@ -153,7 +161,8 @@
       <ul>
         <li>El identificador de tu celular de confianza y una marca de que el dispositivo es del dueño (así no genera avisos de escaneo).</li>
         <li>La sesión del panel mientras tienes abierta la pestaña (máx. 12 horas). <strong>Tu PIN nunca se guarda en el navegador.</strong></li>
-        <li>La lista «Mis mascotas» del panel: el código de placa, el nombre, el enlace a la foto y si tiene la alarma activa de cada mascota que abriste en ese celular. No sale de tu navegador; se borra al borrar los datos del navegador (y sola, si los datos de esa mascota se eliminan).</li>
+        <li>La lista «Mis mascotas» del panel y de la app: el código de placa, el nombre, el enlace a la foto y si tiene la alarma activa de cada mascota que abriste en ese celular. No sale de tu navegador; se borra al borrar los datos del navegador (y sola, si los datos de esa mascota se eliminan).</li>
+        <li><strong>Si instalas la app Helpet</strong> (el ícono en tu pantalla de inicio), guarda lo mismo que el navegador. Para agregar una mascota puede usar la cámara (leer el QR de su placa) o el NFC (acercar el celular a la placa): solo lee el código de la placa en tu celular, y no se guardan ni se envían imágenes.</li>
       </ul>
 
       <h2 id="menores">11. Menores de edad</h2>
