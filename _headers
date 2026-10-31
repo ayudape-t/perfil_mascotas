@@ -1,8 +1,8 @@
 # Cabeceras de seguridad que Cloudflare Pages agrega a todas las páginas (este archivo no se publica).
 # Cloudflare ya pone por su cuenta: X-Content-Type-Options: nosniff y Referrer-Policy: strict-origin-when-cross-origin.
-# - X-Frame-Options y frame-ancestors: ninguna otra página puede mostrar Helpet dentro de un marco
+# - X-Frame-Options y frame-ancestors: ninguna otra página puede mostrar Kutimuy dentro de un marco
 #   (evita que engañen a alguien para tocar botones sin darse cuenta).
-# - Permissions-Policy: solo Helpet puede pedir la cámara (leer el QR) y la ubicación (zona y «¡La encontré!»).
+# - Permissions-Policy: solo Kutimuy puede pedir la cámara (leer el QR) y la ubicación (zona y «¡La encontré!»).
 /*
   X-Frame-Options: DENY
   Content-Security-Policy: frame-ancestors 'none'

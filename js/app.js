@@ -1,5 +1,5 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
 /* La app instalada abre aquí (app.html): las mascotas que este celular abrió con su PIN. Va después de js/comun.js */
@@ -71,10 +71,10 @@ function abrirEscaner(nfc) {
   $('escaner-nfc').classList.toggle('hidden', !nfc);
   $('escaner').classList.remove('hidden');
 }
-// Lo leído (enlace o código): si es de una placa Helpet, abre su perfil; si no, avisa y sigue leyendo
+// Lo leído (enlace o código): si es de una placa Kutimuy, abre su perfil; si no, avisa y sigue leyendo
 function leida(texto) {
   const id = idDePlaca(texto);
-  if (!id) { $('escaner-texto').textContent = 'Eso no es una placa Helpet. Prueba otra vez.'; return false; }
+  if (!id) { $('escaner-texto').textContent = 'Eso no es una placa Kutimuy. Prueba otra vez.'; return false; }
   vibrar(40);
   cerrarEscaner();
   abrirPlaca(id);
@@ -129,7 +129,7 @@ alClic('btn-nfc', async () => {
         if (!['url', 'absolute-url', 'text'].includes(r.recordType)) continue;
         if (leida(new TextDecoder(r.encoding || 'utf-8').decode(r.data))) return;
       }
-      $('escaner-texto').textContent = 'Esa placa no tiene un enlace de Helpet. Prueba con el QR o el código.';
+      $('escaner-texto').textContent = 'Esa placa no tiene un enlace de Kutimuy. Prueba con el QR o el código.';
     };
     lector.onreadingerror = () => { $('escaner-texto').textContent = 'No se pudo leer la placa. Acércala de nuevo, sin moverla.'; };
     await lector.scan({ signal: lecturaNFC.signal });

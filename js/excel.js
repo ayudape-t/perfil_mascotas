@@ -1,5 +1,5 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
 /* Excel (.xlsx) mínimo, sin librerías: una o más hojas con encabezado en negrita y ancho de columnas.

@@ -1,5 +1,5 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
 /* Comportamiento de el perfil público de la mascota (index.html). Va después de js/comun.js */
@@ -213,7 +213,7 @@ async function cargarPerfil() {
         $('unregistered-card').classList.remove('hidden');
         $('corona-helpet').classList.remove('hidden');
       } else {
-        mostrarTarjetaPlaca('Placa no válida', 'Este código no corresponde a una placa Helpet. Revisa el enlace o escribe a soporte.');
+        mostrarTarjetaPlaca('Placa no válida', 'Este código no corresponde a una placa Kutimuy. Revisa el enlace o escribe a soporte.');
       }
       return;
     }
@@ -565,8 +565,8 @@ function enlacePerfil() {
 async function compartirPerfil() {
   const enlace = enlacePerfil();
   const shareData = {
-    title: `Perfil Helpet - ${petData ? petData.pet : 'Mascota'}`,
-    text: `Conoce la ficha de ${petData ? petData.pet : 'esta mascota'} protegida con Helpet:`,
+    title: `Perfil Kutimuy - ${petData ? petData.pet : 'Mascota'}`,
+    text: `Conoce la ficha de ${petData ? petData.pet : 'esta mascota'} protegida con Kutimuy:`,
     url: enlace
   };
   if (navigator.share) {
@@ -617,7 +617,7 @@ async function descargarCarnetDigital() {
     carnet.classList.add('hidden');
 
     const link = document.createElement('a');
-    link.download = `Carnet_Helpet_${tagId}.png`;
+    link.download = `Carnet_Kutimuy_${tagId}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
     aviso('¡Carnet descargado!', 'ok');
@@ -991,7 +991,7 @@ function mostrarPasoCodigo() {
         : 'Este celular aún no está registrado como tuyo. Escríbenos por WhatsApp y te daremos un código para confirmar que eres el dueño.';
   pasoPIN(2, 'Confirma que eres el dueño', texto, 'fa-shield-halved');
   $('pin-soporte').href = 'https://wa.me/51921512933?text=' + encodeURIComponent(
-    `Hola Helpet, necesito un código para entrar al panel de ${petData.pet || 'mi mascota'} (placa ${tagId}).`);
+    `Hola Kutimuy, necesito un código para entrar al panel de ${petData.pet || 'mi mascota'} (placa ${tagId}).`);
   $('btn-reenviar').classList.toggle('hidden', !a.telegram);
   $('modal-codigo-input').value = '';
   $('modal-codigo-input').focus();

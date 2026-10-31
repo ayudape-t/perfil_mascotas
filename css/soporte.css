@@ -1,8 +1,8 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
-/* Estilos del panel de soporte (soporte.html). Mismo lenguaje visual que el resto de Helpet (sin Tailwind) */
+/* Estilos del panel de soporte (soporte.html). Mismo lenguaje visual que el resto de Kutimuy (sin Tailwind) */
 
 *, *::before, *::after { box-sizing: border-box; }
 :root { --cafe:#3b2420; --oxido:#b4452b; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#736255; --ocre:#e0a24a;

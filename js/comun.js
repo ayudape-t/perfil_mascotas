@@ -1,5 +1,5 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
 /* Lo que comparten las páginas: conexión a Supabase, atajos, avisos breves, animaciones al tocar y reglas del PIN.

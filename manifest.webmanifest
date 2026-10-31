@@ -1,7 +1,7 @@
 {
-  "name": "Helpet",
-  "short_name": "Helpet",
-  "description": "Entra al panel de tus mascotas con placa Helpet.",
+  "name": "Kutimuy",
+  "short_name": "Kutimuy",
+  "description": "Entra al panel de tus mascotas con placa Kutimuy.",
   "id": "./app.html",
   "start_url": "./app.html",
   "scope": "./",

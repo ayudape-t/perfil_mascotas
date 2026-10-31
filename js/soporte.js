@@ -1,5 +1,5 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
 /* Panel de soporte (soporte.html). Va después de js/comun.js y js/excel.js.
@@ -104,7 +104,7 @@ async function decidirPantalla() {
 
 async function iniciarAltaMfa(pendientes) {
   for (const f of pendientes) { try { await sb.auth.mfa.unenroll({ factorId: f.id }); } catch (e) {} }   // intentos anteriores sin terminar
-  const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Helpet soporte', issuer: 'Helpet' });
+  const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Kutimuy soporte', issuer: 'Kutimuy' });
   if (error) return mostrarPaso('entrar', errorAuth(error));
   factorId = data.id;
   const caja = $('mfa-qr');
@@ -203,7 +203,7 @@ async function salir(msg) {
   lote = null; placas = []; listaVisible = []; fichaActual = null;
   try { await sb.auth.signOut(); } catch (e) {}
   $('btn-salir').classList.add('hidden');
-  $('top-sub').textContent = 'Solo para el equipo de Helpet';
+  $('top-sub').textContent = 'Solo para el equipo de Kutimuy';
   mostrarPaso('entrar', msg || '', msg ? 'info' : 'error');
 }
 
@@ -319,7 +319,7 @@ function pintarFicha(f) {
       <h3><i class="fa-solid fa-user"></i> Dueño</h3>
       <p class="dueno"><b>${esc(m.owner || '—')}</b></p>
       <div class="fila">
-        <a class="btn btn-verde" href="${esc(waA(m.phone, `Hola ${m.owner || ''}, te escribe el soporte de Helpet 🐾`))}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> <span>${esc(fmtTel(m.phone))}</span></a>
+        <a class="btn btn-verde" href="${esc(waA(m.phone, `Hola ${m.owner || ''}, te escribe el soporte de Kutimuy 🐾`))}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> <span>${esc(fmtTel(m.phone))}</span></a>
         <a class="btn btn-line" href="tel:+${esc(soloDigitos(m.phone))}"><i class="fa-solid fa-phone"></i> <span>Llamar</span></a>
       </div>
       ${tel2 ? `<p class="intro">Teléfono 2: ${tel2}</p>` : ''}
@@ -424,7 +424,7 @@ async function accionFicha(accion, btn) {
     if (accion === 'codigo') {
       const r = await ocupado(btn, 'Generando...', () => llamar('soporte_codigo', { p_id: id }));
       if (r.estado !== 'ok') return aviso('No se pudo generar el código.', 'error');
-      const texto = `Hola ${dueno}, te escribe el soporte de Helpet 🐾. Tu código para entrar al panel de ${pet} es: ${r.codigo}. Escríbelo después de tu PIN; vence en 30 minutos. Nunca te pediremos tu PIN.`;
+      const texto = `Hola ${dueno}, te escribe el soporte de Kutimuy 🐾. Tu código para entrar al panel de ${pet} es: ${r.codigo}. Escríbelo después de tu PIN; vence en 30 minutos. Nunca te pediremos tu PIN.`;
       mostrarResultado('res-codigo', `
         <p class="codigo-grande">${esc(r.codigo)}</p>
         <p class="intro centro-txt">Vence a las ${esc(hora(r.expira_en))}</p>
@@ -436,7 +436,7 @@ async function accionFicha(accion, btn) {
       const r = await ocupado(btn, 'Creando...', () => llamar('soporte_enlace_pin', { p_id: id }));
       if (r.estado !== 'ok') return aviso('No se pudo crear el enlace.', 'error');
       const enlace = `${SITIO}recuperar.html?t=${encodeURIComponent(r.token)}`;
-      const texto = `Hola ${dueno}, te escribe el soporte de Helpet 🐾. Con este enlace puedes poner un PIN nuevo para ${pet}: ${enlace} . Funciona una sola vez y vence en 30 minutos. Ábrelo en tu celular: los demás celulares perderán el acceso al panel.`;
+      const texto = `Hola ${dueno}, te escribe el soporte de Kutimuy 🐾. Con este enlace puedes poner un PIN nuevo para ${pet}: ${enlace} . Funciona una sola vez y vence en 30 minutos. Ábrelo en tu celular: los demás celulares perderán el acceso al panel.`;
       mostrarResultado('res-enlace', `
         <p class="enlace-largo">${esc(enlace)}</p>
         <p class="intro centro-txt">Vence a las ${esc(hora(r.expira_en))} · funciona una vez</p>
@@ -505,7 +505,7 @@ function pintarPlacas() {
 function excelInventario() {
   if (!placas.length) return aviso('Primero carga las placas.', 'error');
   const est = { sin_activar: 'Sin activar', activa: 'Activa', antigua: 'Antigua (sin tarjeta)' };
-  descargarExcel(`helpet-placas-${hoyArchivo()}.xlsx`, [{
+  descargarExcel(`kutimuy-placas-${hoyArchivo()}.xlsx`, [{
     nombre: 'Placas',
     columnas: [['Código de placa', 16], ['Código de activación', 20], ['Enlace del QR', 58], ['Estado', 20], ['Mascota', 16], ['Dueño', 20], ['Alarma', 10], ['Telegram', 10], ['Creada', 12], ['Activada', 12], ['Nota', 44]],
     filas: placas.map(p => [p.id, p.codigo || (p.estado === 'sin_activar' ? '' : 'Lo tiene el dueño'), enlacePerfil(p.id), est[p.estado] || p.estado, p.pet || '', p.owner || '', p.perdida ? 'Perdida' : '', p.estado === 'sin_activar' ? '' : (p.telegram ? 'Sí' : 'No'),
@@ -541,7 +541,7 @@ function pintarLote() {
 }
 function excelLote() {
   if (!lote) return;
-  descargarExcel(`helpet-lote-${hoyArchivo()}-${lote.length}.xlsx`, [{
+  descargarExcel(`kutimuy-lote-${hoyArchivo()}-${lote.length}.xlsx`, [{
     nombre: `Lote ${hoyArchivo()}`,
     columnas: [['N°', 5], ['Código de placa', 16], ['Código de activación', 20], ['Enlace del QR', 58]],
     filas: lote.map((p, i) => [i + 1, p.id, p.codigo, p.enlace]),
@@ -554,7 +554,7 @@ function imprimirTarjetas(lista) {
   const hoja = $('hoja-tarjetas');
   hoja.innerHTML = lista.map(p => `
     <div class="tarjeta-imp">
-      <div class="ti-cab"><img src="logo.png" alt=""><b>Helpet</b><span>Placa inteligente</span></div>
+      <div class="ti-cab"><img src="logo.png" alt=""><b>Kutimuy</b><span>Placa inteligente</span></div>
       <div class="ti-cuerpo">
         <div class="ti-qr" data-qr="${esc(p.enlace)}"></div>
         <div>

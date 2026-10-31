@@ -1,5 +1,5 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
 /* Comportamiento de el panel del dueño (registro.html). Va después de js/comun.js */
@@ -820,7 +820,7 @@ $('historial-privado').addEventListener('change', e => {
   if (e.target.matches('[data-refuerzo]')) marcarRefuerzo(e.target.dataset.refuerzo, e.target);
 });
 
-// ---- Instalar Helpet como app (solo aquí, en el panel del dueño: nunca en el perfil que ven los visitantes) ----
+// ---- Instalar Kutimuy como app (solo aquí, en el panel del dueño: nunca en el perfil que ven los visitantes) ----
 // Android y computadoras: Chrome avisa que se puede instalar y el botón lo hace con un toque.
 // iPhone: Apple no permite un botón, así que se muestran los pasos de Safari. Ya abierta como app, no sale.
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -845,7 +845,7 @@ function ofrecerApp() {
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedidoInstalar = e; ofrecerApp(); });
 window.addEventListener('appinstalled', () => {
   $('app-box').classList.add('hidden');
-  aviso('¡Listo! Busca el ícono de Helpet en tu pantalla de inicio.', 'ok');
+  aviso('¡Listo! Busca el ícono de Kutimuy en tu pantalla de inicio.', 'ok');
 });
 alClic('btn-app', async () => {
   if (pedidoInstalar) {

@@ -1,5 +1,5 @@
 /*
-  © 2026 Helpet. Todos los derechos reservados.
+  © 2026 Kutimuy. Todos los derechos reservados.
   Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
 */
 /* Estilos de el perfil público de la mascota (index.html) */
@@ -159,7 +159,7 @@ button { font-family: inherit; }
 .alerta b { display: block; font-size: 15px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; line-height: 1.15; }
 .alerta small { display: block; font-size: 12px; font-weight: 500; line-height: 1.2; opacity: .95; }
 
-/* ---------- Corona Helpet (insignia con alas) ---------- */
+/* ---------- Corona Kutimuy (insignia con alas) ---------- */
 #corona-helpet { position: relative; z-index: 30; width: 92%; max-width: 340px; margin: 0 auto -46px; pointer-events: none; user-select: none; -webkit-user-select: none; animation: aterrizar .6s cubic-bezier(.2,.8,.2,1) both; }
 #corona-helpet img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 1.5px rgba(248,237,209,.95)) drop-shadow(0 6px 10px rgba(0,0,0,.4)); animation: flotar 6s ease-in-out .6s infinite; }
 
