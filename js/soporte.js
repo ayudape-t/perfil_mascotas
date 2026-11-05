@@ -231,9 +231,10 @@ function abrirPanel(email) {
   $('acceso').classList.add('hidden');
   $('app').classList.remove('hidden');
   irATab('buscar');
+  cargarVets(true);   // el número rojo de la pestaña «Vets»: clínicas esperando tu revisión
 }
 
-const TABS = ['buscar', 'ficha', 'placas', 'nuevas', 'registro'];
+const TABS = ['buscar', 'ficha', 'placas', 'nuevas', 'vets', 'registro'];
 let tabAnterior = 'buscar';
 function irATab(t) {
   if (t !== 'ficha') tabAnterior = t;
@@ -243,6 +244,7 @@ function irATab(t) {
   if (t === 'buscar') setTimeout(() => $('q').focus({ preventScroll: true }), 50);
   if (t === 'placas') cargarPlacas();
   if (t === 'registro') cargarRegistro();
+  if (t === 'vets') cargarVets();
 }
 
 const chip = (texto, clase = '') => `<span class="chip ${clase}">${texto}</span>`;
@@ -573,7 +575,8 @@ window.addEventListener('afterprint', () => { $('hoja-tarjetas').innerHTML = '';
 // ---- Registro ----
 const ACCION = { vincular_cuenta: 'Activó el panel', ver_ficha: 'Vio la ficha', codigo_soporte: 'Generó un código de soporte', enlace_pin: 'Creó un enlace para cambiar el PIN',
   quitar_accesos: 'Quitó el acceso a los celulares', nota: 'Guardó una nota', ver_inventario: 'Vio el inventario', crear_placas: 'Creó placas',
-  regenerar_codigos: 'Generó códigos nuevos', reiniciar_placa: 'Dejó una placa como nueva', codigo_nuevo: 'Generó un código de activación nuevo' };
+  regenerar_codigos: 'Generó códigos nuevos', reiniciar_placa: 'Dejó una placa como nueva', codigo_nuevo: 'Generó un código de activación nuevo',
+  vet_aprobada: 'Aprobó una veterinaria', vet_rechazada: 'Rechazó una veterinaria', vet_suspendida: 'Suspendió una veterinaria' };
 async function cargarRegistro() {
   const caja = $('lista-registro');
   caja.innerHTML = '<p class="intro"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</p>';
@@ -586,6 +589,55 @@ async function cargarRegistro() {
         ${a.placa ? `<button type="button" class="btn-mini texto" data-ficha="${esc(a.placa)}"><code>${esc(a.placa)}</code></button>` : ''}
       </div>`).join('') : '<p class="vacio">Todavía no hay acciones.</p>';
   } catch (e) { caja.innerHTML = `<p class="msg error">${esc(e.message)}</p>`; }
+}
+
+// ---- Veterinarias del portal ----
+const ESTADO_VET = { pendiente: ['Por revisar', 'ocre'], aprobada: ['Aprobada', 'verde'], rechazada: ['Rechazada', 'gris'], suspendida: ['Suspendida', 'rojo'] };
+async function cargarVets(soloContar) {
+  const caja = $('lista-vets');
+  if (!soloContar) caja.innerHTML = '<p class="intro"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</p>';
+  let r;
+  try { r = await llamar('soporte_veterinarias'); }
+  catch (e) { if (!soloContar) caja.innerHTML = `<p class="msg error">${esc(e.message)}</p>`; return; }
+  const lista = (r && r.veterinarias) || [], pend = lista.filter(v => v.estado === 'pendiente').length;
+  $('vets-pendientes').textContent = pend;
+  $('vets-pendientes').classList.toggle('hidden', !pend);
+  if (soloContar) return;
+  const fila = (ico, t, v) => v ? `<div class="dato"><i class="fa-solid ${ico}"></i><span>${t}</span><b>${v}</b></div>` : '';
+  caja.innerHTML = lista.length ? lista.map(v => {
+    const [txt, color] = ESTADO_VET[v.estado] || [v.estado, 'gris'];
+    const listo = `Hola, le escribe Kutimuy 🐾. La cuenta de ${v.nombre} en el portal de veterinarias ya está activa: ${SITIO}veterinaria.html . Para tener a una mascota como paciente, pida acceso con el código de su placa; su dueño lo acepta desde Telegram o su panel.`;
+    return `
+    <section class="tarjeta">
+      <h3><i class="fa-solid fa-hospital"></i> ${esc(v.nombre)} <span class="chip ${color}">${esc(txt)}</span></h3>
+      <div>
+        ${fila('fa-id-card', 'RUC / colegiatura', esc(v.documento))}
+        ${fila('fa-phone', 'Teléfono', `<a class="tel" href="tel:+${esc(soloDigitos(v.telefono))}">${esc(fmtTel(v.telefono))}</a>`)}
+        ${fila('fa-location-dot', 'Dirección', esc(v.direccion || ''))}
+        ${fila('fa-envelope', 'Correo', esc(v.correo || ''))}
+        ${fila('fa-calendar-plus', 'Se registró', esc(fmtDia(v.creada_en)))}
+        ${fila('fa-paw', 'Pacientes', String(v.pacientes || 0))}
+      </div>
+      <div class="fila">${v.estado === 'aprobada'
+        ? `<a class="btn btn-verde" href="${esc(waA(v.telefono, listo))}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> <span>Avisarle</span></a>
+           <button type="button" class="btn btn-rojo" data-vet="${esc(v.id)}" data-estado="suspendida"><i class="fa-solid fa-ban"></i> <span>Suspender</span></button>`
+        : `<button type="button" class="btn btn-verde" data-vet="${esc(v.id)}" data-estado="aprobada"><i class="fa-solid fa-check"></i> <span>Aprobar</span></button>
+           ${v.estado === 'pendiente' ? `<button type="button" class="btn btn-line" data-vet="${esc(v.id)}" data-estado="rechazada"><i class="fa-solid fa-xmark"></i> <span>Rechazar</span></button>` : ''}`}
+      </div>
+    </section>`;
+  }).join('') : '<p class="vacio">Todavía ninguna clínica creó su cuenta.</p>';
+}
+async function estadoVet(id, estado, btn) {
+  const pregunta = { aprobada: '¿Aprobar esta clínica? Podrá pedir pacientes (cada dueño decide si la acepta).',
+    rechazada: '¿Rechazar esta clínica? Podrá corregir sus datos y volver a enviarlos.',
+    suspendida: '¿Suspender esta clínica? Dejará de ver a todos sus pacientes hasta que la vuelvas a aprobar.' }[estado];
+  if (!confirm(pregunta)) return;
+  try {
+    const r = await ocupado(btn, 'Guardando...', () => llamar('soporte_vet_estado', { p_vet: id, p_estado: estado }));
+    if (r.estado !== 'ok') return aviso('No se pudo guardar.', 'error');
+    aviso(estado === 'aprobada' ? 'Aprobada. Avísale por WhatsApp con el botón verde.' : 'Guardado.', 'ok');
+    cargarVets();
+  } catch (e) { aviso(e.message, 'error'); }
 }
 
 // ---- Copiar ----
@@ -648,6 +700,8 @@ document.addEventListener('click', e => {
   if (c) { copiar(c.dataset.copiar); return; }
   const t = e.target.closest('[data-imprimir]');
   if (t) { imprimirTarjetas([{ id: t.dataset.imprimir, codigo: t.dataset.codigo }]); return; }
+  const v = e.target.closest('#lista-vets [data-vet]');
+  if (v && !v.disabled) { estadoVet(v.dataset.vet, v.dataset.estado, v); return; }
   const a = e.target.closest('#ficha [data-accion]');
   if (a && !a.disabled) accionFicha(a.dataset.accion, a);
 });

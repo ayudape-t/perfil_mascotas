@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<!--
+  © 2026 Kutimuy. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (nada en línea ni de otros dominios) y solo se conecta a Supabase.
+       Si agregas un servicio externo, súmalo aquí y en las demás páginas -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://cjxcqdgtchhtfowreuca.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <script src="js/dominio.js?v=1"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <meta name="theme-color" content="#3b2420">
+  <meta name="color-scheme" content="light">
+  <title>Kutimuy - Veterinarias</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
+  <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
+  <link rel="stylesheet" href="css/soporte.css?v=3">
+  <link rel="stylesheet" href="css/veterinaria.css?v=4">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <img src="logo.png" alt="Kutimuy" class="top-logo">
+      <div class="top-txt">
+        <h1>Kutimuy para veterinarias</h1>
+        <p id="top-sub">Portal de clínicas</p>
+      </div>
+      <button id="btn-salir" type="button" class="top-btn hidden" aria-label="Cerrar sesión" title="Cerrar sesión"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </header>
+
+    <!-- ===================== ACCESO ===================== -->
+    <section id="acceso" class="cuerpo" aria-live="polite">
+      <p id="cargando" class="intro centro-txt"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</p>
+
+      <form id="paso-entrar" class="paso hidden" novalidate autocomplete="on">
+        <h2><i class="fa-solid fa-stethoscope"></i> Entrar</h2>
+        <p class="intro">Para clínicas y veterinarios: ten a mano la ficha médica de tus pacientes con placa Kutimuy y registra sus consultas. Cada dueño decide si te da acceso.</p>
+        <label class="lbl" for="in-correo">Correo</label>
+        <input id="in-correo" type="email" class="fld" autocomplete="username" inputmode="email" required>
+        <label class="lbl" for="in-clave">Contraseña</label>
+        <input id="in-clave" type="password" class="fld" autocomplete="current-password" required>
+        <button id="btn-entrar" type="submit" class="btn btn-ambar"><i class="fa-solid fa-right-to-bracket"></i> <span>Entrar</span></button>
+        <div class="enlaces">
+          <button type="button" id="ir-olvide" class="enlace">¿Olvidaste tu contraseña?</button>
+          <button type="button" id="ir-crear" class="enlace">Crear la cuenta de mi clínica</button>
+        </div>
+      </form>
+
+      <form id="paso-crear" class="paso hidden" novalidate autocomplete="on">
+        <h2><i class="fa-solid fa-user-plus"></i> Crear la cuenta de tu clínica</h2>
+        <p class="intro">Primero confirmas tu correo. Después llenas los datos de la clínica y el equipo de Kutimuy los revisa antes de activar tu cuenta.</p>
+        <label class="lbl" for="cr-correo">Correo de la clínica</label>
+        <input id="cr-correo" type="email" class="fld" autocomplete="username" inputmode="email" required>
+        <label class="lbl" for="cr-clave1">Contraseña (mínimo 10 caracteres)</label>
+        <input id="cr-clave1" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <label class="lbl" for="cr-clave2">Repítela</label>
+        <input id="cr-clave2" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <button id="btn-crear" type="submit" class="btn btn-ambar"><i class="fa-solid fa-user-plus"></i> <span>Crear cuenta</span></button>
+        <button type="button" class="enlace volver-entrar">Ya tengo cuenta: entrar</button>
+      </form>
+
+      <form id="paso-olvide" class="paso hidden" novalidate>
+        <h2><i class="fa-solid fa-key"></i> Recuperar la contraseña</h2>
+        <p class="intro">Te enviaremos un correo con un enlace para poner una contraseña nueva.</p>
+        <label class="lbl" for="ol-correo">Correo</label>
+        <input id="ol-correo" type="email" class="fld" autocomplete="username" inputmode="email" required>
+        <button id="btn-olvide" type="submit" class="btn btn-ambar"><i class="fa-solid fa-paper-plane"></i> <span>Enviar el correo</span></button>
+        <button type="button" class="enlace volver-entrar">Volver</button>
+      </form>
+
+      <div id="paso-correo" class="paso centro hidden">
+        <div class="burbuja"><i class="fa-solid fa-envelope-open-text"></i></div>
+        <b id="correo-titulo">Revisa tu correo</b>
+        <p id="correo-texto">Abre el enlace que te enviamos (mira también en «Spam») y vuelve a esta página.</p>
+        <button type="button" class="btn btn-line volver-entrar"><i class="fa-solid fa-arrow-left"></i> Volver a entrar</button>
+      </div>
+
+      <form id="paso-nueva-clave" class="paso hidden" novalidate autocomplete="on">
+        <h2><i class="fa-solid fa-key"></i> Contraseña nueva</h2>
+        <input type="email" id="nc-correo" class="hidden" autocomplete="username" aria-hidden="true" tabindex="-1">
+        <label class="lbl" for="nc-clave1">Contraseña nueva (mínimo 10 caracteres)</label>
+        <input id="nc-clave1" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <label class="lbl" for="nc-clave2">Repítela</label>
+        <input id="nc-clave2" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+        <button id="btn-nueva-clave" type="submit" class="btn btn-ambar"><i class="fa-solid fa-floppy-disk"></i> <span>Guardar</span></button>
+      </form>
+
+      <form id="paso-datos" class="paso hidden" novalidate autocomplete="on">
+        <h2><i class="fa-solid fa-hospital"></i> Datos de tu clínica</h2>
+        <p class="intro">Los revisamos antes de activar tu cuenta. Cuando pidas atender a una mascota, su dueño verá el nombre, el teléfono y la dirección.</p>
+        <label class="lbl" for="d-nombre">Nombre de la clínica o del veterinario</label>
+        <input id="d-nombre" class="fld" maxlength="120" autocomplete="organization" placeholder="Ej. Veterinaria San Martín" required>
+        <label class="lbl" for="d-doc">RUC o N.° de colegiatura (CMVP)</label>
+        <input id="d-doc" class="fld" maxlength="30" autocomplete="off" inputmode="numeric" required>
+        <label class="lbl" for="d-tel">WhatsApp o teléfono</label>
+        <input id="d-tel" type="tel" class="fld" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="987 654 321" required>
+        <label class="lbl" for="d-dir">Dirección (opcional)</label>
+        <input id="d-dir" class="fld" maxlength="160" autocomplete="street-address" placeholder="Av. Los Próceres 123, Huánuco">
+        <button id="btn-datos" type="submit" class="btn btn-ambar"><i class="fa-solid fa-paper-plane"></i> <span>Enviar para revisión</span></button>
+      </form>
+
+      <div id="paso-revision" class="paso centro hidden">
+        <div class="burbuja"><i class="fa-solid fa-hourglass-half"></i></div>
+        <b>Estamos revisando tus datos</b>
+        <p id="revision-texto">Te escribiremos por WhatsApp cuando tu cuenta esté activa.</p>
+        <button type="button" id="btn-revisar" class="btn btn-line"><i class="fa-solid fa-rotate"></i> Ya me avisaron: actualizar</button>
+        <button type="button" class="enlace ir-datos">Corregir mis datos</button>
+      </div>
+
+      <div id="paso-cerrada" class="paso centro hidden">
+        <div class="burbuja rojo"><i class="fa-solid fa-ban"></i></div>
+        <b id="cerrada-titulo">No pudimos aprobar tu cuenta</b>
+        <p id="cerrada-texto">Escríbenos y lo vemos juntos.</p>
+        <a id="cerrada-wa" class="btn btn-verde" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> <span>Escribir a Kutimuy</span></a>
+        <button type="button" id="cerrada-corregir" class="enlace ir-datos">Corregir mis datos</button>
+      </div>
+
+      <p id="acceso-msg" class="msg hidden" role="alert"></p>
+    </section>
+
+    <!-- ===================== PORTAL ===================== -->
+    <section id="app" class="hidden">
+      <div id="vista-lista" class="cuerpo">
+        <form id="form-pedir" class="tarjeta" novalidate>
+          <h3><i class="fa-solid fa-circle-plus"></i> Nuevo paciente</h3>
+          <p class="intro">Escribe el código de su placa o pega el enlace de su QR. Su dueño recibe tu pedido y, cuando acepte, verás su ficha aquí.</p>
+          <div class="fila fila-pedir">
+            <input id="placa" class="fld" maxlength="200" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Código de la placa" aria-label="Código de la placa o enlace de su QR">
+            <button id="btn-pedir" type="submit" class="btn btn-ambar"><i class="fa-solid fa-paper-plane"></i> <span>Pedir</span></button>
+          </div>
+          <p id="res-pedir" class="msg hidden" role="status"></p>
+        </form>
+        <div class="buscador">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="filtro" type="search" class="fld" placeholder="Buscar paciente o dueño" aria-label="Buscar paciente o dueño" autocomplete="off">
+        </div>
+        <div id="lista-pacientes" class="lista"></div>
+      </div>
+
+      <div id="vista-ficha" class="cuerpo hidden">
+        <button type="button" id="ficha-volver" class="enlace volver"><i class="fa-solid fa-arrow-left"></i> Mis pacientes</button>
+        <div id="ficha" class="ficha-vet"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/comun.js?v=4"></script>
+  <script src="js/veterinaria.js?v=1"></script>
+</body>
+</html>

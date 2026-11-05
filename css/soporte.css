@@ -84,9 +84,11 @@ textarea.fld { resize: vertical; min-height: 60px; }
 .clave-copiable code { padding: 8px 10px; border-radius: 10px; background: #fffaf0; border: 1px dashed #e9c27a; font-size: 13px; word-break: break-all; }
 
 /* Pestañas */
-.pestanas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px 10px 0; }
+.pestanas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px 10px 0; }
 .pestana { display: grid; justify-items: center; gap: 3px; padding: 8px 4px; border: 0; border-radius: 14px; background: transparent; color: var(--suave); font: 500 12px 'Fredoka', sans-serif; cursor: pointer; }
 .pestana i { font-size: 16px; }
+.pestana { position: relative; }
+.badge { position: absolute; top: 3px; right: 50%; margin-right: -22px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #b91c1c; color: #fff; font-size: 11px; font-weight: 600; line-height: 18px; text-align: center; }
 .pestana[aria-selected="true"] { background: #fff; color: var(--oxido2); font-weight: 600; box-shadow: 0 1px 0 rgba(59,36,32,.06), 0 8px 18px -12px rgba(59,36,32,.5); }
 
 /* Listas */

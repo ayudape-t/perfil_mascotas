@@ -184,6 +184,7 @@ async function inicializar() {
   }
   let telegram = null;
   if (existe) { localStorage.setItem(`dueno_${tagId}`, '1'); telegram = refrescarTelegram().catch(() => {}).then(cargarDispositivos); }   // aparecen juntos: un solo empujón que se corrige abajo
+  if (existe) cargarClinicas();
   await cargarHistorialPrivado();
   await cargarHistorialEscaneos();
   // El aviso de Telegram y el último escaneo pueden mover lo de arriba: si no tocó nada, el formulario vuelve a quedar a la vista
@@ -793,6 +794,49 @@ async function generarCodigoVet() {
   res.classList.remove('hidden');
 }
 
+// ---- Veterinarias del portal (veterinaria.html): la clínica pide atenderla; el dueño acepta, rechaza o quita el acceso ----
+async function cargarClinicas() {
+  const box = $('lista-clinicas');
+  if (!pinSesion) return;
+  let r = null;
+  try { ({ data: r } = await db.rpc('dueno_veterinarias', { p_id: tagId, p_sesion: pinSesion })); } catch (e) {}
+  if (!r || r.estado !== 'ok') { box.innerHTML = `<p class="hint">${esc(r ? msgEstado(r.estado) : 'No se pudo cargar. Revisa tu conexión.')}</p>`; return; }
+  const lista = r.veterinarias || [];
+  const pendientes = lista.filter(v => v.estado === 'pendiente').length;
+  const texto = pendientes ? (pendientes === 1 ? '1 por responder' : `${pendientes} por responder`) : '';
+  ['pill-clinicas', 'pill-medico-clinicas'].forEach(id => { $(id).textContent = texto; $(id).classList.toggle('hidden', !pendientes); });
+  if (pendientes) $('sub-clinicas').open = true;
+  const tel = t => { const d = String(t || '').replace(/\D/g, ''); return (d.length === 11 && d.startsWith('51') ? d.slice(2) : d).replace(/^(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3'); };
+  box.innerHTML = lista.length ? lista.map(v => `
+    <div class="clinica${v.estado === 'pendiente' ? ' pendiente' : ''}">
+      <b>${esc(v.nombre)}</b>
+      <small>${esc([v.direccion, tel(v.telefono)].filter(Boolean).join(' · '))}</small>
+      <small>${v.estado === 'pendiente' ? `Quiere ser la veterinaria de ${esc(nombreMascota())} · pidió el ${esc(new Date(v.pedida_en).toLocaleDateString('es-PE'))}`
+        : `Con acceso desde el ${esc(new Date(v.respondida_en || v.pedida_en).toLocaleDateString('es-PE'))}`}</small>
+      <div class="clinica-btns">${v.estado === 'pendiente'
+        ? `<button type="button" class="btn btn-green" data-clinica="${esc(v.id)}" data-accion="aceptar"><i class="fa-solid fa-check"></i> Aceptar</button>
+           <button type="button" class="btn btn-ghost" data-clinica="${esc(v.id)}" data-accion="rechazar"><i class="fa-solid fa-xmark"></i> Rechazar</button>`
+        : `<button type="button" class="btn btn-ghost" data-clinica="${esc(v.id)}" data-accion="quitar"><i class="fa-solid fa-ban"></i> Quitar el acceso</button>`}</div>
+    </div>`).join('')
+    : '<p class="hint">Ninguna clínica tiene acceso. Si tu veterinaria usa Kutimuy, puede pedírtelo con el código de la placa.</p>';
+}
+
+async function responderClinica(id, accion, btn) {
+  const pet = nombreMascota();
+  if (accion === 'quitar' && !confirm(`¿Quitarle el acceso a esta clínica? Ya no verá la ficha de ${pet} ni podrá anotar consultas.`)) return;
+  btn.disabled = true;
+  let r = null;
+  try { ({ data: r } = await db.rpc('dueno_responder_vet', { p_id: tagId, p_sesion: pinSesion, p_vinculo: id, p_accion: accion })); } catch (e) {}
+  btn.disabled = false;
+  if (!r || r.estado !== 'ok') {
+    aviso(r && r.estado === 'no_encontrado' ? 'Ese pedido ya se respondió.' : r ? msgEstado(r.estado) : 'No se pudo guardar. Revisa tu conexión.', 'error');
+  } else {
+    aviso(accion === 'aceptar' ? `Listo: la clínica ya puede ver la ficha de ${pet}.` : accion === 'rechazar' ? 'Pedido rechazado.' : 'Acceso quitado.', 'ok');
+    if (accion === 'aceptar') lanzarFiguras(btn, 8);
+  }
+  cargarClinicas();
+}
+
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarTelegram(); });
 
 // ---- Botones ----
@@ -815,6 +859,10 @@ $('mis-fila').addEventListener('click', alTocarMisMascotas);
 $('historial-privado').addEventListener('click', e => {
   const b = e.target.closest('[data-borrar]');
   if (b) eliminarRegistro(b.dataset.borrar);
+});
+$('lista-clinicas').addEventListener('click', e => {
+  const b = e.target.closest('[data-clinica]');
+  if (b && !b.disabled) responderClinica(b.dataset.clinica, b.dataset.accion, b);
 });
 $('historial-privado').addEventListener('change', e => {
   if (e.target.matches('[data-refuerzo]')) marcarRefuerzo(e.target.dataset.refuerzo, e.target);
