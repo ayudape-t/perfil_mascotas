@@ -636,7 +636,7 @@ async function cargarHistorialPrivado() {
     <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-100 text-left">
       <div class="flex items-center gap-2 mb-1">
         <span class="text-xs font-bold text-amber-950 uppercase min-w-0 flex-1 truncate">${esc(r.vet_name)}</span>
-        <span class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(fmtFecha(r.visit_date))}</span>
+        <span class="text-[11px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">${esc(fmtFecha(r.visit_date))}</span>
         <button type="button" class="btn-borrar" title="Eliminar este registro" aria-label="Eliminar este registro" data-borrar="${id}"><i class="fa-regular fa-trash-can"></i></button>
       </div>
       <p class="text-xs text-slate-700 font-medium"><strong>Motivo:</strong> ${esc(r.reason || 'Consulta general')}</p>
@@ -717,11 +717,11 @@ return;
   <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-xs">
     <div>
       <p class="font-bold text-slate-800 text-xs">Escaneo #${i + 2}</p>
-      <p class="text-[10px] text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
+      <p class="text-[11px] text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${fmt(s.created_at)}</p>
     </div>
     ${s.con_ubicacion
       ? `<a href="${url(s)}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Maps</a>`
-      : `<span class="text-[10px] font-bold text-slate-500">Sin ubicación</span>`}
+      : `<span class="text-[11px] font-bold text-slate-500">Sin ubicación</span>`}
   </div>`).join('')
 : `<p class="text-slate-500 italic text-xs py-1">No hay escaneos anteriores.</p>`;
 }
