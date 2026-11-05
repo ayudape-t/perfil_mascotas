@@ -12,3 +12,11 @@
   location.replace('https://helpet.pages.dev' + location.pathname.replace(/^\/perfil_mascotas(?=\/|$)/, '') +
     location.search + location.hash);
 })();
+
+// Sin código de placa, la dirección principal muestra la página de inicio (para conocer o pedir Kutimuy).
+// Las placas siempre traen ?id=, así que nunca pasan por aquí.
+(function () {
+  if (window.__redirigiendo || !/\/(index(\.html)?)?$/.test(location.pathname) || new URLSearchParams(location.search).has('id')) return;
+  window.__redirigiendo = true;
+  location.replace('inicio.html' + location.hash);
+})();

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!--
+  © 2026 Kutimuy. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (nada en línea ni de otros dominios); esta página no usa la base de datos -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <script src="js/dominio.js?v=2"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#29170d">
+  <meta name="color-scheme" content="light">
+  <title>Kutimuy · Placa con QR y NFC para tu mascota</title>
+  <meta name="description" content="Placa con código QR y NFC para el collar de tu perro o gato: quien la encuentra ve su perfil sin instalar nada y a ti te llega el aviso al instante. Pago único. Huánuco y envíos a todo el Perú.">
+  <meta property="og:site_name" content="Kutimuy">
+  <meta property="og:locale" content="es_PE">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Kutimuy · Si se escapa, su placa sabe a quién avisar">
+  <meta property="og:description" content="Placa con código QR y NFC para su collar: perfil, ficha de salud y aviso al instante en tu Telegram. Pago único, sin mensualidades.">
+  <meta property="og:image" content="https://helpet.pages.dev/og-kutimuy.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Logo de Kutimuy: un perro y un gato con su placa">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="icono-48.png">
+  <link rel="apple-touch-icon" href="icono-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/iconos/css/iconos.min.css?v=1">
+  <link rel="stylesheet" href="css/inicio.css?v=3">
+</head>
+<body>
+  <header class="cab">
+    <a class="marca" href="inicio.html" aria-label="Kutimuy, inicio"><img src="kutimuy-alas.svg" alt="Kutimuy" width="220" height="90"></a>
+    <nav aria-label="Para quien ya tiene placa"><a href="app.html"><i class="fa-solid fa-paw" aria-hidden="true"></i> Mis mascotas</a></nav>
+  </header>
+
+  <main class="tela">
+    <!-- Primera pantalla: la escena de la calle y la oferta -->
+    <section class="portada" aria-labelledby="titulo">
+      <figure>
+        <picture>
+          <source media="(min-width: 860px)" srcset="inicio/calle-ancho.webp" width="1280" height="720">
+          <img src="inicio/calle-celular.webp" width="1200" height="900" fetchpriority="high"
+               alt="Ilustración: una perrita blanca con collar rojo corre sola por una calle de casas coloniales de Huánuco">
+        </picture>
+      </figure>
+      <div class="texto">
+        <h1 id="titulo">Si se escapa, su placa <em>sabe a quién avisar.</em></h1>
+        <p class="bajada">Placa con código QR y NFC para su collar. Quien la encuentra la escanea con su celular, sin instalar nada, y a ti te llega el aviso al instante.</p>
+        <ul class="datos">
+          <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> S/ 35 en preventa, sin mensualidades</li>
+          <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Huánuco y envíos a todo el Perú</li>
+        </ul>
+        <div class="acciones">
+          <a class="btn-pedir" href="https://wa.me/51921512933?text=Hola%20Kutimuy%2C%20quiero%20pedir%20una%20placa%20para%20mi%20mascota." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Pedir mi placa por WhatsApp</a>
+          <a class="enlace-ver" href="#historia">Mira cómo funciona <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <div class="franja" aria-hidden="true"></div>
+
+    <!-- La historia: lo que pasa si se pierde -->
+    <section class="historia" id="historia" aria-label="Cómo funciona">
+      <article class="escena">
+        <figure>
+          <picture>
+            <source media="(min-width: 860px)" srcset="inicio/escanea-ancho.webp" width="1280" height="720">
+            <img src="inicio/escanea-celular.webp" width="1200" height="900" loading="lazy"
+                 alt="Ilustración: junto a la placa redonda de Kutimuy que cuelga del collar, el celular de un vecino ya muestra el perfil de Princesa con sus botones de WhatsApp y Llamar">
+          </picture>
+        </figure>
+        <div class="texto">
+          <h2><span class="paso" aria-hidden="true">1</span> Alguien escanea su placa</h2>
+          <p>Con la cámara del celular o acercándolo a la placa (NFC). No necesita instalar nada: se abre su perfil con su foto, su nombre y botones para llamarte o escribirte por WhatsApp.</p>
+        </div>
+      </article>
+
+      <div class="franja" aria-hidden="true"></div>
+
+      <article class="escena">
+        <figure class="aviso-foto">
+          <img src="inicio/aviso.webp" width="1000" height="1000" loading="lazy"
+               alt="Ilustración: un hilo bordado llega desde el perfil escaneado hasta tu celular, que tiene la pantalla bloqueada">
+          <div class="notif" role="img" aria-label="Ejemplo del aviso que te llega por Telegram: Princesa está marcada como perdida y alguien acaba de escanear su placa; incluye la ubicación de quien escaneó">
+            <div class="app"><i class="fa-brands fa-telegram" aria-hidden="true"></i><span>Telegram</span><span>ejemplo</span></div>
+            <b>Kutimuy</b>
+            <p>Princesa está marcada como PERDIDA y alguien acaba de escanear su placa.</p>
+            <span class="ubic"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Ubicación de quien escaneó</span>
+          </div>
+        </figure>
+        <div class="texto">
+          <h2><span class="paso" aria-hidden="true">2</span> Te llega el aviso al instante</h2>
+          <p>Cada vez que escanean su placa, Kutimuy te avisa por Telegram. Si la marcaste como perdida, quien la encontró también puede enviarte su ubicación con un toque.</p>
+        </div>
+      </article>
+
+      <div class="franja" aria-hidden="true"></div>
+
+      <article class="escena">
+        <figure>
+          <picture>
+            <source media="(min-width: 860px)" srcset="inicio/comunidad-ancho.webp" width="1280" height="720">
+            <img src="inicio/comunidad-celular.webp" width="1200" height="900" loading="lazy"
+                 alt="Ilustración: en el Puente Calicanto de Huánuco, un vecino con chompa verde se acerca a la perrita perdida">
+          </picture>
+        </figure>
+        <div class="texto">
+          <h2><span class="paso" aria-hidden="true">3</span> Pides ayuda a toda la comunidad</h2>
+          <p>Con un toque activas su alarma: su perfil pide ayuda, armas un afiche «¡Se busca!» y publicas su aviso en el canal de la comunidad, con la zona aproximada en un mapa y un botón para compartirlo por WhatsApp.</p>
+        </div>
+      </article>
+    </section>
+
+    <div class="franja" aria-hidden="true"></div>
+
+    <!-- Lo que hace en el día a día -->
+    <section class="ademas" aria-labelledby="t-ademas">
+      <h2 id="t-ademas">Y todos los días, su ficha a la mano</h2>
+      <ul class="lista">
+        <li><span class="ico" aria-hidden="true"><i class="fa-solid fa-syringe"></i></span><div><h3>Vacunas y desparasitaciones</h3><p>Anota sus fechas y te recordamos por Telegram cuando le toca.</p></div></li>
+        <li><span class="ico" aria-hidden="true"><i class="fa-solid fa-notes-medical"></i></span><div><h3>Ficha de salud</h3><p>Alergias, medicación y alimentación: muy útil si alguien la encuentra o en una emergencia.</p></div></li>
+        <li><span class="ico" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span><div><h3>Su veterinaria anota las consultas</h3><p>Solo con tu permiso, y quedan en su historial.</p></div></li>
+        <li><span class="ico" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span><div><h3>Tú decides qué se ve</h3><p>Tu PIN y tus celulares de confianza protegen su panel. Diagnósticos y ubicaciones solo los ves tú.</p></div></li>
+        <li><span class="ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>App «Mis mascotas»</h3><p>Todas tus mascotas a un toque desde la pantalla de tu celular.</p></div></li>
+        <li><span class="ico" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span><div><h3>Carnet digital</h3><p>Con su foto y su código QR, listo para guardar en el celular.</p></div></li>
+      </ul>
+    </section>
+
+    <!-- La compra -->
+    <section class="compra" id="pedir" aria-labelledby="t-compra">
+      <div class="franja" aria-hidden="true"></div>
+      <div class="dentro">
+        <h2 id="t-compra">Lo que te llevas</h2>
+        <div>
+          <ul class="recibes">
+            <li><i class="fa-solid fa-tag" aria-hidden="true"></i><span>La placa con código QR y chip NFC para su collar.</span></li>
+            <li><i class="fa-solid fa-key" aria-hidden="true"></i><span>La tarjeta con su código de activación: la activas desde tu celular en un par de minutos.</span></li>
+            <li><i class="fa-solid fa-truck" aria-hidden="true"></i><span>Entrega en persona en Huánuco o envío a todo el Perú.</span></li>
+          </ul>
+          <p class="garantia">Garantía de 6 meses por defectos de fabricación. Si no la activaste y conservas su empaque, puedes devolverla dentro de 7 días calendario. <a href="privacidad.html#compra">Condiciones</a></p>
+        </div>
+        <div>
+          <div class="precio">
+            <p class="cifra">S/ 35 <del><span class="oculto">antes</span> S/ 45</del></p>
+            <span>Precio de preventa. Pago único: sin mensualidades.</span>
+            <small>Precio regular: S/ 45.</small>
+          </div>
+          <a class="btn-pedir" href="https://wa.me/51921512933?text=Hola%20Kutimuy%2C%20quiero%20pedir%20una%20placa%20para%20mi%20mascota%20a%20precio%20de%20preventa%20(S%2F%2035)." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Pedir mi placa a S/ 35</a>
+        </div>
+      </div>
+      <div class="franja" aria-hidden="true"></div>
+    </section>
+
+    <!-- El comercial -->
+    <section class="video" aria-labelledby="t-video">
+      <h2 id="t-video">Míralo en 30 segundos</h2>
+      <video controls preload="none" playsinline poster="inicio/comercial-portada.webp" width="1280" height="720"
+             aria-describedby="d-video"><source src="inicio/kutimuy-comercial.mp4" type="video/mp4"></video>
+      <p id="d-video" class="oculto">Comercial de Kutimuy: Princesa se escapa por las calles de Huánuco, un vecino escanea su placa y su familia recibe el aviso en Telegram.</p>
+    </section>
+
+    <!-- Preguntas frecuentes -->
+    <section class="preguntas" aria-labelledby="t-preguntas">
+      <h2 id="t-preguntas">Preguntas frecuentes</h2>
+      <details><summary>¿Quien la encuentra necesita una app? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        <p>No. Solo la cámara de su celular, o acercarlo a la placa si su celular tiene NFC.</p></details>
+      <details><summary>¿Funciona con cualquier celular? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        <p>El código QR funciona con cualquier celular con cámara. El NFC, con los Android que lo tienen y con iPhone XS o más nuevos.</p></details>
+      <details><summary>¿Tengo que pagar cada mes? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        <p>No. Es un pago único: S/ 35 en preventa (precio regular S/ 45).</p></details>
+      <details><summary>¿Y si cambio de número? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        <p>Lo cambias tú mismo en su panel, con tu PIN. La placa sigue siendo la misma.</p></details>
+      <details><summary>¿Necesito Telegram? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        <p>Es opcional, pero ahí te llegan los avisos cuando escanean su placa y los recordatorios de vacunas. Sin Telegram, igual pueden llamarte o escribirte desde su perfil.</p></details>
+      <details><summary>¿Quién ve mis datos? <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        <p>Quien escanea ve su perfil y tus datos de contacto. Diagnósticos, recetas y las ubicaciones de los escaneos solo los ves tú. <a href="privacidad.html">Privacidad y términos</a></p></details>
+    </section>
+
+    <div class="franja" aria-hidden="true"></div>
+
+    <!-- Cierre -->
+    <section class="cierre" aria-labelledby="t-cierre">
+      <picture>
+        <source media="(min-width: 860px)" srcset="inicio/juntos-ancho.webp" width="1280" height="720">
+        <img src="inicio/juntos-celular.webp" width="1200" height="900" loading="lazy" alt="">
+      </picture>
+      <div class="texto">
+        <p class="lema" id="t-cierre">Todo lo que tu mascota necesita, <em>en una sola placa.</em></p>
+        <a class="btn-pedir" href="https://wa.me/51921512933?text=Hola%20Kutimuy%2C%20quiero%20pedir%20una%20placa%20para%20mi%20mascota." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Pedir mi placa</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <ul>
+      <li><a href="app.html"><i class="fa-solid fa-paw" aria-hidden="true"></i> ¿Ya tienes tu placa? Mis mascotas</a></li>
+      <li><a href="veterinaria.html"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i> ¿Eres veterinaria? Portal de clínicas</a></li>
+      <li><a href="https://wa.me/51921512933?text=Hola%20Kutimuy%2C%20tengo%20una%20consulta." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Soporte por WhatsApp</a></li>
+      <li><a href="privacidad.html"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Privacidad y términos</a></li>
+    </ul>
+    <p>© 2026 Kutimuy · Huánuco, Perú</p>
+  </footer>
+
+  <!-- En el celular: el pedido siempre a mano cuando ya no se ve otro botón -->
+  <div class="barra" aria-hidden="true">
+    <a class="btn-pedir" href="https://wa.me/51921512933?text=Hola%20Kutimuy%2C%20quiero%20pedir%20una%20placa%20para%20mi%20mascota." target="_blank" rel="noopener" tabindex="-1"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Pedir mi placa</a>
+  </div>
+
+  <script src="js/inicio.js?v=1"></script>
+</body>
+</html>

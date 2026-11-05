@@ -1,0 +1,166 @@
+/*
+  © 2026 Kutimuy. Todos los derechos reservados.
+  Prohibida la copia, reproducción o distribución total o parcial de este código, diseño, textos e imágenes sin autorización escrita del titular.
+*/
+/* Página de inicio (inicio.html): la historia de la placa en tres escenas y el pedido por WhatsApp */
+*, *::before, *::after { box-sizing: border-box; }
+:root {
+  --cafe:#3b2420; --oxido:#b4452b; --oxido2:#8f3523; --crema:#f8edd1; --arena:#eadfcf; --tinta:#2b1d1a; --suave:#6b5a4d; --ocre:#e0a24a; --verde:#7f9a3e; --noche:#29170d; --whatsapp:#0f7a45;
+  --awayo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E");
+  --sombra: 0 14px 30px -14px rgba(43,29,26,.55);
+}
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 12px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--tinta); background: var(--noche); }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--noche) url("../fondo.webp") center top / cover no-repeat; }
+::selection { background: var(--ocre); color: var(--tinta); }
+img, video { display: block; max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--ocre); outline-offset: 3px; border-radius: 6px; }
+.oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Cabecera: la insignia de la marca y el acceso de quien ya tiene placa */
+.cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1120px; margin: 0 auto; padding: 14px 16px 6px; }
+.cab .marca { width: 168px; flex: none; }
+.cab .marca img { width: 100%; height: auto; filter: drop-shadow(0 6px 10px rgba(0,0,0,.4)); }
+.cab nav a { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px; border-radius: 999px; color: var(--crema); font-weight: 500; font-size: 15px; text-decoration: none; border: 1.5px solid rgba(248,237,209,.35); }
+.cab nav a:hover { background: rgba(248,237,209,.1); }
+
+/* La tela: una sola hoja crema con bordes de awayo que lleva toda la historia */
+.tela { max-width: 1120px; margin: 8px auto 0; background: var(--crema); border-radius: 26px 26px 0 0; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0,0,0,.7); }
+.franja { height: 14px; background: var(--awayo) repeat-x left center / auto 14px; }
+
+/* Primera pantalla: la escena de la calle y la oferta */
+.portada figure { margin: 0; position: relative; }
+.portada figure img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+.portada .texto { padding: 22px 20px 26px; }
+h1, h2, h3 { font-family: 'DynaPuff', 'Fredoka', cursive; color: var(--cafe); margin: 0; text-wrap: balance; }
+h1 { font-weight: 800; font-size: clamp(30px, 8.4vw, 58px); line-height: 1.1; letter-spacing: -.01em; }
+h1 em { font-style: normal; color: var(--oxido); }
+.bajada { margin: 14px 0 0; font-size: clamp(17px, 4.4vw, 20px); line-height: 1.45; color: #4a3830; max-width: 34em; }
+.datos { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; }
+.datos li { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px; background: #fffaf0; border: 1.5px dashed #d9b98c; font-size: 14px; font-weight: 500; color: var(--cafe); }
+.datos i { color: var(--oxido); }
+.acciones { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.btn-pedir { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 22px; border-radius: 18px; background: var(--whatsapp); color: #fff; font-weight: 600; font-size: 19px; text-decoration: none; box-shadow: 0 10px 20px -12px rgba(43,29,26,.55); transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s; }
+.btn-pedir i { font-size: 24px; }
+.btn-pedir:hover { transform: translateY(-1px); box-shadow: 0 14px 24px -12px rgba(43,29,26,.6); background: #0d6d3d; }
+.btn-pedir:active { transform: translateY(1px); }
+.enlace-ver { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; color: var(--oxido2); font-weight: 600; font-size: 16px; text-underline-offset: 4px; }
+
+/* La historia: tres escenas */
+.historia { padding: 8px 0 0; }
+.escena { display: grid; gap: 0; }
+.escena figure { margin: 0; position: relative; }
+.escena figure img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+.escena .aviso-foto img { aspect-ratio: 1 / 1; }
+.escena .texto { padding: 20px 20px 30px; }
+.escena h2 { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: clamp(25px, 6.6vw, 38px); line-height: 1.2; }
+.paso { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--cafe); color: var(--crema); font-size: 21px; border: 3px solid var(--ocre); }
+.escena p { margin: 12px 0 0; font-size: 18px; line-height: 1.5; color: #4a3830; max-width: 36em; }
+
+/* Escena 2: el aviso de Telegram entra deslizándose cuando la escena aparece (el momento de la página) */
+.notif { position: relative; z-index: 2; margin: -54px 16px 0 auto; width: min(340px, calc(100% - 32px)); padding: 13px 15px; border-radius: 20px; background: rgba(255,252,246,.97); box-shadow: 0 22px 40px -16px rgba(43,29,26,.6), 0 0 0 1px rgba(59,36,32,.08); }
+.notif .app { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--suave); }
+.notif .app i { color: #229ed9; font-size: 18px; }
+.notif .app span:last-child { margin-left: auto; }
+.notif b { display: block; margin-top: 6px; font-size: 16px; color: var(--tinta); }
+.notif p { margin: 3px 0 0; font-size: 15px; line-height: 1.38; color: #3a2a24; }
+.notif .ubic { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-weight: 600; font-size: 14px; color: #1d6fa5; }
+.js .notif { opacity: 0; transform: translateY(34px) scale(.96); filter: blur(6px); }
+.js .notif.llego { opacity: 1; transform: none; filter: none; transition: opacity .55s, transform .9s cubic-bezier(.16,1,.3,1), filter .7s; }
+@media (prefers-reduced-motion: reduce) { .js .notif { opacity: 1; transform: none; filter: none; } }
+
+/* Además: lo que hace por ti en el día a día */
+.ademas { padding: 34px 20px 10px; }
+.ademas > h2 { font-weight: 800; font-size: clamp(26px, 6.6vw, 40px); line-height: 1.2; }
+.lista { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.lista li { display: grid; grid-template-columns: 46px 1fr; gap: 14px; align-items: start; padding: 14px 0; border-bottom: 1.5px dashed #dcc29b; }
+.lista li:last-child { border-bottom: 0; }
+.lista .ico { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--cafe); color: var(--ocre); font-size: 20px; }
+.lista h3 { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 19px; color: var(--cafe); }
+.lista p { margin: 4px 0 0; font-size: 16px; line-height: 1.5; color: #4a3830; }
+
+/* La compra: qué recibes, pago único, entrega, garantía y el pedido */
+.compra { margin: 22px 0 0; background: var(--cafe); color: var(--crema); }
+.compra .dentro { padding: 30px 20px 32px; }
+.compra h2 { color: var(--crema); font-weight: 800; font-size: clamp(26px, 6.6vw, 40px); line-height: 1.2; }
+.recibes { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.recibes li { display: flex; gap: 12px; align-items: flex-start; font-size: 17px; line-height: 1.45; }
+.recibes i { margin-top: 3px; color: var(--ocre); width: 20px; text-align: center; }
+.precio { margin: 22px 0 0; padding: 16px 0 0; border-top: 1.5px dashed rgba(224,162,74,.6); }
+.precio .cifra { margin: 0; font-family: 'DynaPuff', cursive; font-weight: 800; font-size: 40px; line-height: 1.2; color: var(--ocre); }
+.precio del { margin-left: 8px; font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: 21px; color: #e9d6b4; text-decoration-thickness: 2px; }
+.precio span { display: block; font-size: 17px; line-height: 1.45; }
+.precio small { display: block; margin-top: 4px; font-size: 15px; color: #e9d6b4; }
+.garantia { margin: 18px 0 0; font-size: 15px; line-height: 1.55; color: #e9d6b4; }
+.garantia a { color: var(--crema); text-underline-offset: 3px; }
+.compra .btn-pedir { margin-top: 20px; }
+
+/* El comercial */
+.video { padding: 34px 20px 8px; }
+.video h2 { font-weight: 800; font-size: clamp(24px, 6vw, 36px); }
+.video video { width: 100%; height: auto; aspect-ratio: 16 / 9; margin-top: 14px; border-radius: 18px; background: var(--cafe); box-shadow: var(--sombra); }
+
+/* Preguntas frecuentes */
+.preguntas { padding: 30px 20px 18px; }
+.preguntas h2 { font-weight: 800; font-size: clamp(24px, 6vw, 36px); }
+.preguntas details { border-bottom: 1.5px dashed #dcc29b; }
+.preguntas summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 12px 0; cursor: pointer; list-style: none; font-weight: 600; font-size: 18px; color: var(--cafe); }
+.preguntas summary::-webkit-details-marker { display: none; }
+.preguntas summary i { flex: none; color: var(--oxido); transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+.preguntas details[open] summary i { transform: rotate(180deg); }
+.preguntas details p { margin: 0 0 16px; font-size: 17px; line-height: 1.55; color: #4a3830; max-width: 40em; }
+.preguntas details a { color: var(--oxido2); text-underline-offset: 3px; }
+
+/* Cierre: el reencuentro y el pedido */
+.cierre { position: relative; }
+.cierre img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+.cierre .texto { padding: 22px 20px 30px; text-align: center; }
+.cierre .lema { font-family: 'DynaPuff', cursive; font-weight: 800; font-size: clamp(26px, 7vw, 46px); line-height: 1.2; color: var(--cafe); margin: 0; text-wrap: balance; }
+.cierre .lema em { font-style: normal; color: var(--oxido); }
+.cierre .btn-pedir { margin: 20px auto 0; max-width: 460px; }
+
+/* Pie */
+.pie { max-width: 1120px; margin: 0 auto; padding: 22px 16px calc(28px + env(safe-area-inset-bottom)); color: #e9d6b4; font-size: 15px; }
+.pie ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.pie a { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; color: var(--crema); text-underline-offset: 3px; }
+.pie a i { color: var(--ocre); width: 18px; text-align: center; }
+.pie p { margin: 14px 0 0; color: #cdb592; font-size: 13px; }
+body.con-barra .pie { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+/* Botón fijo en el celular, cuando el de la portada ya no se ve */
+.barra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(41,23,13,.96); box-shadow: 0 -10px 24px -12px rgba(0,0,0,.6); transform: translateY(110%); visibility: hidden; transition: transform .35s cubic-bezier(.2,.8,.2,1), visibility 0s .35s; }
+.barra.ver { transform: none; visibility: visible; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.barra .btn-pedir { min-height: 52px; font-size: 18px; }
+
+/* Computadora: escenas a dos columnas, alternadas */
+@media (min-width: 860px) {
+  .cab { padding: 22px 28px 10px; }
+  .cab .marca { width: 220px; }
+  .portada { display: grid; grid-template-columns: 1.25fr 1fr; }
+  .portada figure, .portada picture { display: block; height: 100%; }
+  .portada .texto { align-self: center; }
+  .escena figure img, .cierre img { aspect-ratio: 16 / 9; }
+  .portada figure img { height: 100%; min-height: 360px; aspect-ratio: auto; }
+  .escena .aviso-foto img { aspect-ratio: 1 / 1; }
+  .portada .texto { padding: 34px 40px 34px 34px; }
+  .acciones { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 18px; }
+  .acciones .btn-pedir { flex: none; }
+  .escena { grid-template-columns: 1.3fr 1fr; align-items: center; }
+  .escena:nth-child(even) figure { order: 2; }
+  .escena .texto { padding: 30px 40px; }
+  /* sobre la pantalla bloqueada del celular dibujado en aviso.webp (inclinado 3°) */
+  .notif { position: absolute; left: 49.5%; top: 32%; margin: 0; width: 39%; rotate: 3deg; }
+  .ademas, .video, .preguntas { padding-left: 48px; padding-right: 48px; }
+  .lista { grid-template-columns: 1fr 1fr; column-gap: 40px; }
+  .lista li:nth-last-child(2) { border-bottom: 0; }
+  .compra .dentro { display: grid; grid-template-columns: 1.1fr 1fr; gap: 10px 48px; padding: 40px 48px; }
+  .compra h2 { grid-column: 1 / -1; }
+  .compra .btn-pedir { grid-column: 2; }
+  .cierre { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; }
+  .cierre .texto { text-align: left; padding: 30px 40px; }
+  .cierre .btn-pedir { margin-left: 0; }
+  .pie ul { grid-auto-flow: column; justify-content: start; gap: 4px 28px; }
+  .barra { display: none; }
+}
