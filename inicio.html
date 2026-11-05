@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/iconos/css/iconos.min.css?v=1">
-  <link rel="stylesheet" href="css/inicio.css?v=3">
+  <link rel="stylesheet" href="css/inicio.css?v=4">
 </head>
 <body>
   <header class="cab">
@@ -84,8 +84,11 @@
 
       <article class="escena">
         <figure class="aviso-foto">
-          <img src="inicio/aviso.webp" width="1000" height="1000" loading="lazy"
-               alt="Ilustración: un hilo bordado llega desde el perfil escaneado hasta tu celular, que tiene la pantalla bloqueada">
+          <picture>
+            <source media="(min-width: 860px)" srcset="inicio/aviso-ancho.webp" width="1200" height="900">
+            <img src="inicio/aviso.webp" width="1000" height="1000" loading="lazy"
+                 alt="Ilustración: un hilo bordado llega desde el perfil escaneado hasta tu celular, que tiene la pantalla bloqueada">
+          </picture>
           <div class="notif" role="img" aria-label="Ejemplo del aviso que te llega por Telegram: Princesa está marcada como perdida y alguien acaba de escanear su placa; incluye la ubicación de quien escaneó">
             <div class="app"><i class="fa-brands fa-telegram" aria-hidden="true"></i><span>Telegram</span><span>ejemplo</span></div>
             <b>Kutimuy</b>

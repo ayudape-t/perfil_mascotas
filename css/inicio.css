@@ -143,15 +143,15 @@ body.con-barra .pie { padding-bottom: calc(96px + env(safe-area-inset-bottom)); 
   .portada .texto { align-self: center; }
   .escena figure img, .cierre img { aspect-ratio: 16 / 9; }
   .portada figure img { height: 100%; min-height: 360px; aspect-ratio: auto; }
-  .escena .aviso-foto img { aspect-ratio: 1 / 1; }
+  .escena .aviso-foto img { aspect-ratio: 4 / 3; }
   .portada .texto { padding: 34px 40px 34px 34px; }
   .acciones { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 18px; }
   .acciones .btn-pedir { flex: none; }
   .escena { grid-template-columns: 1.3fr 1fr; align-items: center; }
   .escena:nth-child(even) figure { order: 2; }
   .escena .texto { padding: 30px 40px; }
-  /* sobre la pantalla bloqueada del celular dibujado en aviso.webp (inclinado 3°) */
-  .notif { position: absolute; left: 49.5%; top: 32%; margin: 0; width: 39%; rotate: 3deg; }
+  /* sobre la pantalla bloqueada del celular dibujado en aviso-ancho.webp (inclinado 3°) */
+  .notif { position: absolute; left: 45%; top: 45%; margin: 0; width: 40%; rotate: 3deg; }
   .ademas, .video, .preguntas { padding-left: 48px; padding-right: 48px; }
   .lista { grid-template-columns: 1fr 1fr; column-gap: 40px; }
   .lista li:nth-last-child(2) { border-bottom: 0; }
