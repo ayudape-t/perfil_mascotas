@@ -1,0 +1,427 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-05T18:37:59+00:00",
+  "title": "Design System: Kutimuy",
+  "extensions": {
+    "colorMeta": {
+      "cafe": {
+        "role": "neutral",
+        "displayName": "Café Andino",
+        "canonical": "#3b2420",
+        "tonalRamp": [
+          "#110907",
+          "#2e201e",
+          "#4d3b37",
+          "#6f5753",
+          "#917671",
+          "#b09894",
+          "#d3bfbb",
+          "#f9ebe8"
+        ]
+      },
+      "oxido": {
+        "role": "secondary",
+        "displayName": "Óxido de Teja",
+        "canonical": "#b4452b",
+        "tonalRamp": [
+          "#210000",
+          "#460b01",
+          "#6f220f",
+          "#9b3922",
+          "#c35840",
+          "#de826b",
+          "#fbae9b",
+          "#ffdfd0"
+        ]
+      },
+      "oxido-hondo": {
+        "role": "secondary",
+        "displayName": "Óxido Hondo",
+        "canonical": "#8f3523",
+        "tonalRamp": [
+          "#1e0100",
+          "#421208",
+          "#69291c",
+          "#934131",
+          "#b9604d",
+          "#d58776",
+          "#f3b2a3",
+          "#ffe1d6"
+        ]
+      },
+      "ocre": {
+        "role": "tertiary",
+        "displayName": "Ocre de Awayo",
+        "canonical": "#e0a24a",
+        "tonalRamp": [
+          "#190600",
+          "#391c00",
+          "#5d3500",
+          "#845100",
+          "#a87013",
+          "#c59453",
+          "#e4bd8a",
+          "#ffe9c5"
+        ]
+      },
+      "verde-maiz": {
+        "role": "tertiary",
+        "displayName": "Verde Maíz",
+        "canonical": "#7f9a3e",
+        "tonalRamp": [
+          "#070e00",
+          "#1d2900",
+          "#364700",
+          "#516710",
+          "#708832",
+          "#92a963",
+          "#bacd95",
+          "#e7f5cc"
+        ]
+      },
+      "verde-whatsapp": {
+        "role": "primary",
+        "displayName": "Verde WhatsApp",
+        "canonical": "#0f7a45",
+        "tonalRamp": [
+          "#001102",
+          "#002e12",
+          "#004d28",
+          "#156f40",
+          "#3a915d",
+          "#6bb083",
+          "#9dd3ae",
+          "#d2fade"
+        ]
+      },
+      "verde-whatsapp-hondo": {
+        "role": "primary",
+        "displayName": "Verde WhatsApp Hondo",
+        "canonical": "#0d6d3d",
+        "tonalRamp": [
+          "#001103",
+          "#002d14",
+          "#0c4c2a",
+          "#216e43",
+          "#429060",
+          "#70af85",
+          "#a0d2b0",
+          "#d5f9df"
+        ]
+      },
+      "crema": {
+        "role": "neutral",
+        "displayName": "Crema de Tela",
+        "canonical": "#f8edd1",
+        "tonalRamp": [
+          "#0e0b04",
+          "#292417",
+          "#463f2e",
+          "#655d47",
+          "#867d65",
+          "#a69e89",
+          "#cac4b3",
+          "#f3eee2"
+        ]
+      },
+      "crema-clara": {
+        "role": "neutral",
+        "displayName": "Crema Clara",
+        "canonical": "#fffaf0",
+        "tonalRamp": [
+          "#0c0b08",
+          "#26241f",
+          "#423f39",
+          "#615d56",
+          "#817d74",
+          "#a29e97",
+          "#c7c4be",
+          "#f0eeea"
+        ]
+      },
+      "crema-tenue": {
+        "role": "neutral",
+        "displayName": "Crema Tenue",
+        "canonical": "#e9d6b4",
+        "tonalRamp": [
+          "#100a02",
+          "#2b2313",
+          "#4a3e29",
+          "#6a5b40",
+          "#8b7b5d",
+          "#ab9d83",
+          "#cec3ae",
+          "#f6edde"
+        ]
+      },
+      "costura": {
+        "role": "neutral",
+        "displayName": "Costura",
+        "canonical": "#dcc29b",
+        "tonalRamp": [
+          "#110a01",
+          "#2e220f",
+          "#4d3d23",
+          "#6f5a3a",
+          "#907957",
+          "#af9b7e",
+          "#d2c2a9",
+          "#f9eddb"
+        ]
+      },
+      "noche": {
+        "role": "neutral",
+        "displayName": "Noche",
+        "canonical": "#29170d",
+        "tonalRamp": [
+          "#110906",
+          "#2d211b",
+          "#4b3c34",
+          "#6d594e",
+          "#8e786c",
+          "#ad9a90",
+          "#d1c0b8",
+          "#f8ece5"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#2b1d1a",
+        "tonalRamp": [
+          "#0f0a08",
+          "#2a2220",
+          "#483d3a",
+          "#695a56",
+          "#8a7975",
+          "#a99b97",
+          "#cdc1be",
+          "#f5ecea"
+        ]
+      },
+      "texto-cuerpo": {
+        "role": "neutral",
+        "displayName": "Texto Cuerpo",
+        "canonical": "#4a3830",
+        "tonalRamp": [
+          "#100907",
+          "#2c211d",
+          "#4a3c36",
+          "#6b5951",
+          "#8c7870",
+          "#ac9a93",
+          "#cfc1ba",
+          "#f7ece7"
+        ]
+      },
+      "suave": {
+        "role": "neutral",
+        "displayName": "Suave",
+        "canonical": "#6b5a4d",
+        "tonalRamp": [
+          "#100a06",
+          "#2b221b",
+          "#493d34",
+          "#6a5a4e",
+          "#8b7a6d",
+          "#aa9b90",
+          "#cec1b8",
+          "#f6ede6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Titular principal de la portada."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Títulos de sección y de escena, precio y lema."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de ítems y preguntas."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Párrafos y bajadas."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Datos en píldora, navegación, pie, metadatos."
+      }
+    },
+    "shadows": [
+      {
+        "name": "tela",
+        "value": "0 30px 60px -30px rgba(0,0,0,.7)",
+        "purpose": "La hoja crema sobre el fondo."
+      },
+      {
+        "name": "objeto",
+        "value": "0 14px 30px -14px rgba(43,29,26,.55)",
+        "purpose": "Video y objetos apoyados en la tela (--sombra)."
+      },
+      {
+        "name": "boton",
+        "value": "0 10px 20px -12px rgba(43,29,26,.55)",
+        "purpose": "Botón de pedido en reposo."
+      },
+      {
+        "name": "boton-hover",
+        "value": "0 14px 24px -12px rgba(43,29,26,.6)",
+        "purpose": "Botón de pedido en hover."
+      },
+      {
+        "name": "aviso",
+        "value": "0 22px 40px -16px rgba(43,29,26,.6), 0 0 0 1px rgba(59,36,32,.08)",
+        "purpose": "Notificación sobre la ilustración."
+      },
+      {
+        "name": "barra",
+        "value": "0 -10px 24px -12px rgba(0,0,0,.6)",
+        "purpose": "Barra fija inferior del celular."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-blando",
+        "value": "cubic-bezier(.2,.8,.2,1)",
+        "purpose": "Botón (0.18 s), chevron de preguntas (0.25 s), barra fija (0.35 s)."
+      },
+      {
+        "name": "ease-llegada",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Entrada del aviso de Telegram (transform 0.9 s, opacidad 0.55 s, desenfoque 0.7 s), una sola vez."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "computadora",
+        "value": "860px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón Pedir por WhatsApp",
+      "kind": "button",
+      "refersTo": "boton-pedir",
+      "description": "Única acción de venta: abre un chat de WhatsApp con mensaje escrito.",
+      "html": "<a class=\"ds-btn-pedir\" href=\"#\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3z\"/></svg> Pedir mi placa por WhatsApp</a>",
+      "css": ":host{--cafe:#3b2420;--oxido:#b4452b;--oxido2:#8f3523;--crema:#f8edd1;--tinta:#2b1d1a;--suave:#6b5a4d;--ocre:#e0a24a;--noche:#29170d;--whatsapp:#0f7a45;}.ds-btn-pedir{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 22px;border-radius:18px;background:var(--whatsapp);color:#fff;font-family:'Fredoka',system-ui,sans-serif;font-weight:600;font-size:19px;text-decoration:none;box-shadow:0 10px 20px -12px rgba(43,29,26,.55);transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s}.ds-btn-pedir:hover{transform:translateY(-1px);box-shadow:0 14px 24px -12px rgba(43,29,26,.6);background:#0d6d3d}.ds-btn-pedir:active{transform:translateY(1px)}.ds-btn-pedir:focus-visible{outline:3px solid var(--ocre);outline-offset:3px}"
+    },
+    {
+      "name": "Enlace secundario",
+      "kind": "button",
+      "refersTo": "enlace-secundario",
+      "description": "Acción secundaria de texto sobre crema.",
+      "html": "<div class=\"ds-fondo\"><a class=\"ds-enlace-ver\" href=\"#\">Mira cómo funciona <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" d=\"M5 9l7 7 7-7\"/></svg></a></div>",
+      "css": ":host{--cafe:#3b2420;--oxido:#b4452b;--oxido2:#8f3523;--crema:#f8edd1;--tinta:#2b1d1a;--suave:#6b5a4d;--ocre:#e0a24a;--noche:#29170d;--whatsapp:#0f7a45;}.ds-fondo{background:var(--crema);padding:12px}.ds-enlace-ver{display:inline-flex;align-items:center;gap:8px;min-height:48px;color:var(--oxido2);font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;text-underline-offset:4px}.ds-enlace-ver:hover{text-decoration-thickness:2px}.ds-enlace-ver:focus-visible{outline:3px solid var(--ocre);outline-offset:3px;border-radius:6px}"
+    },
+    {
+      "name": "Píldora de navegación",
+      "kind": "nav",
+      "refersTo": "nav-pildora",
+      "description": "Único enlace de la cabecera, sobre el fondo café.",
+      "html": "<nav class=\"ds-cab\"><a href=\"#\">Mis mascotas</a></nav>",
+      "css": ":host{--cafe:#3b2420;--oxido:#b4452b;--oxido2:#8f3523;--crema:#f8edd1;--tinta:#2b1d1a;--suave:#6b5a4d;--ocre:#e0a24a;--noche:#29170d;--whatsapp:#0f7a45;}.ds-cab{background:var(--noche);padding:14px 16px}.ds-cab a{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border-radius:999px;color:var(--crema);font-family:'Fredoka',sans-serif;font-weight:500;font-size:15px;text-decoration:none;border:1.5px solid rgba(248,237,209,.35)}.ds-cab a:hover{background:rgba(248,237,209,.1)}.ds-cab a:focus-visible{outline:3px solid var(--ocre);outline-offset:3px}"
+    },
+    {
+      "name": "Dato en píldora",
+      "kind": "chip",
+      "refersTo": "dato",
+      "description": "Hecho breve de la oferta, con borde de hilván.",
+      "html": "<ul class=\"ds-datos\"><li>S/ 35 en preventa, sin mensualidades</li><li>Huánuco y envíos a todo el Perú</li></ul>",
+      "css": ":host{--cafe:#3b2420;--oxido:#b4452b;--oxido2:#8f3523;--crema:#f8edd1;--tinta:#2b1d1a;--suave:#6b5a4d;--ocre:#e0a24a;--noche:#29170d;--whatsapp:#0f7a45;}.ds-datos{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:12px;list-style:none;background:var(--crema)}.ds-datos li{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:#fffaf0;border:1.5px dashed #d9b98c;font-family:'Fredoka',sans-serif;font-size:14px;font-weight:500;color:var(--cafe)}"
+    },
+    {
+      "name": "Franja de awayo",
+      "kind": "custom",
+      "description": "Separador tejido de 14 px entre escenas y secciones.",
+      "html": "<div class=\"ds-franja\" aria-hidden=\"true\"></div>",
+      "css": ".ds-franja{height:14px;background:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12'%3E%3Cpath fill='%233b2420' d='M0 0h28v12H0z'/%3E%3Cpath fill='%23e0a24a' d='M0 0h28v1.6H0zM0 10.4h28V12H0z'/%3E%3Cpath fill='%23b4452b' d='M7 2.4 10.6 6 7 9.6 3.4 6z'/%3E%3Cpath fill='%237f9a3e' d='M21 2.4 24.6 6 21 9.6 17.4 6z'/%3E%3Cpath fill='%23f8edd1' d='M7 4.6 8.4 6 7 7.4 5.6 6zM21 4.6 22.4 6 21 7.4 19.6 6z'/%3E%3Cpath fill='%23e0a24a' d='M14 4.2 15.8 6 14 7.8 12.2 6zM0 4.2 1.8 6 0 7.8zM28 4.2 26.2 6 28 7.8z'/%3E%3C/svg%3E\") repeat-x left center/auto 14px}"
+    },
+    {
+      "name": "Título de escena con paso",
+      "kind": "custom",
+      "refersTo": "paso",
+      "description": "Marcador circular numerado junto al titular de cada escena.",
+      "html": "<h2 class=\"ds-escena\"><span class=\"ds-paso\" aria-hidden=\"true\">1</span> Alguien escanea su placa</h2>",
+      "css": ":host{--cafe:#3b2420;--oxido:#b4452b;--oxido2:#8f3523;--crema:#f8edd1;--tinta:#2b1d1a;--suave:#6b5a4d;--ocre:#e0a24a;--noche:#29170d;--whatsapp:#0f7a45;}.ds-escena{display:flex;align-items:center;gap:12px;margin:0;padding:16px;background:var(--crema);font-family:'DynaPuff','Fredoka',cursive;font-weight:800;font-size:30px;line-height:1.2;color:var(--cafe)}.ds-paso{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--cafe);color:var(--crema);font-size:21px;border:3px solid var(--ocre)}"
+    },
+    {
+      "name": "Aviso de Telegram",
+      "kind": "card",
+      "refersTo": "aviso-telegram",
+      "description": "Maqueta de la notificación que recibe el dueño; firma de la escena 2.",
+      "html": "<div class=\"ds-bg\"><div class=\"ds-notif\"><div class=\"ds-app\"><span>Telegram</span><span>ejemplo</span></div><b>Kutimuy</b><p>Princesa está marcada como PERDIDA y alguien acaba de escanear su placa.</p><span class=\"ds-ubic\">Ubicación de quien escaneó</span></div></div>",
+      "css": ":host{--cafe:#3b2420;--oxido:#b4452b;--oxido2:#8f3523;--crema:#f8edd1;--tinta:#2b1d1a;--suave:#6b5a4d;--ocre:#e0a24a;--noche:#29170d;--whatsapp:#0f7a45;}.ds-bg{background:#c9b28f;padding:24px}.ds-notif{width:min(340px,100%);padding:13px 15px;border-radius:20px;background:rgba(255,252,246,.97);box-shadow:0 22px 40px -16px rgba(43,29,26,.6),0 0 0 1px rgba(59,36,32,.08);font-family:'Fredoka',sans-serif}.ds-app{display:flex;gap:8px;font-size:13px;color:var(--suave)}.ds-app span:last-child{margin-left:auto}.ds-notif b{display:block;margin-top:6px;font-size:16px;color:var(--tinta)}.ds-notif p{margin:3px 0 0;font-size:15px;line-height:1.38;color:#3a2a24}.ds-ubic{display:inline-block;margin-top:6px;font-weight:600;font-size:14px;color:#1d6fa5}"
+    },
+    {
+      "name": "Precio",
+      "kind": "custom",
+      "refersTo": "bloque-compra",
+      "description": "Cifra de preventa sobre el bloque café de compra.",
+      "html": "<div class=\"ds-compra\"><div class=\"ds-precio\"><p class=\"ds-cifra\">S/ 35 <del>S/ 45</del></p><span>Precio de preventa. Pago único: sin mensualidades.</span></div></div>",
+      "css": ":host{--cafe:#3b2420;--oxido:#b4452b;--oxido2:#8f3523;--crema:#f8edd1;--tinta:#2b1d1a;--suave:#6b5a4d;--ocre:#e0a24a;--noche:#29170d;--whatsapp:#0f7a45;}.ds-compra{background:var(--cafe);color:var(--crema);padding:20px;font-family:'Fredoka',sans-serif}.ds-precio{padding:16px 0 0;border-top:1.5px dashed rgba(224,162,74,.6)}.ds-cifra{margin:0;font-family:'DynaPuff',cursive;font-weight:800;font-size:40px;line-height:1.2;color:var(--ocre)}.ds-cifra del{margin-left:8px;font-family:'Fredoka',sans-serif;font-weight:500;font-size:21px;color:#e9d6b4;text-decoration-thickness:2px}.ds-precio span{display:block;font-size:17px;line-height:1.45}"
+    }
+  ],
+  "narrative": {
+    "northStar": "La tela del comercial",
+    "overview": "Kutimuy se ve como una hoja crema extendida sobre un fondo café andino (fondo.webp sobre noche), cosida con franjas de awayo y poblada por las ilustraciones planas del propio comercial: calles coloniales de Huánuco, el Puente Calicanto, la perrita Princesa. Todo el contenido vive dentro de esa tela; fuera de ella solo quedan la insignia con alas, el acceso «Mis mascotas» y el pie.\n\nEl tono es cálido, cercano y de feria de barrio, no de startup: titulares redondos y gruesos en DynaPuff, texto amable en Fredoka, botones grandes y blandos, bordes punteados como costura. La densidad es baja y pensada para celulares de gama baja y personas mayores: una columna en celular, texto de 17–18 px, objetivos táctiles de 44–56 px. En computadora la tela se abre a dos columnas que alternan imagen y texto.\n\nLa única acción de venta es verde WhatsApp; el resto de la paleta (café, óxido, ocre, verde maíz, crema) sale del awayo y de las ilustraciones.",
+    "keyCharacteristics": [
+      "Una sola tela crema (máx. 1120 px) con esquinas superiores redondeadas sobre fondo café ilustrado.",
+      "Franjas de awayo de 14 px como único separador entre escenas y secciones.",
+      "Ilustraciones planas del comercial a sangre (4:3 en celular, 16:9 en computadora), nunca fotos de stock.",
+      "DynaPuff 800 para titulares, Fredoka 400–600 para todo lo demás.",
+      "Verde WhatsApp reservado al pedido; ocre para acentos sobre café; óxido para énfasis sobre crema.",
+      "Sombras suaves y difusas en café, nunca duras."
+    ],
+    "rules": [
+      {
+        "name": "The Un Solo Verde Rule",
+        "body": "El verde WhatsApp significa «pedir por WhatsApp» y nada más; si un botón no abre WhatsApp, no es verde.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ocre Sobre Café Rule",
+        "body": "Sobre café, el acento es ocre; sobre crema, es óxido. No se invierten.",
+        "section": "colors"
+      },
+      {
+        "name": "The Titular Redondo Rule",
+        "body": "DynaPuff solo en titulares, precio y lema; nunca en párrafos, botones ni etiquetas.",
+        "section": "typography"
+      },
+      {
+        "name": "The Interlineado Honesto Rule",
+        "body": "El interlineado ajustado (1.1–1.2) es exclusivo de DynaPuff en display; el texto corrido no baja de 1.45.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sombra Café Rule",
+        "body": "Toda sombra es difusa, con dispersión negativa y tinte café o negro translúcido; ninguna sombra dura desplazada.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** poner todo el contenido sobre la tela crema y separar sus partes con franjas de awayo de 14 px.",
+      "**Do** usar las ilustraciones del comercial a sangre, con un recorte para celular (4:3) y otro para computadora (16:9).",
+      "**Do** mantener cada botón de pedido verde WhatsApp, de al menos 52–56 px de alto y a todo el ancho en celular.",
+      "**Do** separar ítems de lista con bordes punteados de 1.5 px en color costura.",
+      "**Do** usar ocre como acento sobre café y óxido como acento sobre crema.",
+      "**Do** dejar que cada animación respete `prefers-reduced-motion` y que la página funcione completa sin JavaScript.",
+      "**Do** tomar los íconos del subconjunto de Font Awesome en `vendor/iconos/` (se regenera con `herramientas/iconos.py`)."
+    ],
+    "donts": [
+      "**Don't** usar verde WhatsApp para acciones que no abren WhatsApp.",
+      "**Don't** usar DynaPuff en párrafos, botones o etiquetas.",
+      "**Don't** poner sombras duras desplazadas; las sombras de Kutimuy son difusas y teñidas de café.",
+      "**Don't** poner etiquetas pequeñas en mayúsculas sobre los titulares; el titular abre la sección solo.",
+      "**Don't** sacar los azules de Telegram de la maqueta del aviso.",
+      "**Don't** reemplazar las ilustraciones del comercial con fotos de stock o ilustraciones de otro estilo."
+    ]
+  }
+}
