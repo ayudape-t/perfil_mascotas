@@ -29,7 +29,9 @@
 .g2 > div { display: grid; gap: 9px; }
 @media (max-width: 360px) { .g2 { grid-template-columns: minmax(0, 1fr); } }
 .historial { display: grid; gap: 8px; }
-.consulta { display: grid; gap: 3px; padding: 9px 11px; border-radius: 14px; background: #fffdf8; border: 1px solid #f0e6d6; font-size: 13px; line-height: 1.4; }
+.historial { gap: 0; }
+.consulta { display: grid; gap: 3px; padding: 9px 0; border-top: 1px dashed #eadfcf; font-size: 13px; line-height: 1.45; }   /* sin cajas dentro de la tarjeta: separadas por una línea */
+.consulta:first-child { border-top: 0; padding-top: 2px; }
 .consulta-cab { display: flex; gap: 8px; align-items: baseline; }
 .consulta-cab b { flex: 1; min-width: 0; font-weight: 600; color: var(--cafe); }
 .consulta-cab span { flex: none; font-size: 12px; font-weight: 600; color: #7a4a0c; }
