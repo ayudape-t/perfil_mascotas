@@ -20,6 +20,12 @@
         ],
         "createdAt": "2026-11-05T18:35:16.577Z",
         "reason": "Claude, revisión final: solo lo disparan los titulares de display en DynaPuff (h1 1.1, h2 1.2); el texto corrido va a 1.45–1.5"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "apple color emoji",
+        "createdAt": "2026-11-05T18:39:05.457Z",
+        "reason": "Claude: es solo el respaldo de emojis del sistema dentro de la pila de fuentes (no es una fuente de marca)"
       }
     ]
   }
