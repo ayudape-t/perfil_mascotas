@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
   <script src="vendor/qrcodejs-1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="css/soporte.css?v=2">
+  <link rel="stylesheet" href="css/soporte.css?v=3">
 </head>
 <body>
   <main class="shell">
@@ -138,6 +138,7 @@
         <button type="button" role="tab" class="pestana" data-tab="buscar" aria-selected="true"><i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span></button>
         <button type="button" role="tab" class="pestana" data-tab="placas" aria-selected="false"><i class="fa-solid fa-tags"></i> <span>Placas</span></button>
         <button type="button" role="tab" class="pestana" data-tab="nuevas" aria-selected="false"><i class="fa-solid fa-plus"></i> <span>Nuevas</span></button>
+        <button type="button" role="tab" class="pestana" data-tab="vets" aria-selected="false"><i class="fa-solid fa-hospital"></i> <span>Vets</span><b id="vets-pendientes" class="badge hidden"></b></button>
         <button type="button" role="tab" class="pestana" data-tab="registro" aria-selected="false"><i class="fa-solid fa-clock-rotate-left"></i> <span>Registro</span></button>
       </nav>
 
@@ -194,6 +195,12 @@
         </div>
       </div>
 
+      <!-- Veterinarias del portal (veterinaria.html) -->
+      <div id="tab-vets" class="tab cuerpo hidden" role="tabpanel">
+        <p class="intro">Clínicas que crearon su cuenta en el portal de veterinarias. Revisa su RUC o colegiatura antes de aprobarlas: ya aprobadas, pueden pedir pacientes y cada dueño decide si las acepta.</p>
+        <div id="lista-vets" class="lista"></div>
+      </div>
+
       <!-- Registro de acciones -->
       <div id="tab-registro" class="tab cuerpo hidden" role="tabpanel">
         <p class="intro">Las últimas 50 acciones hechas desde este panel.</p>
@@ -208,6 +215,6 @@
 
   <script src="js/comun.js?v=4"></script>
   <script src="js/excel.js?v=1"></script>
-  <script src="js/soporte.js?v=2"></script>
+  <script src="js/soporte.js?v=3"></script>
 </body>
 </html>

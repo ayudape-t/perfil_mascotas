@@ -114,6 +114,8 @@ ondaAlTocar('.btn');
 
 // ---- Botones ----
 alEnter('codigo', validarCodigo);
+// Cuenta de clínica (veterinaria.html): llega con esta placa lista para pedirla como paciente
+if (petId) $('enlace-portal').href = 'veterinaria.html?pedir=' + encodeURIComponent(petId);
 alClic('btn-validar', validarCodigo);
 alClic('btn-solicitar', solicitarAutorizacion);
 alClic('btn-cancelar', cancelarEspera);

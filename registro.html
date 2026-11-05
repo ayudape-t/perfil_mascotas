@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@600;800&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/fontawesome-6.4.0/css/all.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <link rel="stylesheet" href="css/panel.css?v=6">
+  <link rel="stylesheet" href="css/panel.css?v=7">
   <!-- Tailwind compilado (v3.4.17): si agregas clases nuevas de Tailwind, regenera tailwind.css (ver tailwind.config.js) -->
   <link rel="stylesheet" href="tailwind.css">
 </head>
@@ -332,6 +332,7 @@
           <div class="ico green"><i class="fa-solid fa-stethoscope"></i></div>
           <h2>Historial médico</h2>
           <span class="pill">Solo tú</span>
+          <span id="pill-medico-clinicas" class="pill req hidden"></span>
           <i class="fa-solid fa-chevron-down chev"></i>
         </summary>
         <div class="card-b">
@@ -384,6 +385,15 @@
               </div>
               <p id="vet-err" class="hidden" style="text-align:center;font-size:12px;font-weight:600;color:#be123c;margin:0"></p>
               <button id="btn-revocar-vet" type="button" class="btn btn-ghost"><i class="fa-solid fa-ban"></i> Revocar autorización del veterinario</button>
+            </div>
+          </details>
+
+          <!-- Clínicas del portal (veterinaria.html): piden atenderla y el dueño decide -->
+          <details id="sub-clinicas" class="sub">
+            <summary><i class="fa-solid fa-hospital" style="color:#b4452b"></i> Veterinarias <span id="pill-clinicas" class="pill req hidden"></span> <i class="fa-solid fa-chevron-down chev"></i></summary>
+            <div class="sub-b">
+              <p class="hint"><i class="fa-solid fa-circle-info"></i>Si aceptas a una clínica de Kutimuy, ve la ficha médica, el historial y tu nombre y teléfono, y anota sus consultas. Puedes quitarle el acceso cuando quieras.</p>
+              <div id="lista-clinicas" class="clinicas"><p class="hint">Cargando...</p></div>
             </div>
           </details>
 
@@ -442,6 +452,6 @@
   </div>
 
   <script src="js/comun.js?v=4"></script>
-  <script src="js/panel.js?v=9"></script>
+  <script src="js/panel.js?v=10"></script>
 </body>
 </html>
