@@ -33,7 +33,7 @@ Kutimuy es una placa con código QR y chip NFC para el collar que abre el perfil
 ## Capabilities and Constraints
 
 - Pago único, sin mensualidades (confirmado por el dueño del producto).
-- Precio (dado por el dueño): S/ 45 regular; S/ 35 en preventa. No inventar otras cifras ni fechas de fin de preventa.
+- Precio (dado por el dueño): S/ 45 regular; S/ 35 «precio de lanzamiento» solo para las primeras 15 placas (límite real; nunca inventar escasez). No inventar otras cifras ni fechas.
 - Garantía de 6 meses por defectos de fabricación; devolución dentro de 7 días calendario si la placa no está activada y conserva su empaque (privacidad.html, sección 13).
 - Sitio estático (HTML/CSS/JS) en Cloudflare Pages; datos en Supabase; avisos por Telegram (@Ayudapetbot y canal de avisos).
 - La dirección actual es helpet.pages.dev; habrá dominio propio más adelante. Las placas ya grabadas apuntan a `/?id=<código>`.
