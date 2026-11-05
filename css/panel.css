@@ -6,7 +6,7 @@
 
 /* Fondo fijo y ajustado a la pantalla también en iPhone (Safari ignora background-attachment: fixed y lo estira a todo el largo) */
 .paw-dark-body { background-color: #29170d; }
-.paw-dark-body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("../fondo-helpet.jpg") center top / cover no-repeat; }
+.paw-dark-body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("../fondo.webp") center top / cover no-repeat; }
 *, *::before, *::after { box-sizing: border-box; }
 .hidden { display: none !important; }
 .rotate-180 { transform: rotate(180deg); }

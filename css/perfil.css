@@ -23,7 +23,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 /* Fondo fijo y ajustado a la pantalla también en iPhone (Safari ignora background-attachment: fixed y lo estira a todo el largo) */
-body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("../fondo-helpet.jpg") center top / cover no-repeat; }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: #29170d url("../fondo.webp") center top / cover no-repeat; }
 body.con-dock { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
 img { max-width: 100%; }
 a { color: inherit; text-decoration: none; }
@@ -148,7 +148,7 @@ button { font-family: inherit; }
 .enlace { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--oxido); }
 
 /* ---------- Placa sin registrar / sin conexión ---------- */
-.vacio { position: relative; overflow: hidden; width: 100%; max-width: 384px; padding: 60px 22px 24px; border-radius: 28px; text-align: center; display: grid; gap: 12px; background-color: #fbf6e3; background-image: url("../fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .5s cubic-bezier(.2,.8,.2,1) both; }
+.vacio { position: relative; overflow: hidden; width: 100%; max-width: 384px; padding: 60px 22px 24px; border-radius: 28px; text-align: center; display: grid; gap: 12px; background-color: #fbf6e3; background-image: url("../fondoinfo.webp"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .5s cubic-bezier(.2,.8,.2,1) both; }
 .vacio::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12px; background: var(--awayo) repeat-x left center / auto 12px; animation: tejer .9s .3s cubic-bezier(.45,0,.2,1) both; }
 .vacio h2 { margin: 0; font: 800 22px/1.15 'DynaPuff', 'Fredoka', sans-serif; color: var(--cafe); }
 .vacio p { margin: 0; font-size: 13px; color: var(--suave); }
@@ -164,7 +164,7 @@ button { font-family: inherit; }
 #corona-helpet img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 1.5px rgba(248,237,209,.95)) drop-shadow(0 6px 10px rgba(0,0,0,.4)); animation: flotar 6s ease-in-out .6s infinite; }
 
 /* ---------- Tarjeta principal ---------- */
-.shell { width: 100%; max-width: 384px; margin: 16px 0 4px; border-radius: 28px; overflow: hidden; position: relative; background-color: #fbf6e3; background-image: url("../fondoinfo.jpeg"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .55s cubic-bezier(.2,.8,.2,1) both; }
+.shell { width: 100%; max-width: 384px; margin: 16px 0 4px; border-radius: 28px; overflow: hidden; position: relative; background-color: #fbf6e3; background-image: url("../fondoinfo.webp"); border: 1px solid rgba(248,237,209,.4); box-shadow: 0 25px 50px -12px rgba(0,0,0,.6); animation: subir .55s cubic-bezier(.2,.8,.2,1) both; }
 .hero { position: relative; height: 142px; overflow: hidden; display: flex; align-items: flex-start; justify-content: center; padding-top: 36px; background: #3b2420; }
 /* La imagen es 36 px más alta que la cabecera: al bajar se desliza más lento que la página (paralaje) */
 .hero > img { position: absolute; left: 0; top: -36px; width: 100%; height: calc(100% + 36px); object-fit: cover; object-position: center bottom; will-change: transform; }

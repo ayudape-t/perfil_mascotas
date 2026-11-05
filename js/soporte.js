@@ -556,7 +556,7 @@ function imprimirTarjetas(lista) {
   const hoja = $('hoja-tarjetas');
   hoja.innerHTML = lista.map(p => `
     <div class="tarjeta-imp">
-      <div class="ti-cab"><img src="logo.png" alt=""><b>Kutimuy</b><span>Placa inteligente</span></div>
+      <div class="ti-cab"><img src="logo-chico.webp" alt=""><b>Kutimuy</b><span>Placa inteligente</span></div>
       <div class="ti-cuerpo">
         <div class="ti-qr" data-qr="${esc(p.enlace)}"></div>
         <div>
