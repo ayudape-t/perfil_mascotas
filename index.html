@@ -49,7 +49,7 @@
 
   <link rel="stylesheet" href="vendor/iconos/css/iconos.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
-  <link rel="stylesheet" href="css/perfil.css?v=3">
+  <link rel="stylesheet" href="css/perfil.css?v=4">
 </head>
 <body>
 
@@ -142,7 +142,7 @@
         <div class="card-b">
           <p id="canal-info" class="hint"></p>
           <button id="btn-canal-publicar" type="button" class="btn btn-gps"><i class="fa-solid fa-bullhorn"></i> <span>Publicar en el canal</span></button>
-          <a id="btn-canal-unirme" href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn btn-line"><i class="fa-brands fa-telegram"></i> Unirme al canal</a>
+          <a id="btn-canal-unirme" data-unirme href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn btn-line"><i class="fa-brands fa-telegram"></i> Unirme al canal</a>
           <p id="canal-estado" class="hint hidden" aria-live="polite"></p>
         </div>
       </section>
@@ -206,7 +206,7 @@
       </div>
 
       <!-- Comunidad: SOLO el dueño (en su celular), cuando hay mascotas perdidas publicadas en el canal -->
-      <section id="canal-banner" class="card fila-canal hidden">
+      <section id="canal-banner" class="card fila-canal hidden" data-unirme>
         <span class="ico sky"><i class="fa-brands fa-telegram"></i></span>
         <div class="ttl"><small>Comunidad Kutimuy</small><b>Ayuda a las mascotas a reencontrarse</b></div>
         <a href="https://t.me/HelpetAvisos" target="_blank" rel="noopener" class="btn btn-mini">Unirme</a>
@@ -358,7 +358,7 @@
     </div>
   </div>
 
-  <script src="js/comun.js?v=4"></script>
-  <script src="js/perfil.js?v=5"></script>
+  <script src="js/comun.js?v=5"></script>
+  <script src="js/perfil.js?v=6"></script>
 </body>
 </html>

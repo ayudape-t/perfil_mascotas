@@ -129,6 +129,7 @@ async function inicializar() {
       return;
     }
     const data = priv.mascota;
+    revisarUnido(client, tagId, pinSesion);
 
     $('form-title').innerText = "Editar Placa";
     $('pin-creation-box').classList.add('hidden');

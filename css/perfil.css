@@ -438,3 +438,6 @@ button { font-family: inherit; }
   .no-print { display: none !important; }
   #printable-poster { zoom: var(--zoom-afiche, 1.25); max-width: none; margin: 0 auto; box-shadow: none; break-inside: avoid; animation: none; }
 }
+
+/* El dueño ya está en el canal de Telegram (js/comun.js): sin invitaciones a unirse */
+.canal-unido [data-unirme] { display: none !important; }

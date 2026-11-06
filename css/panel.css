@@ -312,3 +312,6 @@ html.bloqueo { overflow: hidden; }
 .clinica small { font-size: 12px; line-height: 1.35; color: #5c4d42; }
 .clinica-btns { display: flex; gap: 6px; margin-top: 6px; }
 .clinica-btns .btn { flex: 1; padding: 8px 10px; font-size: 13px; }
+
+/* El dueño ya está en el canal de Telegram (js/comun.js): sin invitaciones a unirse */
+.canal-unido [data-unirme] { display: none !important; }

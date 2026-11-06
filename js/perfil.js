@@ -817,6 +817,7 @@ const fmtMin = m => { m = Math.max(1, Number(m) || 1); return m >= 60 ? `${Math.
 
 function prepararCanal() {
   if (!petData) return;
+  if (esDueno()) revisarUnido(db, tagId, leerAlmacen('sessionStorage', `pin_${tagId}`));   // ¿ya está en el canal?
   const tarjeta = !!petData.is_lost && (esDueno() || atajoCanal);
   if (tarjeta) {
     const zona = zonaPerdida();

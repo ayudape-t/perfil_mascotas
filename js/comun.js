@@ -153,3 +153,23 @@ if (window.navigation && window.matchMedia('(display-mode: standalone)').matches
     location.replace(destino.href);
   });
 }
+
+// ---- Invitaciones a unirse al canal de Telegram ([data-unirme]) ----
+// Desaparecen si el dueño ya está en el canal. Con su sesión se le pregunta a Telegram por el Telegram vinculado a la
+// placa (función canal-miembro); si no se puede saber (sin Telegram vinculado o sin sesión), vale haber tocado
+// «Unirme» en este celular. El CSS de cada página oculta [data-unirme] dentro de html.canal-unido.
+function marcarUnido(si) {
+  try { if (si) localStorage.setItem('canal_unido', '1'); else localStorage.removeItem('canal_unido'); } catch (e) {}
+  document.documentElement.classList.toggle('canal-unido', si);
+}
+try { if (localStorage.getItem('canal_unido')) document.documentElement.classList.add('canal-unido'); } catch (e) {}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="https://t.me/"]');
+  if (a && a.closest('[data-unirme]')) marcarUnido(true);
+});
+function revisarUnido(cliente, id, sesion) {
+  if (!sesion) return;
+  Promise.resolve(cliente.functions.invoke('canal-miembro', { body: { id, sesion } }))
+    .then(({ data }) => { if (data && typeof data.miembro === 'boolean') marcarUnido(data.miembro); })
+    .catch(() => {});
+}
