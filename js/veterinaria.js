@@ -62,7 +62,9 @@ function errorAuth(e) {
   if (/user_already_exists|already registered/i.test(m)) return 'Esa cuenta ya existe: entra con tu contraseña.';
   if (/signup_disabled|Signups not allowed/i.test(m)) return 'Por ahora no se pueden crear cuentas. Escríbenos por WhatsApp al 921 512 933 y te ayudamos.';
   if (/weak_password|Password should|password.*(short|weak)/i.test(m)) return 'La contraseña es muy débil: usa al menos 10 caracteres, con letras y números.';
-  if (/rate.?limit|over_email_send/i.test(m)) return 'Se enviaron muchos correos seguidos. Espera unos minutos e inténtalo de nuevo.';
+  // El correo de prueba de Supabase solo escribe al equipo del proyecto y manda muy pocos por hora: sin un correo propio (SMTP) falla aquí
+  if (/email_address_not_authorized|not authorized/i.test(m)) return 'No pudimos enviarte el correo de confirmación. Escríbenos por WhatsApp al 921 512 933 y activamos tu cuenta.';
+  if (/rate.?limit|over_email_send/i.test(m)) return 'No pudimos enviar el correo ahora. Inténtalo en una hora o escríbenos por WhatsApp al 921 512 933.';
   if (/fetch|network/i.test(m)) return 'Sin conexión. Revisa tu internet e inténtalo de nuevo.';
   return 'No se pudo completar: ' + ((e && e.message) || 'error desconocido') + '.';
 }

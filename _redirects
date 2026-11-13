@@ -1,0 +1,6 @@
+# Archivos internos del proyecto que no son parte de la página: quien los pida va al inicio.
+/PRODUCT.md /inicio 302
+/DESIGN.md /inicio 302
+/herramientas/* /inicio 302
+/tailwind.config.js /inicio 302
+/.impeccable/* /inicio 302
