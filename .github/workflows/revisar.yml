@@ -1,0 +1,19 @@
+# Revisa cada cambio antes de que llegue a la página: que ningún script tenga errores de sintaxis
+# y que todos los archivos que piden las páginas existan. Si falla, GitHub avisa por correo.
+name: Revisar cambios
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 herramientas/revisar.py

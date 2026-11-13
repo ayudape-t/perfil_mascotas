@@ -1,0 +1,5 @@
+# Google solo debe mostrar la página de venta y la de privacidad. Los perfiles de mascotas, paneles y portales
+# ya llevan «noindex» en cada página; aquí no se bloquean para que Google pueda leer esa etiqueta.
+User-agent: *
+Allow: /
+Disallow: /herramientas/

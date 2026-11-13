@@ -9,7 +9,8 @@ on:
     - cron: '17 12 * * *'   # todos los días a las 7:17 a. m. de Lima (12:17 UTC)
   workflow_dispatch:         # también se puede correr a mano desde la pestaña Actions
 
-permissions: {}
+permissions:
+  actions: write   # solo para que la tarea se reactive a sí misma (último paso)
 
 jobs:
   consulta:
@@ -31,3 +32,9 @@ jobs:
             echo "::error::Supabase no respondió bien. Revisa si el proyecto está pausado en https://supabase.com/dashboard"
             exit 1
           fi
+      # GitHub apaga las tareas programadas de un repositorio sin cambios durante 60 días. Reactivarla reinicia ese plazo.
+      - name: Mantener encendida esta tarea
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/supabase-activo.yml/enable"
