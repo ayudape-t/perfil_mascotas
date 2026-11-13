@@ -200,7 +200,7 @@ async function vincular() {
 }
 
 async function salir(msg) {
-  lote = null; placas = []; listaVisible = []; fichaActual = null;
+  lote = null; placas = []; listaVisible = []; fichaActual = null; vetsVistas = []; $('lista-vets').innerHTML = '';   // no queda ninguna contraseña temporal a la vista
   try { await sb.auth.signOut(); } catch (e) {}
   $('btn-salir').classList.add('hidden');
   $('top-sub').textContent = 'Solo para el equipo de Kutimuy';
@@ -576,7 +576,8 @@ window.addEventListener('afterprint', () => { $('hoja-tarjetas').innerHTML = '';
 const ACCION = { vincular_cuenta: 'Activó el panel', ver_ficha: 'Vio la ficha', codigo_soporte: 'Generó un código de soporte', enlace_pin: 'Creó un enlace para cambiar el PIN',
   quitar_accesos: 'Quitó el acceso a los celulares', nota: 'Guardó una nota', ver_inventario: 'Vio el inventario', crear_placas: 'Creó placas',
   regenerar_codigos: 'Generó códigos nuevos', reiniciar_placa: 'Dejó una placa como nueva', codigo_nuevo: 'Generó un código de activación nuevo',
-  vet_aprobada: 'Aprobó una veterinaria', vet_rechazada: 'Rechazó una veterinaria', vet_suspendida: 'Suspendió una veterinaria' };
+  vet_aprobada: 'Aprobó una veterinaria', vet_rechazada: 'Rechazó una veterinaria', vet_suspendida: 'Suspendió una veterinaria',
+  vet_clave_temporal: 'Puso una contraseña temporal a una veterinaria' };
 async function cargarRegistro() {
   const caja = $('lista-registro');
   caja.innerHTML = '<p class="intro"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</p>';
@@ -624,8 +625,30 @@ async function cargarVets(soloContar) {
         : `<button type="button" class="btn btn-verde" data-vet="${esc(v.id)}" data-estado="aprobada"><i class="fa-solid fa-check"></i> <span>Aprobar</span></button>
            ${v.estado === 'pendiente' ? `<button type="button" class="btn btn-line" data-vet="${esc(v.id)}" data-estado="rechazada"><i class="fa-solid fa-xmark"></i> <span>Rechazar</span></button>` : ''}`}
       </div>
+      ${v.estado === 'aprobada' ? `<button type="button" class="btn btn-line" data-vet-clave="${esc(v.id)}"><i class="fa-solid fa-key"></i> <span>Olvidó su contraseña: poner una temporal</span></button>
+      <div id="clave-${esc(v.id)}" class="resultado hidden"></div>` : ''}
     </section>`;
   }).join('') : '<p class="vacio">Todavía ninguna clínica creó su cuenta.</p>';
+  vetsVistas = lista;
+}
+// La clínica olvidó su contraseña (el correo de recuperación aún no llega): se le da una temporal por WhatsApp
+let vetsVistas = [];
+async function claveVet(id, btn) {
+  const v = vetsVistas.find(x => x.id === id) || {};
+  if (!confirm(`¿Poner una contraseña temporal a ${v.nombre || 'esta clínica'}? La anterior dejará de servir. Hazlo solo si te escribe desde ${fmtTel(v.telefono)}.`)) return;
+  try {
+    const r = await ocupado(btn, 'Generando...', () => llamar('soporte_vet_clave', { p_vet: id }));
+    if (r.estado === 'es_tu_cuenta') return aviso('Esa es tu propia cuenta: cambia tu contraseña desde «¿Olvidaste tu contraseña?».', 'error');
+    if (r.estado !== 'ok') return aviso('No se pudo generar la contraseña.', 'error');
+    const texto = `Hola, le escribe Kutimuy 🐾. Su contraseña temporal para el portal de veterinarias es: ${r.clave} . Entre con su correo en ${SITIO}veterinaria.html`;
+    mostrarResultado(`clave-${id}`, `
+      <p class="codigo-grande" style="font-size:22px;letter-spacing:.06em">${esc(r.clave)}</p>
+      <p class="intro centro-txt">Se muestra solo esta vez. Envíasela a su teléfono registrado.</p>
+      <div class="fila">
+        <a class="btn btn-verde" href="${esc(waA(v.telefono, texto))}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> <span>Enviar por WhatsApp</span></a>
+        <button type="button" class="btn btn-line" data-copiar="${esc(r.clave)}"><i class="fa-regular fa-copy"></i> <span>Copiar</span></button>
+      </div>`);
+  } catch (e) { aviso(e.message, 'error'); }
 }
 async function estadoVet(id, estado, btn) {
   const pregunta = { aprobada: '¿Aprobar esta clínica? Podrá pedir pacientes (cada dueño decide si la acepta).',
@@ -700,6 +723,8 @@ document.addEventListener('click', e => {
   if (c) { copiar(c.dataset.copiar); return; }
   const t = e.target.closest('[data-imprimir]');
   if (t) { imprimirTarjetas([{ id: t.dataset.imprimir, codigo: t.dataset.codigo }]); return; }
+  const k = e.target.closest('#lista-vets [data-vet-clave]');
+  if (k && !k.disabled) { claveVet(k.dataset.vetClave, k); return; }
   const v = e.target.closest('#lista-vets [data-vet]');
   if (v && !v.disabled) { estadoVet(v.dataset.vet, v.dataset.estado, v); return; }
   const a = e.target.closest('#ficha [data-accion]');

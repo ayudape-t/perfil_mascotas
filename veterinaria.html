@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="vendor/iconos/css/iconos.min.css">
   <script src="vendor/supabase-js-2.118.0/supabase.js"></script>
   <link rel="stylesheet" href="css/soporte.css?v=4">
-  <link rel="stylesheet" href="css/veterinaria.css?v=5">
+  <link rel="stylesheet" href="css/veterinaria.css?v=6">
 </head>
 <body>
   <main class="shell">
@@ -144,6 +144,18 @@
           <input id="filtro" type="search" class="fld" placeholder="Buscar paciente o dueño" aria-label="Buscar paciente o dueño" autocomplete="off">
         </div>
         <div id="lista-pacientes" class="lista"></div>
+        <details class="cuenta">
+          <summary><i class="fa-solid fa-key"></i> Cambiar mi contraseña</summary>
+          <form id="form-clave" class="paso" novalidate autocomplete="on">
+            <input type="email" id="cc-correo" class="hidden" autocomplete="username" aria-hidden="true" tabindex="-1">
+            <label class="lbl" for="cc-clave1">Contraseña nueva (mínimo 10 caracteres)</label>
+            <input id="cc-clave1" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+            <label class="lbl" for="cc-clave2">Repítela</label>
+            <input id="cc-clave2" type="password" class="fld" autocomplete="new-password" minlength="10" required>
+            <button id="btn-clave" type="submit" class="btn btn-line"><i class="fa-solid fa-floppy-disk"></i> <span>Guardar contraseña</span></button>
+            <p id="res-clave" class="msg hidden" role="status"></p>
+          </form>
+        </details>
       </div>
 
       <div id="vista-ficha" class="cuerpo hidden">
@@ -156,6 +168,6 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="js/comun.js?v=5"></script>
-  <script src="js/veterinaria.js?v=2"></script>
+  <script src="js/veterinaria.js?v=3"></script>
 </body>
 </html>

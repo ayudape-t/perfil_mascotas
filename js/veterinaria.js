@@ -85,7 +85,7 @@ async function decidirPantalla() {
   const { data: { session } } = await sb.auth.getSession();
   $('btn-salir').classList.toggle('hidden', !session);
   if (!session) return mostrarPaso('entrar');
-  $('nc-correo').value = session.user.email || '';
+  $('nc-correo').value = $('cc-correo').value = session.user.email || '';
   if (recuperando) return mostrarPaso('nueva-clave');
   const { data: c, error } = await sb.rpc('vet_mi_cuenta');
   if (error || !c) return mostrarPaso('entrar', 'No se pudo revisar tu cuenta. Revisa tu conexión e inténtalo de nuevo.');
@@ -163,6 +163,20 @@ async function guardarClaveNueva() {
   });
 }
 
+// Ya dentro del portal: la clínica pone su propia contraseña (p. ej. después de una temporal que le dio soporte)
+async function cambiarClave() {
+  const p1 = $('cc-clave1').value, p2 = $('cc-clave2').value, res = $('res-clave');
+  const mostrar = (texto, tipo) => { res.textContent = texto; res.className = `msg ${tipo}`; };
+  if (p1.length < 10) return mostrar('La contraseña debe tener al menos 10 caracteres.', 'error');
+  if (p1 !== p2) return mostrar('Las contraseñas no coinciden.', 'error');
+  await ocupado($('btn-clave'), 'Guardando...', async () => {
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) return mostrar(/same_password|different from the old/i.test((error.code || '') + ' ' + error.message) ? 'Esa ya es tu contraseña: escribe una distinta.' : errorAuth(error), 'error');
+    $('cc-clave1').value = ''; $('cc-clave2').value = '';
+    mostrar('Listo: desde ahora entras con tu contraseña nueva.', 'ok');
+  });
+}
+
 function irADatos() {   // con lo que ya mandó, para corregir
   if (cuenta && cuenta.nombre) {
     $('d-nombre').value = cuenta.nombre || '';
@@ -194,6 +208,7 @@ async function enviarDatos() {
 async function salir() {
   pacientes = []; fichaActual = null; cuenta = null;
   $('ficha').innerHTML = ''; $('lista-pacientes').innerHTML = '';
+  $('cc-clave1').value = ''; $('cc-clave2').value = ''; $('res-clave').className = 'msg hidden';
   try { await sb.auth.signOut(); } catch (e) {}
   $('btn-salir').classList.add('hidden');
   $('top-sub').textContent = 'Portal de clínicas';
@@ -416,6 +431,7 @@ alEnviar('paso-olvide', olvideClave);
 alEnviar('paso-nueva-clave', guardarClaveNueva);
 alEnviar('paso-datos', enviarDatos);
 alEnviar('form-pedir', pedirPaciente);
+alEnviar('form-clave', cambiarClave);
 alClic('ir-crear', () => { $('cr-correo').value = $('in-correo').value; mostrarPaso('crear'); });
 alClic('ir-olvide', () => { $('ol-correo').value = $('in-correo').value; mostrarPaso('olvide'); });
 document.querySelectorAll('.volver-entrar').forEach(b => b.addEventListener('click', () => mostrarPaso('entrar')));
